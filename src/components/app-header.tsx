@@ -1,5 +1,4 @@
 import { SidebarTrigger } from "@/components/ui/sidebar"
-import { motion } from "framer-motion"
 import data from "@/data.json"
 
 interface AppHeaderProps {
@@ -37,11 +36,6 @@ export function AppHeader({ userType, currentPage }: AppHeaderProps) {
       </div>
       <div className="flex items-center gap-4">
 
-      {userType && (
-          <span className="text-sm text-muted-foreground capitalize">
-            {userType} Login
-          </span>
-        )}
         
         {/* Branding - Powered by EzMedTech */}
         {/* <motion.div
@@ -65,6 +59,12 @@ export function AppHeader({ userType, currentPage }: AppHeaderProps) {
             </div>
           </div>
         {/* </motion.div> */}
+
+        {userType && (
+          <span className="text-sm text-muted-foreground capitalize">
+            {userType} Login
+          </span>
+        )}
       </div>
     </header>
   )

@@ -24,6 +24,7 @@ const MicrosoftCalendarIcon = ({ className = "w-4 h-4" }: { className?: string }
 export function CalendarIntegrations() {
   const { calendarIntegrations } = data
   const [showModal, setShowModal] = useState(false)
+  const [showMicrosoftModal, setShowMicrosoftModal] = useState(false)
 
   return (
     <div className="space-y-6">
@@ -81,8 +82,9 @@ export function CalendarIntegrations() {
                 </div>
               </div>
               <Button
+                onClick={() => setShowMicrosoftModal(true)}
                 size="sm" className="text-primary hover:bg-primary/10 text-xs font-medium neumorphic-soft px-3 py-2 rounded-md neumorphic-hover neumorphic-active transition-all duration-200">
- 
+
                 <IconPlus className="w-3 h-3" />
                 Add Microsoft
               </Button>
@@ -128,11 +130,11 @@ export function CalendarIntegrations() {
       {/* Integration Modal */}
       {showModal && (
         <div
-          className="fixed inset-0 bg-black/20 backdrop-blur-xs flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={() => setShowModal(false)}
         >
           <div
-            className="neumorphic-card rounded-lg w-full max-w-sm mx-auto max-h-[85vh] overflow-hidden"
+            className="neumorphic-inset rounded-lg w-full max-w-sm mx-auto max-h-[85vh] overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
               <div className="p-5 space-y-4">
@@ -160,6 +162,48 @@ export function CalendarIntegrations() {
                     className="flex-1 text-primary hover:bg-primary/10 text-xs font-medium neumorphic-soft px-3 py-2 rounded-md neumorphic-hover neumorphic-active transition-all duration-200"
                   >
                     Connect Google
+                  </Button>
+                </div>
+              </div>
+          </div>
+        </div>
+      )}
+
+      {/* Microsoft Integration Modal */}
+      {showMicrosoftModal && (
+        <div
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={() => setShowMicrosoftModal(false)}
+        >
+          <div
+            className="neumorphic-inset rounded-lg w-full max-w-sm mx-auto max-h-[85vh] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+              <div className="p-5 space-y-4">
+                <div className="text-center">
+                  <div className="flex items-center justify-center mx-auto mb-3">
+                    <MicrosoftCalendarIcon className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-base font-medium mb-2">Connect Microsoft Calendar</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Allow access to sync your appointments with Microsoft Outlook Calendar
+                  </p>
+                </div>
+
+                <div className="w-full flex gap-3 pt-2">
+                  <Button
+                    onClick={() => setShowMicrosoftModal(false)}
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 neumorphic-soft neumorphic-hover neumorphic-active text-muted-foreground"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="flex-1 text-primary hover:bg-primary/10 text-xs font-medium neumorphic-soft px-3 py-2 rounded-md neumorphic-hover neumorphic-active transition-all duration-200"
+                  >
+                    Connect Microsoft
                   </Button>
                 </div>
               </div>

@@ -57,7 +57,7 @@ export function PatientsPage() {
           <Button
             onClick={handleCloseProfile}
             size="sm"
-            className="text-primary hover:bg-primary/10 text-xs font-medium neumorphic-soft px-3 py-2 rounded-md neumorphic-hover neumorphic-active transition-all duration-200"
+            className="text-primary hover:bg-primary/10 text-xs font-medium neumorphic-card px-3 py-2 rounded-md neumorphic-hover neumorphic-active transition-all duration-200"
           >
             <IconArrowLeft className="w-4 h-4" />
             <span className="text-sm font-medium">Back to Patients</span>
@@ -145,16 +145,23 @@ export function PatientsPage() {
               {selectedPatient?.documents && selectedPatient.documents.length > 0 ? (
                 <div className="space-y-4">
                   {selectedPatient.documents.map((doc, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 neumorphic-soft rounded-lg">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-3 neumorphic-inset rounded-lg"
+                    >
                       <div>
                         <div className="font-medium text-sm">{doc.type}</div>
                         <div className="text-muted-foreground text-xs">{doc.description}</div>
                       </div>
                       <div className="flex gap-2">
-                        <Button size="sm" variant="outline" className="text-xs neumorphic-soft neumorphic-hover neumorphic-active">
+                        <Button
+                          className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+                        >
                           View
                         </Button>
-                        <Button size="sm" variant="outline" className="text-xs neumorphic-soft neumorphic-hover neumorphic-active">
+                        <Button
+                          className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+                        >
                           Download
                         </Button>
                       </div>
@@ -162,7 +169,7 @@ export function PatientsPage() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8 neumorphic-soft rounded-lg">
+                <div className="text-center py-8 neumorphic-inset rounded-lg">
                   <p className="text-muted-foreground text-sm mb-2">No documents uploaded</p>
                   <p className="text-muted-foreground text-xs">
                     {selectedPatient?.id === 612 || selectedPatient?.id === 581 || selectedPatient?.id === 616
@@ -177,15 +184,22 @@ export function PatientsPage() {
             <div className="rounded-lg mb-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">
-                  Upcoming Appointments {selectedPatient?.appointments?.upcoming && selectedPatient.appointments.upcoming.length > 0 ? `(${selectedPatient.appointments.upcoming.length})` : ''}
+                  Upcoming Appointments{" "}
+                  {selectedPatient?.appointments?.upcoming &&
+                  selectedPatient.appointments.upcoming.length > 0
+                    ? `(${selectedPatient.appointments.upcoming.length})`
+                    : ""}
                 </h3>
-                <Button size="sm"
-            className="text-primary hover:bg-primary/10 text-xs font-medium neumorphic-soft px-3 py-2 rounded-md neumorphic-hover neumorphic-active transition-all duration-200">Schedule</Button>
+                <Button
+                  className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                >
+                  Schedule
+                </Button>
               </div>
               {selectedPatient?.appointments?.upcoming && selectedPatient.appointments.upcoming.length > 0 ? (
                 <div className="space-y-4">
                   {selectedPatient.appointments.upcoming.map((appointment, index) => (
-                    <div key={index} className="neumorphic-soft rounded-lg p-4">
+                    <div key={index} className="neumorphic-inset rounded-lg p-4">
                       <div className="flex items-center justify-between mb-3">
                         <span className="font-semibold text-foreground">{appointment.date}</span>
                         <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium neumorphic-inset text-primary">
@@ -194,10 +208,14 @@ export function PatientsPage() {
                       </div>
                       <p className="text-muted-foreground text-sm mb-4">{appointment.time}</p>
                       <div className="flex justify-center items-center gap-3">
-                        <Button className="text-primary hover:bg-primary/10 text-sm font-medium neumorphic-soft rounded-md neumorphic-hover neumorphic-active transition-all duration-200">
+                        <Button
+                          className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                        >
                           Reschedule
                         </Button>
-                        <Button className="text-destructive hover:bg-destructive/10 text-sm font-medium neumorphic-soft rounded-md neumorphic-hover neumorphic-active transition-all duration-200">
+                        <Button
+                          className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:bg-destructive hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                        >
                           Cancel
                         </Button>
                       </div>
@@ -205,7 +223,7 @@ export function PatientsPage() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8 neumorphic-soft rounded-lg">
+                <div className="text-center py-8 neumorphic-inset rounded-lg">
                   <p className="text-muted-foreground text-sm mb-2">No upcoming appointments</p>
                   <p className="text-muted-foreground text-xs">
                     {selectedPatient?.id === 579 || selectedPatient?.id === 616
@@ -224,7 +242,7 @@ export function PatientsPage() {
                   {selectedPatient.appointments.past.map((appointment, index) => (
                     <div
                       key={index}
-                      className="neumorphic-soft rounded-lg p-4 flex justify-between items-center"
+                      className="neumorphic-inset rounded-lg p-4 flex justify-between items-center"
                     >
                       <div className="flex flex-col gap-1">
                         <span className="font-semibold text-foreground text-base">{appointment.date}</span>
@@ -249,7 +267,7 @@ export function PatientsPage() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8 neumorphic-soft rounded-lg">
+                <div className="text-center py-8 neumorphic-inset rounded-lg">
                   <p className="text-muted-foreground text-sm mb-2">No past appointments</p>
                   <p className="text-muted-foreground text-xs">This patient has no appointment history.</p>
                 </div>
@@ -258,11 +276,12 @@ export function PatientsPage() {
 
             {/* Action Buttons */}
             <div className="flex justify-center items-center">
-              <Button size="sm"
-            className="text-primary hover:bg-primary/10 text-xs font-medium neumorphic-soft px-3 py-2 rounded-md neumorphic-hover neumorphic-active transition-all duration-200"
-          >  Download Profile
+              <Button
+                className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+              >
+                Download Profile
               </Button>
-              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -273,7 +292,18 @@ export function PatientsPage() {
     <div className="space-y-6">
       {/* Patients Table */}
       <div className="px-4 lg:px-6">
+        {/* Header with title and Add Patient button */}
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold">Patients ({patients.length})</h2>
+          <Button
+            onClick={() => setShowAddForm(true)}
+            className="w-full text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 max-w-[160px]"
+          >
+            Add Patient
+          </Button>
+        </div>
         <div className="neumorphic-inset rounded-lg p-4 border-0">
+
           <div className="overflow-x-auto max-h-[78vh] overflow-y-auto">
             <table className="w-full text-sm">
               <thead className="sticky top-0 z-10 backdrop-blur-sm">
@@ -297,7 +327,10 @@ export function PatientsPage() {
                     <td className="py-3 px-2 text-muted-foreground text-sm">{patient.dob}</td>
                     <td className="py-3 px-2 text-muted-foreground text-sm">{patient.phone_number}</td>
                     <td className="py-3 px-2">
-                      <Button onClick={() => handleViewProfile(patient)} size="sm" className="text-primary hover:bg-primary/10 text-xs font-medium neumorphic-soft px-3 py-2 rounded-md neumorphic-hover neumorphic-active transition-all duration-200">
+                      <Button
+                        onClick={() => handleViewProfile(patient)}
+                        className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+                      >
                         View Profile
                       </Button>
                     </td>
@@ -316,7 +349,7 @@ export function PatientsPage() {
           onClick={() => setShowAddForm(false)}
         >
           <div
-            className="neumorphic-card rounded-lg w-full max-w-sm mx-auto max-h-[85vh] overflow-hidden"
+            className="neumorphic-pressed rounded-lg w-full max-w-sm mx-auto max-h-[85vh] overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-5">
@@ -362,10 +395,6 @@ export function PatientsPage() {
                     Phone Number *
                   </label>
                   <div className="flex">
-                    <div className="flex items-center px-2 py-2 border border-r-0 border-border bg-muted rounded-l-md">
-                      <span className="text-xs">🇺🇸</span>
-                      <span className="ml-1 text-xs">+1</span>
-                    </div>
                     <input
                       type="tel"
                       placeholder="Enter phone number"
@@ -378,14 +407,13 @@ export function PatientsPage() {
                 <div className="flex gap-3 pt-4">
                   <Button
                     onClick={() => setShowAddForm(false)}
-                    variant="outline"
-                    className="flex-1 neumorphic-soft neumorphic-hover neumorphic-active"
+                    className="flex-1 w-fit text-sm font-medium neumorphic-pressed text-primary hover:bg-destructive hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                   >
                     Cancel
                   </Button>
                   <Button
                     type="submit"
-                    className="flex-1 neumorphic-soft neumorphic-hover neumorphic-active text-primary"
+                    className="flex-1 w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                   >
                     Add Patient
                   </Button>

@@ -1,11 +1,6 @@
-import { useState, useEffect } from "react"
-import { IconClock, IconCheck, IconPlus, IconTrash, IconPencil } from "@tabler/icons-react"
+import { useState } from "react"
+import { IconPlus, IconTrash, IconPencil } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
 import {
   Dialog,
   DialogContent,
@@ -16,6 +11,8 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
+import { TimePicker } from "@/components/ui/time-picker"
 import {
   Table,
   TableBody,
@@ -34,144 +31,19 @@ import data from "@/data.json"
 
 const { workingHours: initialWorkingHours } = data
 
-// Custom Time Picker Component
-function TimePicker({ value, onChange, className }: {
-  value: string,
-  onChange: (value: string) => void,
-  className?: string
-}) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [selectedHour, setSelectedHour] = useState("09")
-  const [selectedMinute, setSelectedMinute] = useState("00")
-  const [selectedPeriod, setSelectedPeriod] = useState("AM")
-
-  // Parse initial value
-  useEffect(() => {
-    const timeMatch = value.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i)
-    if (timeMatch) {
-      let h = parseInt(timeMatch[1])
-      const m = timeMatch[2]
-      const p = timeMatch[3].toUpperCase()
-
-      // Convert to 12-hour format
-      if (h === 0) h = 12
-      else if (h > 12) h = h - 12
-
-      setSelectedHour(h.toString().padStart(2, '0'))
-      setSelectedMinute(m)
-      setSelectedPeriod(p)
-    }
-  }, [value])
-
-  const handleDone = () => {
-    const formattedTime = `${selectedHour}:${selectedMinute} ${selectedPeriod}`
-    onChange(formattedTime)
-    setIsOpen(false)
-  }
-
-  const hours = Array.from({ length: 12 }, (_, i) => (i + 1).toString().padStart(2, '0'))
-  const minutes = Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0'))
-  const periods = ["AM", "PM"]
-
-  return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger asChild>
-        <Button variant="outline" className={`w-24 sm:w-28 justify-start text-left font-normal text-xs sm:text-sm ${className || ''}`}>
-          {value}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-64 sm:w-52 p-0" align="start">
-        <div className="p-3 sm:p-4">
-          <div className="flex justify-center gap-4 sm:gap-6 mb-2">
-            {/* Hour Section */}
-            <div className="flex flex-col items-center">
-              <div className="text-xs sm:text-sm font-medium text-muted-foreground mb-2">Hour</div>
-              <div className="w-10 sm:w-12 h-24 sm:h-32 overflow-y-auto border border-input rounded-lg bg-background p-1">
-                <div className="py-0.5 space-y-0.5">
-                  {hours.map((hour) => (
-                    <div
-                      key={hour}
-                      className={`text-center py-1 px-1 cursor-pointer text-xs font-medium transition-colors rounded-md ${
-                        selectedHour === hour
-                          ? 'bg-primary text-primary-foreground'
-                          : 'hover:bg-muted text-foreground'
-                      }`}
-                      onClick={() => setSelectedHour(hour)}
-                    >
-                      {hour}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Minute Section */}
-            <div className="flex flex-col items-center">
-              <div className="text-xs sm:text-sm font-medium text-muted-foreground mb-2">Min</div>
-              <div className="w-10 sm:w-12 h-24 sm:h-32 overflow-y-auto border border-input rounded-lg bg-background p-1">
-                <div className="py-0.5 space-y-0.5">
-                  {minutes.map((minute) => (
-                    <div
-                      key={minute}
-                      className={`text-center py-1 px-1 cursor-pointer text-xs font-medium transition-colors rounded-md ${
-                        selectedMinute === minute
-                          ? 'bg-primary text-primary-foreground'
-                          : 'hover:bg-muted text-foreground'
-                      }`}
-                      onClick={() => setSelectedMinute(minute)}
-                    >
-                      {minute}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Period Section */}
-            <div className="flex flex-col items-center">
-              <div className="text-xs sm:text-sm font-medium text-muted-foreground mb-2">Period</div>
-              <div className="flex flex-col gap-0.5">
-                {periods.map((period) => (
-                  <div
-                    key={period}
-                    className={`text-center py-1 px-2 sm:py-1.5 sm:px-2.5 cursor-pointer text-xs font-medium rounded-md border transition-colors ${
-                      selectedPeriod === period
-                        ? 'bg-primary text-primary-foreground border-primary'
-                        : 'bg-background border-input hover:bg-muted text-foreground'
-                    }`}
-                    onClick={() => setSelectedPeriod(period)}
-                  >
-                    {period}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Done Button */}
-          <div className="flex justify-center pt-2 sm:pt-3 border-t">
-            <Button onClick={handleDone} variant="default" size="sm" className="flex items-center justify-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 text-xs font-medium">
-              <IconCheck className="w-3 h-3" />
-              Done
-            </Button>
-          </div>
-        </div>
-      </PopoverContent>
-    </Popover>
-  )
-}
-
 export function SettingsPage() {
   const [workingHours, setWorkingHours] = useState(initialWorkingHours)
   const [activeSettingsTab, setActiveSettingsTab] = useState<"working-hours" | "off-days" | "public-holidays">("working-hours")
 
-  type OffDay = {
-    id: number
-    startDate: string // dd-mm-yyyy
-    endDate?: string // dd-mm-yyyy
-    allDay: boolean
-    reason?: string
-  }
+type OffDay = {
+  id: number
+  startDate: string // dd-mm-yyyy
+  endDate?: string // dd-mm-yyyy
+  allDay: boolean
+  startTime?: string
+  endTime?: string
+  reason?: string
+}
 
   const [offDays, setOffDays] = useState<OffDay[]>([
     {
@@ -179,18 +51,24 @@ export function SettingsPage() {
       startDate: "06-12-2025",
       endDate: "10-12-2025",
       allDay: true,
+      startTime: "08:00 AM",
+      endTime: "06:00 PM",
       reason: "Day off",
     },
     {
       id: 2,
       startDate: "12-12-2025",
       allDay: true,
+      startTime: "08:00 AM",
+      endTime: "06:00 PM",
       reason: "",
     },
     {
       id: 3,
       startDate: "06-12-2025",
       allDay: true,
+      startTime: "08:00 AM",
+      endTime: "06:00 PM",
       reason: "",
     },
   ])
@@ -199,16 +77,22 @@ export function SettingsPage() {
 
   const [isOffDayDialogOpen, setIsOffDayDialogOpen] = useState(false)
   const [editingOffDay, setEditingOffDay] = useState<OffDay | null>(null)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<OffDay | null>(null)
 
   const [offDayForm, setOffDayForm] = useState<{
     startDate: string
     endDate: string
     allDay: boolean
+    startTime: string
+    endTime: string
     reason: string
   }>({
     startDate: "",
     endDate: "",
     allDay: true,
+    startTime: "08:00 AM",
+    endTime: "06:00 PM",
     reason: "",
   })
 
@@ -217,6 +101,8 @@ export function SettingsPage() {
       startDate: "",
       endDate: "",
       allDay: true,
+      startTime: "08:00 AM",
+      endTime: "06:00 PM",
       reason: "",
     })
     setEditingOffDay(null)
@@ -233,22 +119,20 @@ export function SettingsPage() {
       startDate: entry.startDate,
       endDate: entry.endDate ?? "",
       allDay: entry.allDay,
+      startTime: entry.startTime ?? "08:00 AM",
+      endTime: entry.endTime ?? "06:00 PM",
       reason: entry.reason ?? "",
     })
     setIsOffDayDialogOpen(true)
   }
 
-  const handleOffDayFormChange = (field: "startDate" | "endDate" | "reason", value: string) => {
+  const handleOffDayFormChange = (
+    field: "startDate" | "endDate" | "reason" | "startTime" | "endTime",
+    value: string
+  ) => {
     setOffDayForm((prev) => ({
       ...prev,
       [field]: value,
-    }))
-  }
-
-  const toggleAllDay = () => {
-    setOffDayForm((prev) => ({
-      ...prev,
-      allDay: !prev.allDay,
     }))
   }
 
@@ -261,8 +145,9 @@ export function SettingsPage() {
 
   const getOffDayTimeRangeLabel = (entry: OffDay) => {
     if (entry.allDay) return "All Day"
-    // In future we could support custom time ranges
-    return "Custom"
+    const start = entry.startTime ?? "08:00 AM"
+    const end = entry.endTime ?? "06:00 PM"
+    return `${start} - ${end}`
   }
 
   const handleDeleteOffDay = (id: number) => {
@@ -271,6 +156,18 @@ export function SettingsPage() {
     } else {
       setPublicHolidays((prev) => prev.filter((d) => d.id !== id))
     }
+  }
+
+  const openDeleteDialog = (entry: OffDay) => {
+    setDeleteTarget(entry)
+    setIsDeleteDialogOpen(true)
+  }
+
+  const confirmDeleteOffDay = () => {
+    if (!deleteTarget) return
+    handleDeleteOffDay(deleteTarget.id)
+    setIsDeleteDialogOpen(false)
+    setDeleteTarget(null)
   }
 
   const handleSubmitOffDay = (e: React.FormEvent) => {
@@ -291,6 +188,8 @@ export function SettingsPage() {
                 startDate: offDayForm.startDate,
                 endDate: offDayForm.endDate || undefined,
                 allDay: offDayForm.allDay,
+                startTime: offDayForm.allDay ? undefined : offDayForm.startTime,
+                endTime: offDayForm.allDay ? undefined : offDayForm.endTime,
                 reason: offDayForm.reason.trim(),
               }
             : entry
@@ -304,6 +203,8 @@ export function SettingsPage() {
           startDate: offDayForm.startDate,
           endDate: offDayForm.endDate || undefined,
           allDay: offDayForm.allDay,
+          startTime: offDayForm.allDay ? undefined : offDayForm.startTime,
+          endTime: offDayForm.allDay ? undefined : offDayForm.endTime,
           reason: offDayForm.reason.trim(),
         },
       ])
@@ -350,7 +251,7 @@ export function SettingsPage() {
           </TabsList>
 
           {/* Working Hours Tab */}
-          <TabsContent value="working-hours" className="mt-3 max-w-2xl">
+          <TabsContent value="working-hours" className="mt-3 max-w-md">
             <div className="space-y-3">
               {workingHours.map((day, index) => (
                 <div
@@ -361,11 +262,11 @@ export function SettingsPage() {
                   {day.isClosed ? (
                     <div className="flex-1 text-center text-muted-foreground text-sm">Closed</div>
                   ) : (
-                    <div className="flex items-center gap-2 flex-1">
+                    <div className="flex items-center gap-2">
                       <TimePicker
                         value={day.open}
                         onChange={(value) => handleTimeChange(index, "open", value)}
-                        className="flex-1"
+                        className="flex-1 w-fit"
                       />
 
                       <span className="text-sm text-muted-foreground flex-shrink-0">to</span>
@@ -373,17 +274,15 @@ export function SettingsPage() {
                       <TimePicker
                         value={day.close}
                         onChange={(value) => handleTimeChange(index, "close", value)}
-                        className="flex-1"
+                        className="flex-1 w-fit"
                       />
                     </div>
                   )}
 
                   <Button
-                    variant="outline"
-                    size="sm"
                     onClick={() => handleToggleClosed(index)}
-                    className={`w-full sm:w-auto sm:ml-auto neumorphic-soft neumorphic-hover neumorphic-active transition-all duration-200 ${
-                      day.isClosed ? "text-green-700" : "text-red-700"
+                    className={`ml-auto w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 ${
+                      day.isClosed ? "text-primary" : "text-destructive hover:bg-destructive hover:text-primary-foreground"
                     }`}
                   >
                     {day.isClosed ? "Open" : "Close"}
@@ -395,9 +294,9 @@ export function SettingsPage() {
             <div className="mt-4 sm:mt-6 flex justify-center sm:justify-end">
               <Button
                 onClick={handleSaveWorkingHours}
-                className="w-full sm:w-auto text-primary hover:bg-primary/10 text-sm font-medium neumorphic-soft px-4 py-2 rounded-md neumorphic-hover neumorphic-active transition-all duration-200"
+                className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
               >
-                Save Settings
+                Save Working Hours
               </Button>
             </div>
           </TabsContent>
@@ -410,9 +309,8 @@ export function SettingsPage() {
                   These days will block all appointments.
                 </span>
                 <Button
-                  size="sm"
                   onClick={openCreateOffDayDialog}
-                  className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium neumorphic-soft px-3 py-2 rounded-md neumorphic-hover neumorphic-active transition-all duration-200"
+                  className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
                 >
                   <IconPlus className="w-3 h-3" />
                   Add Off Day
@@ -457,24 +355,20 @@ export function SettingsPage() {
                             <TableCell className="text-right">
                               <div className="flex items-center justify-end gap-2">
                                 <Button
-                                  variant="outline"
-                                  size="icon"
-                                  className="h-7 w-7 neumorphic-soft neumorphic-hover neumorphic-active"
                                   onClick={() => {
                                     setActiveSettingsTab("off-days")
                                     openEditOffDayDialog(entry)
                                   }}
+                                  className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
                                 >
                                   <IconPencil className="w-3 h-3" />
                                 </Button>
                                 <Button
-                                  variant="outline"
-                                  size="icon"
-                                  className="h-7 w-7 text-destructive border-destructive/40 neumorphic-soft neumorphic-hover neumorphic-active"
                                   onClick={() => {
                                     setActiveSettingsTab("off-days")
-                                    handleDeleteOffDay(entry.id)
+                                    openDeleteDialog(entry)
                                   }}
+                                  className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:bg-destructive hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2 text-destructive"
                                 >
                                   <IconTrash className="w-3 h-3" />
                                 </Button>
@@ -499,12 +393,11 @@ export function SettingsPage() {
                   Use this for national and regional holidays.
                 </span>
                 <Button
-                  size="sm"
                   onClick={() => {
                     setActiveSettingsTab("public-holidays")
                     openCreateOffDayDialog()
                   }}
-                  className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium neumorphic-soft px-3 py-2 rounded-md neumorphic-hover neumorphic-active transition-all duration-200"
+                  className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
                 >
                   <IconPlus className="w-3 h-3" />
                   Add Public Holiday
@@ -549,26 +442,24 @@ export function SettingsPage() {
                             <TableCell className="text-right">
                               <div className="flex items-center justify-end gap-2">
                                 <Button
-                                  variant="outline"
-                                  size="icon"
-                                  className="h-7 w-7 neumorphic-soft neumorphic-hover neumorphic-active"
                                   onClick={() => {
                                     setActiveSettingsTab("public-holidays")
                                     openEditOffDayDialog(entry)
                                   }}
+                                  className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
                                 >
                                   <IconPencil className="w-3 h-3" />
+                                  Edit
                                 </Button>
                                 <Button
-                                  variant="outline"
-                                  size="icon"
-                                  className="h-7 w-7 text-destructive border-destructive/40 neumorphic-soft neumorphic-hover neumorphic-active"
                                   onClick={() => {
                                     setActiveSettingsTab("public-holidays")
-                                    handleDeleteOffDay(entry.id)
+                                    openDeleteDialog(entry)
                                   }}
+                                  className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2 text-destructive"
                                 >
                                   <IconTrash className="w-3 h-3" />
+                                  Delete
                                 </Button>
                               </div>
                             </TableCell>
@@ -591,7 +482,7 @@ export function SettingsPage() {
           resetOffDayForm()
         }
       }}>
-        <DialogContent>
+        <DialogContent className="neumorphic-pressed p-6">
           <form onSubmit={handleSubmitOffDay} className="space-y-4">
             <DialogHeader>
               <DialogTitle>
@@ -626,13 +517,14 @@ export function SettingsPage() {
                     value={offDayForm.startDate}
                     onChange={(e) => handleOffDayFormChange("startDate", e.target.value)}
                     required
+                    className="neumorphic-inset border-0 focus:ring-0 shadow-none rounded-lg bg-background focus:border-0 transition-all duration-200"
                   />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="offday-end-date">
                     End Date{" "}
                     <span className="text-muted-foreground text-xs font-normal">
-                      (Optional)
+                      (Optional - for date ranges)
                     </span>
                   </Label>
                   <Input
@@ -640,6 +532,7 @@ export function SettingsPage() {
                     placeholder="dd-mm-yyyy"
                     value={offDayForm.endDate}
                     onChange={(e) => handleOffDayFormChange("endDate", e.target.value)}
+                    className="neumorphic-inset border-0 focus:ring-0 shadow-none rounded-lg bg-background focus:border-0 transition-all duration-200"
                   />
                   <p className="text-[11px] text-muted-foreground">
                     Leave empty for single day off.
@@ -647,22 +540,47 @@ export function SettingsPage() {
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <Label>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="offday-all-day"
+                  checked={offDayForm.allDay}
+                  onCheckedChange={(checked) =>
+                    setOffDayForm((prev) => ({
+                      ...prev,
+                      allDay: Boolean(checked),
+                    }))
+                  }
+                  className="neumorphic-pressed rounded-[6px] shadow-none border-0"
+                />
+                <Label htmlFor="offday-all-day" className="text-sm">
                   All Day
                 </Label>
-                <Button
-                  type="button"
-                  onClick={toggleAllDay}
-                  className={`inline-flex items-center justify-center rounded-full px-3 py-1.5 text-xs sm:text-sm font-medium border transition-all duration-200 neumorphic-soft neumorphic-hover neumorphic-active ${
-                    offDayForm.allDay
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-background text-foreground border-input"
-                  }`}
-                >
-                  {offDayForm.allDay ? "All Day" : "Custom Time (coming soon)"}
-                </Button>
               </div>
+
+              {!offDayForm.allDay && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="offday-start-time">
+                      Start Time <span className="text-destructive">*</span>
+                    </Label>
+                    <TimePicker
+                      value={offDayForm.startTime}
+                      onChange={(value) => handleOffDayFormChange("startTime", value)}
+                      className="w-full neumorphic-inset border-0 focus:ring-0 shadow-none rounded-lg bg-background focus:border-0 transition-all duration-200"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="offday-end-time">
+                      End Time <span className="text-destructive">*</span>
+                    </Label>
+                    <TimePicker
+                      value={offDayForm.endTime}
+                      onChange={(value) => handleOffDayFormChange("endTime", value)}
+                      className="w-full neumorphic-inset border-0 focus:ring-0 shadow-none rounded-lg bg-background focus:border-0 transition-all duration-200"
+                    />
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-1.5">
                 <Label htmlFor="offday-reason">
@@ -680,6 +598,7 @@ export function SettingsPage() {
                   }
                   value={offDayForm.reason}
                   onChange={(e) => handleOffDayFormChange("reason", e.target.value)}
+                  className="neumorphic-inset border-0 focus:ring-0 shadow-none rounded-lg bg-background focus:border-0 transition-all duration-200"
                 />
               </div>
             </div>
@@ -687,8 +606,7 @@ export function SettingsPage() {
             <DialogFooter className="pt-2">
               <Button
                 type="button"
-                variant="outline"
-                className="w-full sm:w-auto neumorphic-soft neumorphic-hover neumorphic-active"
+                className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                 onClick={() => {
                   setIsOffDayDialogOpen(false)
                   resetOffDayForm()
@@ -698,12 +616,77 @@ export function SettingsPage() {
               </Button>
               <Button
                 type="submit"
-                className="w-full sm:w-auto text-sm font-medium neumorphic-soft neumorphic-hover neumorphic-active"
+                className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
               >
                 {editingOffDay ? "Update" : "Create"}
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Off Day / Public Holiday Confirmation Dialog */}
+      <Dialog
+        open={isDeleteDialogOpen}
+        onOpenChange={(open) => {
+          setIsDeleteDialogOpen(open)
+          if (!open) {
+            setDeleteTarget(null)
+          }
+        }}
+      >
+        <DialogContent className="neumorphic-pressed p-6 max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Delete Off Day</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this off day?
+            </DialogDescription>
+          </DialogHeader>
+
+          {deleteTarget && (
+            <div className="space-y-2 text-sm mt-2">
+              <p>
+                <span className="font-medium">Date(s): </span>
+                <span className="text-muted-foreground">
+                  {formatOffDayDateRange(deleteTarget)}
+                </span>
+              </p>
+              <p>
+                <span className="font-medium">Time: </span>
+                <span className="text-muted-foreground">
+                  {getOffDayTimeRangeLabel(deleteTarget)}
+                </span>
+              </p>
+              <p>
+                <span className="font-medium">Reason: </span>
+                <span className="text-muted-foreground">
+                  {deleteTarget.reason && deleteTarget.reason.trim().length > 0
+                    ? deleteTarget.reason
+                    : "No reason provided"}
+                </span>
+              </p>
+            </div>
+          )}
+
+          <DialogFooter className="pt-4">
+            <Button
+              type="button"
+              className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+              onClick={() => {
+                setIsDeleteDialogOpen(false)
+                setDeleteTarget(null)
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={confirmDeleteOffDay}
+              className="w-fit text-xs font-medium neumorphic-pressed text-destructive hover:bg-destructive hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+            >
+              Delete
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

@@ -17,9 +17,7 @@ export function AppHeader({ userType, currentPage }: AppHeaderProps) {
     let title = navItem.title
 
     // Add counts for specific pages
-    if (page === 'patients') {
-      title += ` (${patients.length})`
-    } else if (page === 'front-desk') {
+    if (page === 'front-desk') {
       title += ` (${frontDeskRequests.length})`
     }
 

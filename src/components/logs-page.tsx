@@ -106,11 +106,22 @@ export function LogsPage() {
                       return (
                         <td key={header.key} className="py-3 px-4">
                           {isActionColumn ? (
-                             <Button onClick={() => {/* Handle action */}} size="sm" className="text-primary hover:bg-primary/10 text-xs font-medium neumorphic-soft px-3 py-2 rounded-md neumorphic-hover neumorphic-active transition-all duration-200">
+                            <Button
+                              onClick={() => {
+                                /* Handle action */
+                              }}
+                              className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                            >
                               {cellValue}
                             </Button>
                           ) : (
-                            <span className={`text-sm ${header.key === 'from' || header.key === 'to' ? 'font-medium' : 'text-muted-foreground'}`}>
+                            <span
+                              className={`text-sm ${
+                                header.key === 'from' || header.key === 'to'
+                                  ? 'font-medium'
+                                  : 'text-muted-foreground'
+                              }`}
+                            >
                               {cellValue}
                             </span>
                           )}

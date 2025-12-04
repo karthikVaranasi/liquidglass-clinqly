@@ -18,7 +18,6 @@ export function FrontDeskPage() {
                                     <th className="text-left font-medium py-3 px-2 min-w-[140px]">Phone Number</th>
                                     <th className="text-left font-medium py-3 px-2 min-w-[300px]">Notes</th>
                                     <th className="text-left font-medium py-3 px-2 min-w-[120px]">Created At</th>
-                                    <th className="text-left font-medium py-3 px-2 min-w-[50px]">ID</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y-2 divide-muted/90">
@@ -37,7 +36,6 @@ export function FrontDeskPage() {
                                             </div>
                                         </td>
                                         <td className="py-3 px-2 text-muted-foreground text-sm">{request.createdAt}</td>
-                                        <td className="py-3 px-2 font-medium text-sm text-primary">{request.id}</td>
                                     </tr>
                                 ))}
                             </tbody>

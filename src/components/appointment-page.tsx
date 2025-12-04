@@ -4,6 +4,7 @@ import { IconChevronLeft, IconChevronRight, IconCalendar, IconUserCircle } from 
 import { Button } from "@/components/ui/button"
 import { motion, AnimatePresence } from "framer-motion"
 import data from "@/data.json"
+import { formatDateUS } from "@/lib/date"
 
 // Optimized animation variants for better performance
 const containerVariants = {
@@ -390,11 +391,7 @@ export function AppointmentPage() {
                     transition={{ duration: 0.3 }}
                   >
                     <h2 className="text-sm md:text-lg font-semibold text-foreground">
-                      {new Date(currentYear, currentMonth - 1, selectedDate).toLocaleDateString('en-US', {
-                        weekday: 'short',
-                        month: 'short',
-                        day: 'numeric'
-                      })}
+                      {formatDateUS(new Date(currentYear, currentMonth - 1, selectedDate))}
                     </h2>
                     <motion.span
                       className="text-sm text-muted-foreground"

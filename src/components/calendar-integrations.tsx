@@ -43,7 +43,7 @@ export function CalendarIntegrations() {
               </div>
               <Button
                 onClick={() => setShowModal(true)}
-                className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
+                className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
               >
                 <IconPlus className="w-3 h-3" />
                 Add Google
@@ -83,7 +83,7 @@ export function CalendarIntegrations() {
               </div>
               <Button
                 onClick={() => setShowMicrosoftModal(true)}
-                className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
+                className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
               >
                 <IconPlus className="w-3 h-3" />
                 Add Microsoft

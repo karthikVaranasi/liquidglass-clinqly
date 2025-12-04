@@ -13,12 +13,11 @@ export function RefillRequestsPage() {
             <table className="w-full text-sm">
               <thead className="sticky top-0 z-10 bg-card">
                 <tr className="border-b-2 border-muted/90 bg-muted/10">
-                  <th className="text-left font-medium py-3 px-2 min-w-[75px] whitespace-nowrap">Patient ID</th>
                   <th className="text-left font-medium py-3 px-2 min-w-[120px]">Patient Name</th>
                   <th className="text-left font-medium py-3 px-2 min-w-[115px]">Patient Phone</th>
                   <th className="text-left font-medium py-3 px-2 min-w-[120px]">Caller Name</th>
                   <th className="text-left font-medium py-3 px-2 min-w-[90px]">Relationship</th>
-                  <th className="text-left font-medium py-3 px-2 min-w-[200px]">Details</th>
+                  <th className="text-left font-medium py-3 px-2 min-w-[210px]">Details</th>
                   <th className="text-left font-medium py-3 px-2 min-w-[150px]">Pharmacy Name</th>
                   <th className="text-left font-medium py-3 px-2 min-w-[175px]">Pharmacy Location</th>
                   <th className="text-left font-medium py-3 px-2 min-w-[100px]">Created At</th>
@@ -27,7 +26,6 @@ export function RefillRequestsPage() {
               <tbody className="divide-y-2 divide-muted/90">
                 {refillRequests.map((request, index) => (
                   <tr key={index} className="hover:bg-muted/30 transition-colors">
-                    <td className="py-3 px-2 font-medium text-sm text-primary">#{request.patientId}</td>
                     <td className="py-3 px-2 font-medium text-sm">{request.patientName}</td>
                     <td className="py-3 px-2 text-muted-foreground text-sm">{request.patientPhone}</td>
                     <td className="py-3 px-2 text-muted-foreground text-sm">{request.callerName}</td>

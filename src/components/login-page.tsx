@@ -38,7 +38,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-primary">
         <div className="relative z-10 flex flex-col justify-between w-full px-12 py-12">
           <div className="flex items-center gap-2">
-            <img src="/logo.svg" alt="EzMedTech Logo" className="w-10 h-10 object-contain rounded-full" />
+            <img src="/logo.svg" alt="EzMedTech Logo" className="w-8 h-8 object-contain" />
             <h1 className="text-xl font-semibold text-white">EZ MedTech</h1>
           </div>
 
@@ -49,7 +49,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
             </p>
           </div>
 
-          <div className="flex justify-between items-center text-white/70 text-sm">
+          <div className="flex justify-between items-center text-white text-sm">
             <span>{app.copyright}</span>
             <span className="cursor-pointer hover:text-white/90">{app.login.privacyPolicy}</span>
           </div>

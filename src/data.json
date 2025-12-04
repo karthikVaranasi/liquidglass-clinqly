@@ -151,57 +151,122 @@
   },
   "patients": [
     {
-      "first_name": "Vinay",
-      "last_name": "Kumar",
-      "dob": "1983-04-01",
-      "phone_number": "+13126235666",
+      "first_name": "Samantha",
+      "last_name": "Reeves",
+      "dob": "1977-08-14",
+      "phone_number": "+14152223344",
       "clinic_id": 56,
       "status": "active",
-      "id": 590,
-      "guardians": [],
-      "documents": [],
-      "appointments": {
-        "upcoming": [],
-        "past": []
-      }
-    },
-    {
-      "first_name": "Noah",
-      "last_name": "Brooks",
-      "dob": "1991-06-30",
-      "phone_number": "+918886448156",
-      "clinic_id": 56,
-      "status": "active",
-      "id": 450,
-      "guardians": [],
-      "documents": [],
-      "appointments": {
-        "upcoming": [],
-        "past": []
-      }
-    },
-    {
-      "first_name": "David",
-      "last_name": "Johnson",
-      "dob": "2018-10-09",
-      "phone_number": "+14848001175",
-      "clinic_id": 56,
-      "status": "active",
-      "id": 537,
+      "id": 290,
       "guardians": [
         {
           "clinic_id": 56,
-          "first_name": "Stephen",
-          "last_name": "Johnson",
-          "dob": "2004-10-09",
-          "relationship_to_patient": "father",
-          "id": 8
+          "first_name": "Jessica",
+          "last_name": "Reeves",
+          "dob": "1972-03-25",
+          "relationship_to_patient": "sister",
+          "id": 31
         }
       ],
-      "documents": [],
+      "documents": [
+        {
+          "document_id": 12,
+          "title": "Insurance Card",
+          "type": "insurance",
+          "uploaded_at": "2024-04-02T14:12:00Z"
+        }
+      ],
+      "appointments": {
+        "upcoming": [
+          {
+            "date": "2025-11-14",
+            "time": "10:15 AM",
+            "status": "Scheduled"
+          }
+        ],
+        "past": [
+          {
+            "date": "2024-12-01",
+            "time": "03:00 PM",
+            "status": "Completed"
+          }
+        ]
+      }
+    },
+    {
+      "first_name": "Oliver",
+      "last_name": "Harper",
+      "dob": "1986-09-22",
+      "phone_number": "+12025550123",
+      "clinic_id": 56,
+      "status": "inactive",
+      "id": 897,
+      "guardians": [],
+      "documents": [
+        {
+          "document_id": 25,
+          "title": "MRI Report",
+          "type": "test_result",
+          "uploaded_at": "2024-01-10T08:30:00Z"
+        }
+      ],
       "appointments": {
         "upcoming": [],
-        "past": []
+        "past": [
+          {
+            "date": "2023-08-19",
+            "time": "01:45 PM",
+            "status": "Cancelled"
+          },
+          {
+            "date": "2023-05-21",
+            "time": "09:00 AM",
+            "status": "Completed"
+          }
+        ]
+      }
+    },
+    {
+      "first_name": "Emily",
+      "last_name": "Zhang",
+      "dob": "2015-05-11",
+      "phone_number": "+14705557890",
+      "clinic_id": 56,
+      "status": "active",
+      "id": 614,
+      "guardians": [
+        {
+          "clinic_id": 56,
+          "first_name": "Wei",
+          "last_name": "Zhang",
+          "dob": "1979-12-02",
+          "relationship_to_patient": "mother",
+          "id": 77
+        }
+      ],
+      "documents": [
+        {
+          "document_id": 48,
+          "title": "Immunization Record",
+          "type": "vaccination",
+          "uploaded_at": "2022-06-16T13:55:00Z"
+        }
+      ],
+      "appointments": {
+        "upcoming": [
+          {
+            "date": "2025-02-09",
+            "time": "11:00 AM",
+            "status": "Scheduled"
+          }
+        ],
+        "past": [
+          {
+            "date": "2024-03-21",
+            "time": "01:30 PM",
+            "status": "Completed"
+          }
+        ]
       }
     },
     {

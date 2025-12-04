@@ -2,6 +2,7 @@ import { useState } from "react"
 import { IconArrowLeft, IconUserCircle } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import data from "@/data.json"
+import { formatDateUS, formatDateUSShort } from "@/lib/date"
 
 export function PatientsPage() {
   const [showAddForm, setShowAddForm] = useState(false)
@@ -24,14 +25,8 @@ export function PatientsPage() {
   }
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
+    return formatDateUS(dateString)
   }
-
   const handleViewProfile = (patient: typeof patients[0]) => {
     setSelectedPatient(patient)
     setViewMode('profile')
@@ -57,7 +52,7 @@ export function PatientsPage() {
           <Button
             onClick={handleCloseProfile}
             size="sm"
-            className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+            className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
           >
             <IconArrowLeft className="w-4 h-4" />
             <span className="text-sm font-medium">Back to Patients</span>
@@ -151,16 +146,20 @@ export function PatientsPage() {
                     >
                       <div>
                         <div className="font-medium text-sm">{doc.type}</div>
-                        <div className="text-muted-foreground text-xs">{doc.description}</div>
+                        {"description" in doc && (
+                          <div className="text-muted-foreground text-xs">
+                            {(doc as { description: string }).description}
+                          </div>
+                        )}
                       </div>
                       <div className="flex gap-2">
                         <Button
-                          className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+                          className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
                         >
                           View
                         </Button>
                         <Button
-                          className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+                          className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
                         >
                           Download
                         </Button>
@@ -191,7 +190,7 @@ export function PatientsPage() {
                     : ""}
                 </h3>
                 <Button
-                  className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                  className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                 >
                   Schedule
                 </Button>
@@ -201,20 +200,24 @@ export function PatientsPage() {
                   {selectedPatient.appointments.upcoming.map((appointment, index) => (
                     <div key={index} className="neumorphic-inset rounded-lg p-4">
                       <div className="flex items-center justify-between mb-3">
-                        <span className="font-semibold text-foreground">{appointment.date}</span>
+                        <span className="font-semibold text-foreground">
+                          {formatDateUSShort(appointment.date)}
+                        </span>
                         <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium neumorphic-inset text-primary">
                           {appointment.status}
                         </span>
                       </div>
-                      <p className="text-muted-foreground text-sm mb-4">{appointment.time}</p>
+                      <p className="text-muted-foreground text-sm mb-4">
+                        {appointment.time}
+                      </p>
                       <div className="flex justify-center items-center gap-3">
                         <Button
-                          className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                          className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                         >
                           Reschedule
                         </Button>
                         <Button
-                          className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:bg-destructive hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                          className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:bg-destructive hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                         >
                           Cancel
                         </Button>
@@ -245,8 +248,12 @@ export function PatientsPage() {
                       className="neumorphic-inset rounded-lg p-4 flex justify-between items-center"
                     >
                       <div className="flex flex-col gap-1">
-                        <span className="font-semibold text-foreground text-base">{appointment.date}</span>
-                        <span className="text-muted-foreground text-sm">{appointment.time}</span>
+                        <span className="font-semibold text-foreground text-base">
+                          {formatDateUSShort(appointment.date)}
+                        </span>
+                        <span className="text-muted-foreground text-sm">
+                          {appointment.time}
+                        </span>
                       </div>
                       <span
                         className={`
@@ -277,7 +284,7 @@ export function PatientsPage() {
             {/* Action Buttons */}
             <div className="flex justify-center items-center">
               <Button
-                className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
               >
                 Download Profile
               </Button>
@@ -325,12 +332,12 @@ export function PatientsPage() {
                         <span className="font-medium text-sm">{`${patient.first_name} ${patient.last_name}`}</span>
                       </div>
                     </td>
-                    <td className="py-3 px-2 text-muted-foreground text-sm">{patient.dob}</td>
+                    <td className="py-3 px-2 text-muted-foreground text-sm">{formatDate(patient.dob)}</td>
                     <td className="py-3 px-2 text-muted-foreground text-sm">{patient.phone_number}</td>
                     <td className="py-3 px-2">
                       <Button
                         onClick={() => handleViewProfile(patient)}
-                        className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+                        className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
                       >
                         View Profile
                       </Button>

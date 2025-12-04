@@ -277,7 +277,7 @@ type OffDay = {
             setActiveSettingsTab(value as "working-hours" | "off-days" | "public-holidays")
           }
         >
-          <TabsList className="neumorphic-inset p-1 gap-1">
+          <TabsList className="p-1.5 gap-2">
             <TabsTrigger value="working-hours" className="">Working Hours</TabsTrigger>
             <TabsTrigger value="off-days" className="">Off Days</TabsTrigger>
             <TabsTrigger value="public-holidays" className="">Public Holidays</TabsTrigger>
@@ -479,17 +479,15 @@ type OffDay = {
                                   className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
                                 >
                                   <IconPencil className="w-3 h-3" />
-                                  Edit
                                 </Button>
                                 <Button
                                   onClick={() => {
                                     setActiveSettingsTab("public-holidays")
                                     openDeleteDialog(entry)
                                   }}
-                                  className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2 text-destructive"
+                                  className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:bg-destructive hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2 text-destructive"
                                 >
                                   <IconTrash className="w-3 h-3" />
-                                  Delete
                                 </Button>
                               </div>
                             </TableCell>
@@ -623,7 +621,7 @@ type OffDay = {
             <DialogFooter className="pt-2">
               <Button
                 type="button"
-                className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:bg-destructive hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                 onClick={() => {
                   setIsOffDayDialogOpen(false)
                   resetOffDayForm()

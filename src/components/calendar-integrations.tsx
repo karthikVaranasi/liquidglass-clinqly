@@ -33,7 +33,7 @@ export function CalendarIntegrations() {
         <div className="grid grid-cols-1 gap-6 @xl/main:grid-cols-2">
           {/* Google Calendars */}
           <div className="neumorphic-pressed p-6 rounded-lg">
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <GoogleCalendarIcon className="w-8 h-8" />
                 <div>
@@ -52,10 +52,10 @@ export function CalendarIntegrations() {
 
             {/* Connected Calendar */}
             {calendarIntegrations.google.connectedCalendars.map((calendar, index) => (
-              <div key={index} className="neumorphic-inset rounded-lg p-4">
-                <div className="flex items-center justify-between mb-2">
+              <div key={index} className="">
+                <div className="flex items-center justify-between my-4">
                   <div className="flex items-center gap-3">
-                    <GoogleCalendarIcon className="w-8 h-8" />
+                    
                     <div>
                       <p className="text-sm text-muted-foreground">{calendar.email}</p>
                       <div className="text-sm text-muted-foreground">
@@ -93,8 +93,8 @@ export function CalendarIntegrations() {
             {/* Connected Microsoft Calendars or Empty State */}
             {calendarIntegrations.microsoft.connectedCalendars.length > 0 ? (
               calendarIntegrations.microsoft.connectedCalendars.map((calendar: any, index: number) => (
-                <div key={index} className="neumorphic-inset rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
+                <div key={index} className="p-4">
+                  <div className="flex items-center justify-between ">
                     <div className="flex items-center gap-3">
                       <MicrosoftCalendarIcon className="w-8 h-8" />
                       <div>
@@ -111,7 +111,7 @@ export function CalendarIntegrations() {
                 </div>
               ))
             ) : (
-              <div className="neumorphic-inset rounded-lg p-4 text-center">
+              <div className="p-2 text-center">
                 <p className="text-muted-foreground text-sm p-1">No Microsoft calendars connected</p>
                 <p className="text-muted-foreground text-xs">Connect your Outlook calendar to sync appointments</p>
               </div>

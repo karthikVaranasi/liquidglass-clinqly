@@ -4,10 +4,10 @@ import {
   IconClipboardList,
   IconDashboard,
   IconLogs,
-  IconMedicalCross,
-  IconSettings,
+  // IconMedicalCross,
   IconUser,
   IconUsers,
+  IconClockHour4,
 } from "@tabler/icons-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -33,7 +33,7 @@ const iconMap = {
   IconLogs,
   IconUser,
   IconClipboardList,
-  IconSettings,
+  IconClockHour4,
 }
 
 // Transform navMain data to include actual icon components
@@ -62,11 +62,11 @@ export function AppSidebar({
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
+              className="data-[slot=sidebar-menu-button]:!p-1.5 hover:bg-transparent focus:bg-transparent active:bg-transparent"
             >
-              <a href="#">
-                <IconMedicalCross className="!size-5" />
-                <span className="text-base font-semibold">{app.name}</span>
+              <a href="#" className="flex items-center">
+                <img src="/logo.svg" alt="EzMedTech Logo" className="w-6 h-6 object-contain" />
+                <span className="text-muted-foreground text-lg font-semibold">{app.name}</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>

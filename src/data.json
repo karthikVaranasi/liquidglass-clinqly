@@ -1557,7 +1557,7 @@
       "loginHero": "Effortlessly manage your medical practice.",
       "loginSubtext": "Log in to access your dashboard and manage your patients."
     },
-    "copyright": "Copyright © 2025 EZ Medtech Enterprises LTD.",
+    "copyright": "© EZ MedTech",
     "login": {
       "title": "Welcome Back!",
       "subtitle": "Please Sign in to access your dashboard",
@@ -1616,9 +1616,9 @@
       "page": "refill-requests"
     },
     {
-      "title": "Settings",
+      "title": "Clinic Availability",
       "url": "#",
-      "icon": "IconSettings",
+      "icon": "IconClockHour4",
       "page": "settings"
     },
     {

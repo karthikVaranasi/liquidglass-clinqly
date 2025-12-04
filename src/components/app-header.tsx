@@ -42,9 +42,9 @@ export function AppHeader({ currentPage }: AppHeaderProps) {
         > */}
           <div className="flex items-center gap-2">
             <img
-              src="/logo.png"
+              src="/logo.svg"
               alt="EzMedTech Logo"
-              className="w-6 h-6 object-contain rounded-full"
+              className="w-6 h-6 object-contain"
             />
             <div className="flex flex-col">
               <span className="text-xs font-medium text-muted-foreground leading-tight">

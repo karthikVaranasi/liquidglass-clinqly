@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Eye, EyeOff } from "lucide-react"
 import { IconShield, IconStethoscope } from "@tabler/icons-react"
 import data from "@/data.json"
@@ -36,8 +37,9 @@ export function LoginPage({ onLogin }: LoginPageProps) {
     <div className="min-h-screen flex ">
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-primary">
         <div className="relative z-10 flex flex-col justify-between w-full px-12 py-12">
-          <div className="flex items-center">
-            <h1 className="text-xl font-semibold text-white">EZ Medtech</h1>
+          <div className="flex items-center gap-2">
+            <img src="/logo.svg" alt="EzMedTech Logo" className="w-10 h-10 object-contain rounded-full" />
+            <h1 className="text-xl font-semibold text-white">EZ MedTech</h1>
           </div>
 
           <div className="flex-1 flex flex-col justify-center">
@@ -70,28 +72,23 @@ export function LoginPage({ onLogin }: LoginPageProps) {
             </div>
 
             {/* User Type Selection */}
-            <div className="grid grid-cols-2 gap-3">
-              <Button
-                onClick={() => setUserType('admin')}
-                variant={userType === 'admin' ? 'default' : 'outline'}
-                size="sm"
-                className="flex items-center justify-center gap-2 p-2 text-xs font-medium rounded-lg transition-all duration-200 h-auto"
-              >
-                <IconShield className="w-4 h-4" />
-                <span className="hidden sm:inline">{login.adminLabel}</span>
-                <span className="sm:hidden">Admin</span>
-              </Button>
-              <Button
-                onClick={() => setUserType('doctor')}
-                variant={userType === 'doctor' ? 'default' : 'outline'}
-                size="sm"
-                className="flex items-center justify-center gap-2 p-2 text-xs font-medium rounded-lg transition-all duration-200 h-auto"
-              >
-                <IconStethoscope className="w-4 h-4" />
-                <span className="hidden sm:inline">{login.doctorLabel}</span>
-                <span className="sm:hidden">Doctor</span>
-              </Button>
-            </div>
+            <Tabs
+              value={userType}
+              onValueChange={(value) => setUserType(value as 'admin' | 'doctor')}
+            >
+              <TabsList className="-p-2.5 w-full">
+                <TabsTrigger value="admin" className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-xs sm:text-sm">
+                  <IconShield className="w-4 h-4" />
+                  <span className="hidden sm:inline">{login.adminLabel}</span>
+                  <span className="sm:hidden">Admin</span>
+                </TabsTrigger>
+                <TabsTrigger value="doctor" className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-xs sm:text-sm">
+                  <IconStethoscope className="w-4 h-4" />
+                  <span className="hidden sm:inline">{login.doctorLabel}</span>
+                  <span className="sm:hidden">Doctor</span>
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Email Field */}

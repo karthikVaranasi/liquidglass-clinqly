@@ -170,17 +170,15 @@ export function AppointmentPage() {
   const getStatusStyle = (status: string) => {
     switch (status?.toLowerCase()) {
       case 'completed':
-        return 'bg-green-100 text-green-800 neumorphic-inset'
+        return 'bg-green-100 neumorphic-inset'
       case 'in progress':
-        return 'bg-yellow-100 text-yellow-800 neumorphic-inset'
+        return 'bg-yellow-100 neumorphic-inset'
       case 'scheduled':
-        return 'bg-blue-100 text-blue-800 neumorphic-inset'
+        return 'bg-blue-100 neumorphic-inset'
       case 'cancelled':
-        return 'bg-red-100 text-red-800 neumorphic-inset'
-      case 'no-show':
-        return 'bg-gray-100 text-gray-800 neumorphic-inset'
+        return 'bg-red-100 neumorphic-inset'
       default:
-        return 'bg-muted text-muted-foreground neumorphic-inset'
+        return 'bg-muted neumorphic-inset'
     }
   }
 
@@ -310,8 +308,8 @@ export function AppointmentPage() {
                       <div className="w-px h-6 bg-muted/50" />
                       <div className="flex-1">
                         <span className="font-medium text-sm">{apt.patient}</span>
-                        <p className="text-xs text-muted-foreground">{apt.reason}</p>
-                        <p className="text-xs text-muted-foreground">{apt.doctor}</p>
+                        <p className="text-xs">{apt.reason}</p>
+                        <p className="text-xs">{apt.doctor}</p>
                       </div>
                     </div>
                     <span
@@ -335,10 +333,10 @@ export function AppointmentPage() {
                 animate={{ scale: 1 }}
                 transition={{ duration: 0.5, delay: 0.2, type: "spring" }}
               >
-                <IconCalendar className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                <IconCalendar className="w-10 h-10 mx-auto mb-3" />
               </motion.div>
               <motion.p
-                className="text-muted-foreground"
+                className=""
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
@@ -356,7 +354,7 @@ export function AppointmentPage() {
       >
         {/* Header */}
         <motion.div
-          className="mb-6"
+          className="mb-2"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
@@ -394,7 +392,7 @@ export function AppointmentPage() {
                       {formatDateUS(new Date(currentYear, currentMonth - 1, selectedDate))}
                     </h2>
                     <motion.span
-                      className="text-sm text-muted-foreground"
+                      className="text-sm"
                       initial={{ scale: 0.8 }}
                       animate={{ scale: 1 }}
                       transition={{ duration: 0.3, type: "spring" }}
@@ -433,16 +431,16 @@ export function AppointmentPage() {
                                   <td className="py-3 px-2 font-medium text-sm">{apt.time}</td>
                                   <td className="py-3 px-2">
                                     <div className="flex items-center gap-1">
-                                    <IconUserCircle className="w-5 h-5 text-muted-foreground" />
+                                    <IconUserCircle className="w-5 h-5" />
                                       <span className="font-medium text-sm">{apt.patient}</span>
                                     </div>
                                   </td>
-                                  <td className="py-3 px-2 text-muted-foreground text-sm max-w-xs">
+                                  <td className="py-3 px-2 text-sm max-w-xs">
                                     <div className="truncate" title={apt.reason}>
                                       {apt.reason}
                                     </div>
                                   </td>
-                                  <td className="py-3 px-2 text-muted-foreground text-sm">{apt.doctor}</td>
+                                  <td className="py-3 px-2 text-sm">{apt.doctor}</td>
                                   <td className="py-3 px-2">
                                     <motion.span
                                       className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusStyle(apt.status)}`}
@@ -474,7 +472,7 @@ export function AppointmentPage() {
                           animate={{ scale: 1 }}
                           transition={{ duration: 0.5, delay: 0.2, type: "spring" }}
                         >
-                          <IconCalendar className="w-12 h-12 text-muted-foreground mb-4" />
+                          <IconCalendar className="w-12 h-12 mb-4" />
                         </motion.div>
                         <motion.h3
                           className="text-lg font-medium text-foreground mb-2"
@@ -507,7 +505,7 @@ export function AppointmentPage() {
                       animate={{ scale: 1, rotate: 0 }}
                       transition={{ duration: 0.6, delay: 0.2, type: "spring" }}
                     >
-                      <IconCalendar className="w-16 h-16 text-muted-foreground mb-4" />
+                      <IconCalendar className="w-16 h-16 mb-4" />
                     </motion.div>
                     <motion.h3
                       className="text-xl font-semibold text-foreground mb-2"
@@ -518,7 +516,7 @@ export function AppointmentPage() {
                       Select a Date
                     </motion.h3>
                     <motion.p
-                      className="text-muted-foreground text-sm"
+                      className="text-sm"
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4, delay: 0.3 }}
@@ -601,7 +599,7 @@ export function AppointmentPage() {
                   {weekDays.map((day, index) => (
                     <motion.div
                       key={day}
-                      className="mx-0.5 text-center text-xs font-medium text-muted-foreground neumorphic-inset px-1 py-1 rounded"
+                      className="mx-0.5 text-center text-xs font-medium neumorphic-inset px-1 py-1 rounded"
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: 0.4 + index * 0.05 }}
@@ -647,11 +645,11 @@ export function AppointmentPage() {
                             text-xs font-bold text-center
                             ${day.isCurrentMonth
                               ? selectedDate === day.date
-                                ? 'text-primary font-bold'
+                                ? 'font-bold'
                                 : day.isToday
-                                  ? 'text-primary font-bold'
-                                  : 'text-foreground'
-                              : 'text-muted-foreground/60'
+                                  ? 'font-bold'
+                                  : ''
+                              : ''
                             }
                           `}
                         >
@@ -669,7 +667,7 @@ export function AppointmentPage() {
                               transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
                             >
                               <motion.div
-                                className={`appointment-badge inline-flex items-center justify-center text-xs font-medium rounded-full px-1 neumorphic-inset bg-primary/10 text-primary border border-primary/20`}
+                                className={`appointment-badge inline-flex items-center justify-center text-xs font-medium rounded-full px-1 neumorphic-inset bg-primary/10 border border-primary/20`}
                                 whileHover={{ scale: 1.1 }}
                                 animate={{
                                   scale: [1, 1.1, 1],

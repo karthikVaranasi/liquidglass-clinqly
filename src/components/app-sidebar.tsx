@@ -66,7 +66,7 @@ export function AppSidebar({
             >
               <a href="#" className="flex items-center">
                 <img src="/logo.svg" alt="EzMedTech Logo" className="w-6 h-6 object-contain" />
-                <span className="text-muted-foreground text-lg font-semibold">{app.name}</span>
+                <span className="text-lg font-semibold">{app.name}</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>

@@ -34,7 +34,7 @@ export default function App() {
   const renderContent = () => {
     const LoadingFallback = () => (
       <div className="flex items-center justify-center h-full min-h-[400px]">
-        <div className="text-muted-foreground">Loading...</div>
+        <div className="">Loading...</div>
       </div>
     )
 
@@ -101,7 +101,7 @@ export default function App() {
     return (
       <Suspense fallback={
         <div className="flex items-center justify-center h-screen">
-          <div className="text-muted-foreground">Loading...</div>
+          <div className="">Loading...</div>
         </div>
       }>
         <LoginPage onLogin={handleLogin} />

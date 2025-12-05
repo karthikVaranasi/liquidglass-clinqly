@@ -47,7 +47,7 @@ export function AppHeader({ currentPage }: AppHeaderProps) {
               className="w-6 h-6 object-contain"
             />
             <div className="flex flex-col">
-              <span className="text-xs font-medium text-muted-foreground leading-tight">
+              <span className="text-xs font-medium leading-tight">
                 Powered by
               </span>
               <span className="text-sm font-semibold text-foreground leading-tight">

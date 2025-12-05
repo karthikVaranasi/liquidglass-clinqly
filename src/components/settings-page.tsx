@@ -304,7 +304,7 @@ export function SettingsPage() {
                 >
                   <div className="w-full sm:w-20 font-medium text-sm">{day.day}</div>
                   {day.isClosed ? (
-                    <div className="flex-1 text-center text-muted-foreground text-sm">Closed</div>
+                    <div className="flex-1 text-center text-sm">Closed</div>
                   ) : (
                     <div className="flex items-center gap-2">
                       <TimePicker
@@ -313,7 +313,7 @@ export function SettingsPage() {
                         className="flex-1 w-fit"
                       />
 
-                      <span className="text-sm text-muted-foreground flex-shrink-0">to</span>
+                      <span className="text-sm flex-shrink-0">to</span>
 
                       <TimePicker
                         value={day.close}
@@ -326,7 +326,7 @@ export function SettingsPage() {
                   <Button
                     onClick={() => handleToggleClosed(index)}
                     className={`ml-auto w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 ${
-                      day.isClosed ? "text-primary" : "text-destructive hover:bg-destructive hover:text-primary-foreground"
+                      day.isClosed ? "" : "hover:bg-destructive"
                     }`}
                   >
                     {day.isClosed ? "Open" : "Close"}
@@ -377,7 +377,7 @@ export function SettingsPage() {
                         <TableRow>
                           <TableCell
                             colSpan={4}
-                            className="py-6 text-center text-sm text-muted-foreground"
+                            className="py-6 text-center text-sm"
                           >
                             No off days added yet.
                           </TableCell>
@@ -388,10 +388,10 @@ export function SettingsPage() {
                             <TableCell className="text-sm font-medium">
                               {formatOffDayDateRange(entry)}
                             </TableCell>
-                            <TableCell className="text-sm text-muted-foreground">
+                            <TableCell className="text-sm">
                               {getOffDayTimeRangeLabel(entry)}
                             </TableCell>
-                            <TableCell className="text-sm text-muted-foreground">
+                            <TableCell className="text-sm">
                               {entry.reason && entry.reason.trim().length > 0
                                 ? entry.reason
                                 : "No reason provided"}
@@ -412,7 +412,7 @@ export function SettingsPage() {
                                     setActiveSettingsTab("off-days")
                                     openDeleteDialog(entry)
                                   }}
-                                  className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:bg-destructive hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2 text-destructive"
+                                  className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
                                 >
                                   <IconTrash className="w-3 h-3" />
                                 </Button>
@@ -461,7 +461,7 @@ export function SettingsPage() {
                         <TableRow>
                           <TableCell
                             colSpan={4}
-                            className="py-6 text-center text-sm text-muted-foreground"
+                            className="py-6 text-center text-sm"
                           >
                             No public holidays synced yet. Click "Sync Holidays" to load them.
                           </TableCell>
@@ -472,10 +472,10 @@ export function SettingsPage() {
                             <TableCell className="text-sm font-medium">
                               {formatOffDayDateRange(entry)}
                             </TableCell>
-                            <TableCell className="text-sm text-muted-foreground">
+                            <TableCell className="text-sm">
                               {getOffDayTimeRangeLabel(entry)}
                             </TableCell>
-                            <TableCell className="text-sm text-muted-foreground">
+                            <TableCell className="text-sm">
                               {entry.reason && entry.reason.trim().length > 0
                                 ? entry.reason
                                 : "No reason provided"}
@@ -496,7 +496,7 @@ export function SettingsPage() {
                                     setActiveSettingsTab("public-holidays")
                                     openDeleteDialog(entry)
                                   }}
-                                  className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:bg-destructive hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2 text-destructive"
+                                  className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
                                 >
                                   <IconTrash className="w-3 h-3" />
                                 </Button>
@@ -540,7 +540,7 @@ export function SettingsPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <Label htmlFor="offday-start-date">
-                      Date <span className="text-destructive">*</span>
+                      Date <span className="">*</span>
                     </Label>
                     <Input
                       id="offday-start-date"
@@ -556,7 +556,7 @@ export function SettingsPage() {
                   <div className="space-y-1.5">
                     <Label htmlFor="offday-end-date">
                       End Date{" "}
-                      <span className="text-muted-foreground text-xs font-normal">
+                      <span className="text-xs font-normal">
                         (Optional)
                       </span>
                     </Label>
@@ -569,7 +569,7 @@ export function SettingsPage() {
                       }
                       className="neumorphic-inset border-0 focus:ring-0 shadow-none rounded-lg bg-background focus:border-0 transition-all duration-200"
                     />
-                    <p className="text-[11px] text-muted-foreground">
+                    <p className="text-[11px]">
                       Leave empty for single day off.
                     </p>
                   </div>
@@ -596,7 +596,7 @@ export function SettingsPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1.5">
                       <Label htmlFor="offday-start-time">
-                        Start Time <span className="text-destructive">*</span>
+                        Start Time <span className="">*</span>
                       </Label>
                       <TimePicker
                         value={offDayForm.startTime}
@@ -606,7 +606,7 @@ export function SettingsPage() {
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="offday-end-time">
-                        End Time <span className="text-destructive">*</span>
+                        End Time <span className="">*</span>
                       </Label>
                       <TimePicker
                         value={offDayForm.endTime}
@@ -641,7 +641,7 @@ export function SettingsPage() {
               <div className="flex justify-end gap-2 pt-2">
                 <Button
                   type="button"
-                  className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:bg-destructive hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                  className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                   onClick={() => {
                     setIsOffDayDialogOpen(false)
                     resetOffDayForm()
@@ -676,7 +676,7 @@ export function SettingsPage() {
           >
             <div className="mb-3">
               <h3 className="text-base font-semibold">Delete Off Day</h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm">
                 Are you sure you want to delete this off day?
               </p>
             </div>
@@ -685,19 +685,19 @@ export function SettingsPage() {
               <div className="space-y-2 text-sm mt-2">
                 <p>
                   <span className="font-medium">Date(s): </span>
-                  <span className="text-muted-foreground">
+                  <span className="">
                     {formatOffDayDateRange(deleteTarget)}
                   </span>
                 </p>
                 <p>
                   <span className="font-medium">Time: </span>
-                  <span className="text-muted-foreground">
+                  <span className="">
                     {getOffDayTimeRangeLabel(deleteTarget)}
                   </span>
                 </p>
                 <p>
                   <span className="font-medium">Reason: </span>
-                  <span className="text-muted-foreground">
+                  <span className="">
                     {deleteTarget.reason && deleteTarget.reason.trim().length > 0
                       ? deleteTarget.reason
                       : "No reason provided"}
@@ -720,7 +720,7 @@ export function SettingsPage() {
               <Button
                 type="button"
                 onClick={confirmDeleteOffDay}
-                className="w-fit text-sm font-medium neumorphic-pressed text-destructive hover:bg-destructive hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
               >
                 Delete
               </Button>

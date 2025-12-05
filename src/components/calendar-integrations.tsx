@@ -38,7 +38,7 @@ export function CalendarIntegrations() {
                 <GoogleCalendarIcon className="w-8 h-8" />
                 <div>
                   <h3 className="text-lg font-semibold">{calendarIntegrations.google.name} ({calendarIntegrations.google.count})</h3>
-                  <p className="text-sm text-muted-foreground">{calendarIntegrations.google.description}</p>
+                  <p className="text-sm">{calendarIntegrations.google.description}</p>
                 </div>
               </div>
               <Button
@@ -57,13 +57,13 @@ export function CalendarIntegrations() {
                   <div className="flex items-center gap-3">
                     
                     <div>
-                      <p className="text-sm text-muted-foreground">{calendar.email}</p>
-                      <div className="text-sm text-muted-foreground">
+                      <p className="text-sm">{calendar.email}</p>
+                      <div className="text-sm">
                         Connected: {calendar.connectedDate}
                       </div>
                     </div>
                   </div>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium neumorphic-inset text-primary">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium neumorphic-inset">
                     {calendar.status}
                   </span>
                 </div>
@@ -78,7 +78,7 @@ export function CalendarIntegrations() {
                 <MicrosoftCalendarIcon className="w-8 h-8" />
                 <div>
                   <h3 className="text-lg font-semibold">{calendarIntegrations.microsoft.name} ({calendarIntegrations.microsoft.count})</h3>
-                  <p className="text-sm text-gray-600">{calendarIntegrations.microsoft.description}</p>
+                  <p className="text-sm">{calendarIntegrations.microsoft.description}</p>
                 </div>
               </div>
               <Button
@@ -98,13 +98,13 @@ export function CalendarIntegrations() {
                     <div className="flex items-center gap-3">
                       <MicrosoftCalendarIcon className="w-8 h-8" />
                       <div>
-                        <p className="text-sm text-gray-600">{calendar.email}</p>
-                        <div className="text-sm text-gray-600">
+                        <p className="text-sm">{calendar.email}</p>
+                        <div className="text-sm">
                           Connected: {calendar.connectedDate}
                         </div>
                       </div>
                     </div>
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/10">
                       {calendar.status}
                     </span>
                   </div>
@@ -112,8 +112,8 @@ export function CalendarIntegrations() {
               ))
             ) : (
               <div className="p-2 text-center">
-                <p className="text-muted-foreground text-sm p-1">No Microsoft calendars connected</p>
-                <p className="text-muted-foreground text-xs">Connect your Outlook calendar to sync appointments</p>
+                <p className="text-sm p-1">No Microsoft calendars connected</p>
+                <p className="text-xs">Connect your Outlook calendar to sync appointments</p>
               </div>
             )}
           </div>
@@ -121,7 +121,7 @@ export function CalendarIntegrations() {
 
         {/* Warning Message */}
         <div className="neumorphic-inset p-4 mt-6">
-          <p className="text-sm font-medium text-muted-foreground">
+          <p className="text-sm font-medium">
             Disconnecting will stop syncing appointments with that calendar
           </p>
         </div>
@@ -143,7 +143,7 @@ export function CalendarIntegrations() {
                   <GoogleCalendarIcon className="w-6 h-6" />
                 </div>
                 <h3 className="text-base font-semibold mb-2">Connect Google Calendar</h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm">
                   Allow access to sync your appointments with Google Calendar.
                 </p>
               </div>
@@ -151,7 +151,7 @@ export function CalendarIntegrations() {
               <div className="w-full flex gap-3 pt-3">
                 <Button
                   onClick={() => setShowModal(false)}
-                  className="flex-1 w-fit text-sm font-medium neumorphic-pressed text-primary hover:bg-destructive hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                  className="flex-1 w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                 >
                   Cancel
                 </Button>
@@ -182,7 +182,7 @@ export function CalendarIntegrations() {
                   <MicrosoftCalendarIcon className="w-6 h-6" />
                 </div>
                 <h3 className="text-base font-semibold mb-2">Connect Microsoft Calendar</h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm">
                   Allow access to sync your appointments with Microsoft Outlook Calendar.
                 </p>
               </div>
@@ -190,7 +190,7 @@ export function CalendarIntegrations() {
               <div className="w-full flex gap-3 pt-3">
                 <Button
                   onClick={() => setShowMicrosoftModal(false)}
-                  className="flex-1 w-fit text-sm font-medium neumorphic-pressed text-primary hover:bg-destructive hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                  className="flex-1 w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                 >
                   Cancel
                 </Button>

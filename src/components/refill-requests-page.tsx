@@ -27,21 +27,21 @@ export function RefillRequestsPage() {
                 {refillRequests.map((request, index) => (
                   <tr key={index} className="hover:bg-muted/30 transition-colors">
                     <td className="py-3 px-2 font-medium text-sm">{request.patientName}</td>
-                    <td className="py-3 px-2 text-muted-foreground text-sm">{request.patientPhone}</td>
-                    <td className="py-3 px-2 text-muted-foreground text-sm">{request.callerName}</td>
-                    <td className="py-3 px-2 text-muted-foreground text-sm">{request.relationship}</td>
-                    <td className="py-3 px-2 text-muted-foreground text-sm max-w-xs">
+                    <td className="py-3 px-2 text-sm">{request.patientPhone}</td>
+                    <td className="py-3 px-2 text-sm">{request.callerName}</td>
+                    <td className="py-3 px-2 text-sm">{request.relationship}</td>
+                    <td className="py-3 px-2 text-sm max-w-xs">
                       <div className="line-clamp-2" title={request.details}>
                         {request.details}
                       </div>
                     </td>
-                    <td className="py-3 px-2 text-muted-foreground text-sm">{request.pharmacyName}</td>
-                    <td className="py-3 px-2 text-muted-foreground text-sm max-w-xs">
+                    <td className="py-3 px-2 text-sm">{request.pharmacyName}</td>
+                    <td className="py-3 px-2 text-sm max-w-xs">
                       <div className="line-clamp-2" title={request.pharmacyLocation}>
                         {request.pharmacyLocation}
                       </div>
                     </td>
-                    <td className="py-3 px-2 text-muted-foreground text-sm">{request.createdAt}</td>
+                    <td className="py-3 px-2 text-sm">{request.createdAt}</td>
                   </tr>
                 ))}
               </tbody>

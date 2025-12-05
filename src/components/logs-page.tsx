@@ -29,7 +29,7 @@ const SentimentRating = ({ rating }: { rating: number }) => {
           className={`w-4 h-4 ${
             star <= roundedRating
               ? "fill-current"
-              : "text-muted-foreground/30"
+              : ""
           }`}
           style={{ color: getSentimentColor(roundedRating) }}
         />
@@ -40,7 +40,36 @@ const SentimentRating = ({ rating }: { rating: number }) => {
 
 const { callLogs, logsConfig } = data
 
-type CallLog = (typeof callLogs.logs)[number]
+type CallLog = (typeof callLogs.logs)[number] & { status?: string }
+
+// Assign status to each log based on summary stats distribution
+const assignStatusToLogs = (logs: CallLog[]): CallLog[] => {
+  const stats = callLogs.summaryStats
+  const scheduled = stats.scheduled
+  const rescheduled = stats.rescheduled
+  const cancelled = stats.cancelled
+  const failed = stats.failed
+
+  return logs.map((log, index) => {
+    let status = 'scheduled' // default
+    
+    if (index < scheduled) {
+      status = 'scheduled'
+    } else if (index < scheduled + rescheduled) {
+      status = 'rescheduled'
+    } else if (index < scheduled + rescheduled + cancelled) {
+      status = 'cancelled'
+    } else if (index < scheduled + rescheduled + cancelled + failed) {
+      status = 'failed'
+    } else {
+      status = 'scheduled' // remaining logs default to scheduled
+    }
+    
+    return { ...log, status }
+  })
+}
+
+const logsWithStatus = assignStatusToLogs(callLogs.logs as CallLog[])
 
 type TranscriptTurn = {
   speaker: "A" | "P"
@@ -279,6 +308,7 @@ const getTranscriptForLog = (log: CallLog): TranscriptTurn[] => {
 
 export function LogsPage() {
   const [timeFilter, setTimeFilter] = useState("all-time")
+  const [statusFilter, setStatusFilter] = useState<string | null>(null)
   const [selectedLog, setSelectedLog] = useState<CallLog | null>(null)
   const [showTranscript, setShowTranscript] = useState(false)
 
@@ -296,6 +326,18 @@ export function LogsPage() {
     { key: 'action', label: 'Actions' }
   ]
 
+  // Filter logs based on status
+  const filteredLogs = statusFilter 
+    ? logsWithStatus.filter(log => log.status === statusFilter)
+    : logsWithStatus
+
+  // Get filter title
+  const getFilterTitle = () => {
+    if (!statusFilter) return `All Call Logs (${logsWithStatus.length})`
+    const card = logsConfig.summaryCards.find(c => c.key === statusFilter)
+    return `${card?.title || 'Filtered'} Call Logs (${filteredLogs.length})`
+  }
+
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
@@ -304,11 +346,11 @@ export function LogsPage() {
           {logsConfig.summaryCards.map((card) => {
             const getCardColor = (key: string) => {
               switch (key) {
-                case 'scheduled': return 'text-[var(--chart-2)]'
-                case 'rescheduled': return 'text-yellow-600'
+                case 'scheduled': return ''
+                case 'rescheduled': return ''
                 case 'cancelled':
-                case 'failed': return 'text-destructive'
-                default: return 'text-primary'
+                case 'failed': return ''
+                default: return ''
               }
             }
             const getIconComponent = (iconName: string) => {
@@ -322,10 +364,27 @@ export function LogsPage() {
               }
             }
 
+            const isActive = card.key === 'total' 
+              ? statusFilter === null 
+              : statusFilter === card.key
+            const handleCardClick = () => {
+              if (card.key === 'total') {
+                setStatusFilter(null) // Show all logs
+              } else {
+                setStatusFilter(isActive ? null : card.key) // Toggle filter
+              }
+            }
+
             return (
-              <div key={card.key} className="neumorphic-inset p-4 neumorphic-hover transition-all duration-200">
+              <div 
+                key={card.key} 
+                className={`neumorphic-inset p-4 neumorphic-hover transition-all duration-200 cursor-pointer ${
+                  isActive ? 'neumorphic-pressed' : ''
+                }`}
+                onClick={handleCardClick}
+              >
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2 text-sm">
                     {getIconComponent(card.icon)}
                     {card.title}
                   </div>
@@ -342,9 +401,9 @@ export function LogsPage() {
       {/* Call Logs Title */}
       <div className="px-4 lg:px-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold tracking-tight">All Call Logs ({callLogs.logs.length})</h2>
+          <h2 className="text-xl font-bold tracking-tight">{getFilterTitle()}</h2>
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-muted-foreground">Filter by:</span>
+            <span className="text-sm font-medium">Filter by:</span>
             <Select value={timeFilter} onValueChange={setTimeFilter}>
               <SelectTrigger className="w-32 neumorphic-pressed">
                 <SelectValue />
@@ -382,16 +441,16 @@ export function LogsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y-2 divide-muted/90">
-                {callLogs.logs.map((log, index) => (
+                {filteredLogs.map((log, index) => (
                   <tr key={index} className="hover:bg-muted/30 transition-colors">
                     <td className="py-3 px-4">
                       <span className="text-sm font-medium">{log.from}</span>
                     </td>
                     <td className="py-3 px-4">
-                      <span className="text-sm text-muted-foreground">{log.startTime}</span>
+                      <span className="text-sm">{log.startTime}</span>
                     </td>
                     <td className="py-3 px-4">
-                      <span className="text-sm text-muted-foreground">{log.duration}</span>
+                      <span className="text-sm">{log.duration}</span>
                     </td>
                     <td className="py-3 px-4">
                       <SentimentRating rating={getRandomSentiment(index)} />
@@ -434,7 +493,7 @@ export function LogsPage() {
                   <h3 className="text-base font-semibold">
                     Conversational Transcript – <span className="font-mono">{selectedLog.from}</span>
                   </h3>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs">
                     Start Time: {selectedLog.startTime} • Duration: {selectedLog.duration}
                   </p>
                 </div>
@@ -458,7 +517,7 @@ export function LogsPage() {
 
               <div className="max-h-[60vh] overflow-y-auto bg-card rounded-lg p-4 text-sm space-y-3">
                 {getTranscriptForLog(selectedLog).length === 0 ? (
-                  <p className="text-muted-foreground text-sm">
+                  <p className="text-sm">
                     No transcript available for this call yet.
                   </p>
                 ) : (
@@ -468,15 +527,15 @@ export function LogsPage() {
                         <span
                           className={`w-6 h-6 flex items-center justify-center rounded-full text-xs font-semibold ${
                             turn.speaker === "A"
-                              ? "bg-primary/10 text-primary"
-                              : "bg-muted text-foreground"
+                              ? "bg-primary/10"
+                              : "bg-muted"
                           }`}
                         >
                           {turn.speaker}
                         </span>
                       </div>
                       <div className="flex-1">
-                        <div className="text-xs font-semibold text-muted-foreground mb-0.5">
+                        <div className="text-xs font-semibold mb-0.5">
                           {turn.label}
                         </div>
                         <div className="text-sm text-foreground whitespace-pre-line">

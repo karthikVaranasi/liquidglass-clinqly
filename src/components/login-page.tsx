@@ -39,19 +39,19 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         <div className="relative z-10 flex flex-col justify-between w-full px-12 py-12">
           <div className="flex items-center gap-2">
             <img src="/logo.svg" alt="EzMedTech Logo" className="w-8 h-8 object-contain" />
-            <h1 className="text-xl font-semibold text-white">EZ MedTech</h1>
+            <h1 className="text-xl font-semibold">EZ MedTech</h1>
           </div>
 
           <div className="flex-1 flex flex-col justify-center">
-            <h2 className="text-4xl text-white mb-6 leading-tight">{app.taglines.loginHero}</h2>
-            <p className="text-white/90 text-lg leading-relaxed">
+            <h2 className="text-4xl mb-6 leading-tight">{app.taglines.loginHero}</h2>
+            <p className="text-lg leading-relaxed">
               {app.taglines.loginSubtext}
             </p>
           </div>
 
-          <div className="flex justify-between items-center text-white text-sm">
+          <div className="flex justify-between items-center text-sm">
             <span>{app.copyright}</span>
-            <span className="cursor-pointer hover:text-white/90">{app.login.privacyPolicy}</span>
+            <span className="cursor-pointer">{app.login.privacyPolicy}</span>
           </div>
         </div>
       </div>
@@ -60,15 +60,13 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         <div className="w-full max-w-md mx-auto space-y-6 sm:space-y-8 p-6 sm:p-8 rounded-lg neumorphic-pressed">
           <div className="lg:hidden text-center mb-6 sm:mb-8">
             <h1 className="text-xl sm:text-2xl font-semibold text-foreground mb-2">EZ Medtech</h1>
-            <p className="text-sm text-muted-foreground">Medical Dashboard</p>
+            <p className="text-sm">Medical Dashboard</p>
           </div>
 
           <div className="space-y-4">
             <div className="text-center">
-              <h2 className="text-2xl sm:text-3xl text-foreground font-semibold">{login.title}</h2>
-              <p className="text-sm sm:text-base text-muted-foreground mt-2">
-                {login.subtitle}
-              </p>
+              <h2 className="text-xl sm:text-2xl text-foreground font-semibold">{login.title}</h2>
+              <p className="text-sm sm:text-base mt-1">{login.subtitle}</p>
             </div>
 
             {/* User Type Selection */}
@@ -130,9 +128,9 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-2 w-2 text-muted-foreground" />
+                      <EyeOff className="h-2 w-2" />
                     ) : (
-                      <Eye className="h-2 w-2 text-muted-foreground" />
+                      <Eye className="h-2 w-2" />
                     )}
                   </Button>
                 </div>
@@ -148,13 +146,13 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                     onChange={(e) => setRememberMe(e.target.checked)}
                     className="rounded border-gray-300 cursor-pointer"
                   />
-                  <Label htmlFor="remember" className="text-sm text-muted-foreground cursor-pointer">
+                  <Label htmlFor="remember" className="text-sm cursor-pointer">
                     {login.rememberMeLabel}
                   </Label>
                 </div>
                 <Button
                   variant="link"
-                  className="p-0 h-auto text-sm cursor-pointer text-primary"
+                  className="p-0 h-auto text-sm cursor-pointer"
                   onClick={handleForgotPassword}
                 >
                   {login.forgotPasswordLabel}

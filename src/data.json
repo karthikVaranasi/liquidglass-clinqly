@@ -34,7 +34,7 @@
     "2025-12-5": [
       { "patient": "David Johnson", "doctor": "Martha Nelson", "time": "09:00 AM", "status": "Completed", "reason": "Diabetes management" },
       { "patient": "Vinay Kumar", "doctor": "Martha Nelson", "time": "11:00 AM", "status": "Scheduled", "reason": "Thyroid check" },
-      { "patient": "Noah Brooks", "doctor": "Martha Nelson", "time": "01:00 PM", "status": "No-show", "reason": "Skin rash evaluation" },
+      { "patient": "Noah Brooks", "doctor": "Martha Nelson", "time": "01:00 PM", "status": "Cancelled", "reason": "Skin rash evaluation" },
       { "patient": "Ariana Galea", "doctor": "Martha Nelson", "time": "02:30 PM", "status": "Scheduled", "reason": "Mental health consultation" },
       { "patient": "Ria Gupta", "doctor": "Martha Nelson", "time": "04:00 PM", "status": "In Progress", "reason": "Pregnancy check-up" }
     ],
@@ -66,7 +66,7 @@
     "2025-12-18": [
       { "patient": "David Johnson", "doctor": "Martha Nelson", "time": "09:00 AM", "status": "Completed", "reason": "Diabetes management" },
       { "patient": "Vinay Kumar", "doctor": "Martha Nelson", "time": "11:00 AM", "status": "Scheduled", "reason": "Thyroid check" },
-      { "patient": "Noah Brooks", "doctor": "Martha Nelson", "time": "01:00 PM", "status": "No-show", "reason": "Skin rash evaluation" },
+      { "patient": "Noah Brooks", "doctor": "Martha Nelson", "time": "01:00 PM", "status": "Cancelled", "reason": "Skin rash evaluation" },
       { "patient": "Ariana Galea", "doctor": "Martha Nelson", "time": "02:30 PM", "status": "Scheduled", "reason": "Mental health consultation" },
       { "patient": "Ria Gupta", "doctor": "Martha Nelson", "time": "04:00 PM", "status": "In Progress", "reason": "Pregnancy check-up" }
     ],
@@ -81,7 +81,7 @@
       { "patient": "Gyanendra Kuppanedi", "doctor": "Martha Nelson", "time": "11:30 AM", "status": "Scheduled", "reason": "Eye examination" },
       { "patient": "Aditya Srikhar", "doctor": "Martha Nelson", "time": "01:30 PM", "status": "Completed", "reason": "Dental referral" },
       { "patient": "Ben Jordan", "doctor": "Martha Nelson", "time": "03:00 PM", "status": "Scheduled", "reason": "Sleep disorder evaluation" },
-      { "patient": "Max Traver", "doctor": "Martha Nelson", "time": "04:30 PM", "status": "No-show", "reason": "Weight management" }
+      { "patient": "Max Traver", "doctor": "Martha Nelson", "time": "04:30 PM", "status": "Cancelled", "reason": "Weight management" }
     ],
     "2025-12-21": [
       { "patient": "Rohini Chintala", "doctor": "Martha Nelson", "time": "12:00 PM", "status": "Completed", "reason": "Post-surgery follow-up" },

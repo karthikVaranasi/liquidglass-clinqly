@@ -3,6 +3,6 @@
 /* Custom sidebar active state styling */
 [data-sidebar="menu-button"][data-active="true"] {
   background-color: var(--sidebar-primary) !important;
-  color: var(--sidebar-primary-foreground) !important;
+  color: var(--sidebar-foreground) !important;
   border-radius: 6px !important;
 }

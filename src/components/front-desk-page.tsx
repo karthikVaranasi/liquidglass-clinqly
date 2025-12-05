@@ -25,17 +25,17 @@ export function FrontDeskPage() {
                                     <tr key={index} className="hover:bg-muted/30 transition-colors">
                                         <td className="py-3 px-2 font-medium text-sm">
                                             <div className="flex items-center gap-1">
-                                                <IconUserCircle className="w-5 h-5 text-primary" />
+                                                <IconUserCircle className="w-5 h-5" />
                                                 {request.name}
                                             </div>
                                         </td>
-                                        <td className="py-3 px-2 text-muted-foreground text-sm">{request.phoneNumber}</td>
-                                        <td className="py-3 px-2 text-muted-foreground text-sm align-top max-w-xl">
+                                        <td className="py-3 px-2 text-sm">{request.phoneNumber}</td>
+                                        <td className="py-3 px-2 text-sm align-top max-w-xl">
                                             <div style={{ whiteSpace: 'pre-line', wordBreak: 'break-word' }}>
                                                 {request.notes}
                                             </div>
                                         </td>
-                                        <td className="py-3 px-2 text-muted-foreground text-sm">{request.createdAt}</td>
+                                        <td className="py-3 px-2 text-sm">{request.createdAt}</td>
                                     </tr>
                                 ))}
                             </tbody>

@@ -65,12 +65,12 @@ export function PatientsPage() {
             {/* Patient Info */}
             <div className="rounded-lg mb-6">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full flex items-center justify-center text-primary text-lg font-bold">
+                <div className="w-16 h-16 rounded-full flex items-center justify-center text-lg font-bold">
                   {`${selectedPatient.first_name[0]}${selectedPatient.last_name[0]}`.toUpperCase()}
                 </div>
                 <div className="flex-1">
                   <h1 className="text-2xl font-bold">{`${selectedPatient.first_name} ${selectedPatient.last_name}`}</h1>
-                  <p className="text-muted-foreground text-sm">Patient ID: {selectedPatient.id}</p>
+                  <p className="text-sm">Patient ID: {selectedPatient.id}</p>
                 </div>
               </div>
             </div>
@@ -80,7 +80,7 @@ export function PatientsPage() {
               <h3 className="text-lg font-semibold mb-4">Contact Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-muted-foreground mb-2">
+                  <label className="block text-sm font-medium mb-2">
                     Phone Number
                   </label>
                   <div className="font-medium text-foreground">
@@ -89,7 +89,7 @@ export function PatientsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-muted-foreground mb-2">
+                  <label className="block text-sm font-medium mb-2">
                     Date of Birth
                   </label>
                   <div className="font-medium text-foreground">
@@ -105,7 +105,7 @@ export function PatientsPage() {
                 <h3 className="text-lg font-semibold mb-4">Guardian Information</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-muted-foreground mb-2">
+                    <label className="block text-sm font-medium mb-2">
                       Guardian Name
                     </label>
                     <div className="font-medium text-foreground">
@@ -114,7 +114,7 @@ export function PatientsPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-muted-foreground mb-2">
+                    <label className="block text-sm font-medium mb-2">
                       Date of Birth
                     </label>
                     <div className="font-medium text-foreground">
@@ -123,7 +123,7 @@ export function PatientsPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-muted-foreground mb-2">
+                    <label className="block text-sm font-medium mb-2">
                       Relationship to Patient
                     </label>
                     <div className="font-medium text-foreground">
@@ -147,7 +147,7 @@ export function PatientsPage() {
                       <div>
                         <div className="font-medium text-sm">{doc.type}</div>
                         {"description" in doc && (
-                          <div className="text-muted-foreground text-xs">
+                          <div className="text-xs">
                             {(doc as { description: string }).description}
                           </div>
                         )}
@@ -169,8 +169,8 @@ export function PatientsPage() {
                 </div>
               ) : (
                 <div className="text-center py-8 neumorphic-inset rounded-lg">
-                  <p className="text-muted-foreground text-sm mb-2">No documents uploaded</p>
-                  <p className="text-muted-foreground text-xs">
+                  <p className="text-sm mb-2">No documents uploaded</p>
+                  <p className="text-xs">
                     {selectedPatient?.id === 612 || selectedPatient?.id === 581 || selectedPatient?.id === 616
                       ? "This patient has not uploaded any documents yet."
                       : "This patient has not uploaded any documents yet."}
@@ -203,11 +203,11 @@ export function PatientsPage() {
                         <span className="font-semibold text-foreground">
                           {formatDateUSShort(appointment.date)}
                         </span>
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium neumorphic-inset text-primary">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium neumorphic-inset">
                           {appointment.status}
                         </span>
                       </div>
-                      <p className="text-muted-foreground text-sm mb-4">
+                      <p className="text-sm mb-4">
                         {appointment.time}
                       </p>
                       <div className="flex justify-center items-center gap-3">
@@ -217,7 +217,7 @@ export function PatientsPage() {
                           Reschedule
                         </Button>
                         <Button
-                          className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:bg-destructive hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                          className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                         >
                           Cancel
                         </Button>
@@ -227,8 +227,8 @@ export function PatientsPage() {
                 </div>
               ) : (
                 <div className="text-center py-8 neumorphic-inset rounded-lg">
-                  <p className="text-muted-foreground text-sm mb-2">No upcoming appointments</p>
-                  <p className="text-muted-foreground text-xs">
+                  <p className="text-sm mb-2">No upcoming appointments</p>
+                  <p className="text-xs">
                     {selectedPatient?.id === 579 || selectedPatient?.id === 616
                       ? "This patient has no scheduled appointments."
                       : "This patient has no upcoming appointments."}
@@ -251,7 +251,7 @@ export function PatientsPage() {
                         <span className="font-semibold text-foreground text-base">
                           {formatDateUSShort(appointment.date)}
                         </span>
-                        <span className="text-muted-foreground text-sm">
+                        <span className="text-sm">
                           {appointment.time}
                         </span>
                       </div>
@@ -260,10 +260,10 @@ export function PatientsPage() {
                           inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
                           ${
                             appointment.status && appointment.status.toLowerCase() === "completed"
-                              ? "bg-green-100 text-green-700"
+                              ? "bg-green-100"
                               : appointment.status && appointment.status.toLowerCase() === "cancelled"
-                              ? "bg-destructive/20 text-destructive"
-                              : "bg-primary/10 text-primary"
+                              ? "bg-destructive/20"
+                              : "bg-primary/10"
                           }
                           neumorphic-inset
                         `}
@@ -275,8 +275,8 @@ export function PatientsPage() {
                 </div>
               ) : (
                 <div className="text-center py-8 neumorphic-inset rounded-lg">
-                  <p className="text-muted-foreground text-sm mb-2">No past appointments</p>
-                  <p className="text-muted-foreground text-xs">This patient has no appointment history.</p>
+                  <p className="text-sm mb-2">No past appointments</p>
+                  <p className="text-xs">This patient has no appointment history.</p>
                 </div>
               )}
             </div>
@@ -328,12 +328,12 @@ export function PatientsPage() {
                     <td className="py-3 px-2 font-medium text-sm">{patient.id}</td>
                     <td className="py-3 px-2">
                       <div className="flex items-center gap-1">
-                        <IconUserCircle className="w-5 h-5 text-primary" />
+                        <IconUserCircle className="w-5 h-5" />
                         <span className="font-medium text-sm">{`${patient.first_name} ${patient.last_name}`}</span>
                       </div>
                     </td>
-                    <td className="py-3 px-2 text-muted-foreground text-sm">{formatDate(patient.dob)}</td>
-                    <td className="py-3 px-2 text-muted-foreground text-sm">{patient.phone_number}</td>
+                    <td className="py-3 px-2 text-sm">{formatDate(patient.dob)}</td>
+                    <td className="py-3 px-2 text-sm">{patient.phone_number}</td>
                     <td className="py-3 px-2">
                       <Button
                         onClick={() => handleViewProfile(patient)}
@@ -367,7 +367,7 @@ export function PatientsPage() {
 
               <form onSubmit={handleSubmit} className="space-y-3">
                 <div>
-                  <label className="block text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+                  <label className="block text-xs font-medium uppercase tracking-wide mb-2">
                     Full Name *
                   </label>
                   <input
@@ -379,7 +379,7 @@ export function PatientsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+                  <label className="block text-xs font-medium uppercase tracking-wide mb-2">
                     Date of Birth *
                   </label>
                   <input
@@ -391,7 +391,7 @@ export function PatientsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+                  <label className="block text-xs font-medium uppercase tracking-wide mb-2">
                     Phone Number *
                   </label>
                   <div className="flex">
@@ -407,7 +407,7 @@ export function PatientsPage() {
                 <div className="flex gap-3 pt-3">
                   <Button
                     onClick={() => setShowAddForm(false)}
-                    className="flex-1 w-fit text-sm font-medium neumorphic-pressed text-primary hover:bg-destructive hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                    className="flex-1 w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                   >
                     Cancel
                   </Button>

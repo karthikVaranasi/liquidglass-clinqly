@@ -121,7 +121,7 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
                 onClick={isClickable ? handleCardClick : undefined}
               >
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2 text-sm">
                     <IconComponent className="size-4" />
                     {stat.label}
                   </div>
@@ -219,7 +219,7 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
           <div className="pb-4">
             <h3 className="text-lg font-semibold">{dashboard.sections.patientsOverview.title}</h3>
             <div className="flex items-center justify-between mt-1">
-              <span className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span className="flex items-center gap-2 text-sm">
                 <IconUsers className="size-4" />
                 {dashboard.sections.patientsOverview.description}
               </span>
@@ -261,8 +261,8 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
                           return (
                             <div className="neumorphic-card rounded-lg p-3">
                               <p className="font-medium">{data.name}</p>
-                              <p className="text-sm text-muted-foreground">{data.value} patients</p>
-                              <p className="text-xs text-muted-foreground mt-1">Click to {selectedPieSlice === data.name ? 'deselect' : 'focus'}</p>
+                              <p className="text-sm">{data.value} patients</p>
+                              <p className="text-xs mt-1">Click to {selectedPieSlice === data.name ? 'deselect' : 'focus'}</p>
                             </div>
                           );
                         }

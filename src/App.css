@@ -55,8 +55,8 @@
   --midnight-green: #01211C;
   
   /* Base surface */
-  --background: #E0F7F4;
-  /* --background: #ffffff; */
+  /* --background: #E0F7F4; */
+  --background: #ffffff;
   --foreground: #01211C;
   --card: #ffffff;
   --card-foreground: #01211C;
@@ -85,7 +85,7 @@
   /* Sidebar tokens aligned to brand primary */
   --sidebar: #ffffff;
   --sidebar-foreground: #01211C;
-  --sidebar-primary: #14B5AA;
+  --sidebar-primary: #daf9f7;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #E0F7F4;
   --sidebar-accent-foreground: #01211C;

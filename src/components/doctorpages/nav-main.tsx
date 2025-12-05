@@ -61,15 +61,15 @@ export function NavMain({
           ))}
         </SidebarMenu>
 
-          {activeTabRect && (
+        {activeTabRect && (
           <div
-              className="absolute left-0 right-0 bg-primary/20 rounded-sm pointer-events-none"
+            className="absolute left-0 right-0 bg-primary/20 rounded-sm pointer-events-none"
             style={{
-                top: activeTabRect.top,
-                height: activeTabRect.height,
-              }}
-            />
-          )}
+              top: activeTabRect.top,
+              height: activeTabRect.height,
+            }}
+          />
+        )}
       </SidebarGroupContent>
     </SidebarGroup>
   )

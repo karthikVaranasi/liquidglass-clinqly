@@ -19,6 +19,7 @@ dist-ssr
 .DS_Store
 sampleui/
 sampleapi/
+samplecode/
 *.suo
 *.ntvs*
 *.njsproj

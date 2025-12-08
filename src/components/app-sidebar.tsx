@@ -4,7 +4,6 @@ import {
   IconClipboardList,
   IconDashboard,
   IconLogs,
-  // IconMedicalCross,
   IconUser,
   IconUsers,
   IconClockHour4,
@@ -21,9 +20,72 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import data from "@/data.json"
 
-const { app } = data
+// Static app config
+const app = {
+  name: "Maartha Clinic"
+}
+
+// Static default user (fallback)
+const defaultUser = {
+  name: "Martha Nelson",
+  email: "martha.nelson@ezmedtech.ai",
+  avatar: "/avatars/doctor.jpg",
+  role: "General Physician",
+  phone: "+14709448601"
+}
+
+// Static navigation items for doctor
+const doctorNavItems = [
+  {
+    title: "Appointments",
+    url: "#",
+    icon: "IconCalendar",
+    page: "appointments"
+  },
+  {
+    title: "Analytics",
+    url: "#",
+    icon: "IconDashboard",
+    page: "dashboard"
+  },
+  {
+    title: "Patients",
+    url: "#",
+    icon: "IconUsers",
+    page: "patients"
+  },
+  {
+    title: "Logs",
+    url: "#",
+    icon: "IconLogs",
+    page: "logs"
+  },
+  {
+    title: "Front Desk",
+    url: "#",
+    icon: "IconUser",
+    page: "front-desk"
+  },
+  {
+    title: "Refill Requests",
+    url: "#",
+    icon: "IconClipboardList",
+    page: "refill-requests"
+  },
+  {
+    title: "Clinic Availability",
+    url: "#",
+    icon: "IconClockHour4",
+    page: "settings"
+  },
+  {
+    title: "Calendar Integrations",
+    url: "#",
+    icon: "IconCalendar",
+    page: "calendar-integrations"
+  }
+]
 
 // Create icon mapping for navMain data
 const iconMap = {
@@ -36,14 +98,39 @@ const iconMap = {
   IconClockHour4,
 }
 
-// Transform navMain data to include actual icon components
-const transformedData = {
-  ...data,
-  navMain: data.navMain.map(item => ({
-    ...item,
-    icon: iconMap[item.icon as keyof typeof iconMap]
-  }))
-}
+// Admin navigation items - only show specific pages
+const adminNavItems = [
+  {
+    title: "Analytics",
+    url: "#",
+    icon: "IconDashboard",
+    page: "analytics"
+  },
+  {
+    title: "Appointments",
+    url: "#",
+    icon: "IconCalendar",
+    page: "appointments"
+  },
+  {
+    title: "Doctors",
+    url: "#",
+    icon: "IconUsers",
+    page: "doctors"
+  },
+  {
+    title: "Patients",
+    url: "#",
+    icon: "IconUsers",
+    page: "patients"
+  },
+  {
+    title: "Logs",
+    url: "#",
+    icon: "IconLogs",
+    page: "logs"
+  }
+]
 
 export function AppSidebar({
   onPageChange,
@@ -51,7 +138,7 @@ export function AppSidebar({
   onLogout,
   clinicData,
   userData,
-  userType,
+  userType = 'doctor',
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
   onPageChange?: (page: string) => void
@@ -61,6 +148,27 @@ export function AppSidebar({
   userData?: any
   userType?: 'admin' | 'doctor'
 }) {
+  // Transform navMain data based on user type
+  const transformedData = React.useMemo(() => {
+    if (userType === 'admin') {
+      return {
+        navMain: adminNavItems.map(item => ({
+          ...item,
+          icon: iconMap[item.icon as keyof typeof iconMap]
+        })),
+        user: defaultUser
+      }
+    } else {
+      return {
+        navMain: doctorNavItems.map(item => ({
+          ...item,
+          icon: iconMap[item.icon as keyof typeof iconMap]
+        })),
+        user: defaultUser
+      }
+    }
+  }, [userType])
+
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -78,7 +186,7 @@ export function AppSidebar({
                     <span className="text-lg font-semibold">EZ MedTech</span>
                   </>
                 ) : (
-                  // For other users (doctors), show clinic branding if available
+                  // For doctor users, show clinic branding if available
                   <>
                     {clinicData?.logo_url ? (
                       <img
@@ -116,9 +224,10 @@ export function AppSidebar({
           email: userData.email || '',
           avatar: userData.avatar || '',
           role: userData.role || (userData.department ? `Dr. ${userData.department}` : ''),
-          phone: userData.phone_number || userData.mobile_phone || ''
+          phone: userData.phone_number || userData.mobile_phone || userData.phone || userData.contact_number || ''
         } : transformedData.user} onLogout={onLogout} />
       </SidebarFooter>
     </Sidebar>
   )
 }
+

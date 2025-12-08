@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { IconPhone, IconCheck, IconRefresh, IconX, IconExclamationCircle, IconStar } from "@tabler/icons-react"
 import {
   Select,
@@ -8,11 +8,15 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import data from "@/data.json"
+import { DoctorLogsAPI } from "@/api/doctor/logs"
+import type { CallLog, TranscriptTurn } from "@/api/shared/types"
 
 // Sentiment Analysis Component
 const SentimentRating = ({ rating }: { rating: number }) => {
-  const roundedRating = Math.round(rating) // Round to 1, 2, 3, 4, or 5
+  // Scale 0-1 rating to 0-5 stars
+  // If rating is > 1, assume it's already on 1-5 scale
+  const scaledRating = rating <= 1 ? rating * 5 : rating
+  const roundedRating = Math.round(scaledRating)
 
   const getSentimentColor = (rating: number) => {
     if (rating >= 4) return "#14B5AA" // Bright teal for good/excellent (4-5 stars)
@@ -26,11 +30,10 @@ const SentimentRating = ({ rating }: { rating: number }) => {
       {[1, 2, 3, 4, 5].map((star) => (
         <IconStar
           key={star}
-          className={`w-4 h-4 ${
-            star <= roundedRating
-              ? "fill-current"
-              : ""
-          }`}
+          className={`w-4 h-4 ${star <= roundedRating
+            ? "fill-current"
+            : ""
+            }`}
           style={{ color: getSentimentColor(roundedRating) }}
         />
       ))}
@@ -38,284 +41,129 @@ const SentimentRating = ({ rating }: { rating: number }) => {
   )
 }
 
-const { callLogs, logsConfig } = data
+// Static logs config
+const logsConfig = {
+  pageTitle: "Call Logs",
+  summaryCards: [
+    { key: "total", title: "Total Calls", icon: "IconPhone" },
+    { key: "scheduled", title: "Scheduled", icon: "IconCheck" },
+    { key: "rescheduled", title: "Rescheduled", icon: "IconRefresh" },
+    { key: "cancelled", title: "Cancelled", icon: "IconX" },
+    { key: "failed", title: "Failed", icon: "IconExclamationCircle" }
+  ],
+  tableTitle: "All Call Logs",
+  filters: [
+    { label: "All Time", value: "all-time" },
+    { label: "Today", value: "today" },
+    { label: "This Week", value: "this-week" },
+    { label: "This Month", value: "this-month" }
+  ],
+  filterLabel: "Filter by:"
+}
 
-type CallLog = (typeof callLogs.logs)[number] & { status?: string }
+// Helper to filter logs by time range
+const filterLogsByTime = (logs: CallLog[], timeFilter: string): CallLog[] => {
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
 
-// Assign status to each log based on summary stats distribution
-const assignStatusToLogs = (logs: CallLog[]): CallLog[] => {
-  const stats = callLogs.summaryStats
-  const scheduled = stats.scheduled
-  const rescheduled = stats.rescheduled
-  const cancelled = stats.cancelled
-  const failed = stats.failed
-
-  return logs.map((log, index) => {
-    let status = 'scheduled' // default
-    
-    if (index < scheduled) {
-      status = 'scheduled'
-    } else if (index < scheduled + rescheduled) {
-      status = 'rescheduled'
-    } else if (index < scheduled + rescheduled + cancelled) {
-      status = 'cancelled'
-    } else if (index < scheduled + rescheduled + cancelled + failed) {
-      status = 'failed'
-    } else {
-      status = 'scheduled' // remaining logs default to scheduled
+  switch (timeFilter) {
+    case 'today': {
+      return logs.filter(log => {
+        const logDate = new Date(log.start_time)
+        return logDate >= today
+      })
     }
-    
-    return { ...log, status }
-  })
-}
-
-const logsWithStatus = assignStatusToLogs(callLogs.logs as CallLog[])
-
-type TranscriptTurn = {
-  speaker: "A" | "P"
-  label: "Assistant" | "Patient"
-  text: string
-}
-
-const sampleTranscriptByFrom: Record<string, TranscriptTurn[]> = {
-  "+14848001179": [
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Hello, Thank you for calling Martha's Clinic. If this is a medical emergency, please hang up now and dial Nine One One. Otherwise, how can I help you today?",
-    },
-    {
-      speaker: "P",
-      label: "Patient",
-      text:
-        "Hey, hi, my name is Radha Krishna and my date of birth was January 1st, 1996. Can you please book an appointment for me?",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text: "Hey Radha! Thanks for that information. Let me just pull up your record real quick.",
-    },
-    {
-      speaker: "P",
-      label: "Patient",
-      text: "I'm actually new to your clinic.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Perfect! Let me create a new patient record for you real quick. Just to confirm, is the best number to reach you the one you're calling from, or would you prefer a different number?",
-    },
-    {
-      speaker: "P",
-      label: "Patient",
-      text: "No, I'll give you the other number like it's 224-554-9339.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text: "Got it, creating your record.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Excellent! I've created your patient record, Radha. Now, what date would you like to schedule your appointment with Dr. Martha Nelson?",
-    },
-    {
-      speaker: "P",
-      label: "Patient",
-      text: "On December 8th, Monday.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text: "Perfect! Let me check Dr. Nelson's availability for Monday, December 8th.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Great news! Dr. Nelson is available on Monday, December 8th. I have several time slots open. Do you prefer a morning or afternoon appointment?",
-    },
-    {
-      speaker: "P",
-      label: "Patient",
-      text: "Morning appointment?",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Perfect! Here are the morning times I have available: 9:00 AM or 9:30 AM. Which time works better for you?",
-    },
-    {
-      speaker: "P",
-      label: "Patient",
-      text: "...",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Are you still there, Radha? Which time would you prefer – 9:00 AM or 9:30 AM?",
-    },
-    {
-      speaker: "P",
-      label: "Patient",
-      text: "Yes, 9 a.m. is fine for me.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text: "Excellent! Let me book that for you now.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text: "I'm having a little trouble booking that right now. Let me try again for you.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "I apologize, Radha, but I'm unable to complete your booking at the moment due to a system issue. Could you please try calling back in a few minutes, and we'll get you scheduled for that 9:00 AM appointment?",
-    },
-    {
-      speaker: "P",
-      label: "Patient",
-      text: "Yes please.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Thanks so much for your patience, Radha. We'll get you taken care of when you call back. Have a great day!",
-    },
-  ],
-  "+12245549339": [
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Hi, thanks for calling Martha's Clinic. This is the front desk. How can I help you today?",
-    },
-    {
-      speaker: "P",
-      label: "Patient",
-      text:
-        "Hi, I just wanted to confirm my upcoming appointment and the time.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Absolutely, I'd be happy to confirm that for you. Can I have your full name and date of birth?",
-    },
-    {
-      speaker: "P",
-      label: "Patient",
-      text:
-        "Sure, it's David Johnson, and my date of birth is January 12th, 1985.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Thank you, David. I see you have an appointment booked with Dr. Martha Nelson for a follow-up consultation.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Your appointment is scheduled for tomorrow at 9:00 AM. Please arrive 10 minutes early to complete any paperwork if needed.",
-    },
-    {
-      speaker: "P",
-      label: "Patient",
-      text:
-        "Perfect, thank you so much. That time works for me.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "You're very welcome, David. We look forward to seeing you then. Have a great day!",
-    },
-  ],
-  "+12674679709": [
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Hello, you've reached Martha's Clinic. How can I assist you today?",
-    },
-    {
-      speaker: "P",
-      label: "Patient",
-      text:
-        "Hi, I have a question about my bill and the payment options available.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Of course, I can help with that. Can I have your name and the date of your last visit?",
-    },
-    {
-      speaker: "P",
-      label: "Patient",
-      text:
-        "My name is Tony, and my last visit was earlier this month.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Thank you, Tony. I see your account here. We accept all major credit cards, debit cards, and HSA cards, and you can also pay your bill online through our patient portal.",
-    },
-    {
-      speaker: "P",
-      label: "Patient",
-      text:
-        "Great, can you text me the link to the portal?",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Absolutely, I’ll send a secure link to the phone number we have on file ending in 9709. You can use that to view and pay your bill.",
-    },
-    {
-      speaker: "P",
-      label: "Patient",
-      text:
-        "Perfect, thanks for your help.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "You’re welcome, Tony. If you have any other questions, feel free to call us back. Have a good day!",
-    },
-  ],
-}
-
-const getTranscriptForLog = (log: CallLog): TranscriptTurn[] => {
-  return sampleTranscriptByFrom[log.from] ?? []
+    case 'this-week': {
+      const weekStart = new Date(today)
+      weekStart.setDate(today.getDate() - today.getDay())
+      return logs.filter(log => {
+        const logDate = new Date(log.start_time)
+        return logDate >= weekStart
+      })
+    }
+    case 'this-month': {
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+      return logs.filter(log => {
+        const logDate = new Date(log.start_time)
+        return logDate >= monthStart
+      })
+    }
+    case 'all-time':
+    default:
+      return logs
+  }
 }
 
 export function LogsPage() {
   const [timeFilter, setTimeFilter] = useState("all-time")
-  const [statusFilter, setStatusFilter] = useState<string | null>(null)
+  // Default to "total" so the first card is active and table shows all
+  const [statusFilter, setStatusFilter] = useState<string>("total")
   const [selectedLog, setSelectedLog] = useState<CallLog | null>(null)
   const [showTranscript, setShowTranscript] = useState(false)
 
-  // Generate random sentiment ratings for demo purposes (whole numbers 1-5)
-  const getRandomSentiment = (index: number) => {
-    const ratings = [1, 2, 3, 4, 5]
-    return ratings[Math.floor((index + Math.random() * 10) % 5)]
+  const [allLogs, setAllLogs] = useState<CallLog[]>([]) // All fetched logs
+  const [loading, setLoading] = useState(true)
+  const [transcript, setTranscript] = useState<TranscriptTurn[]>([])
+  const [loadingTranscript, setLoadingTranscript] = useState(false)
+
+  useEffect(() => {
+    fetchLogs()
+  }, [])
+
+  const fetchLogs = async () => {
+    setLoading(true)
+    try {
+      const fetchedLogs = await DoctorLogsAPI.getLogs()
+      // Sort logs by start_time descending (most recent first)
+      const sortedLogs = fetchedLogs.sort((a, b) =>
+        new Date(b.start_time).getTime() - new Date(a.start_time).getTime()
+      )
+      setAllLogs(sortedLogs)
+    } catch (error) {
+      console.error("Failed to fetch logs:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Apply time filter to logs
+  const timeFilteredLogs = useMemo(() =>
+    filterLogsByTime(allLogs, timeFilter),
+    [allLogs, timeFilter]
+  )
+
+  // Calculate summary stats from time-filtered logs
+  const summaryStats = useMemo(() => ({
+    total: timeFilteredLogs.length,
+    scheduled: timeFilteredLogs.filter(l => l.status === 'scheduled').length,
+    rescheduled: timeFilteredLogs.filter(l => l.status === 'rescheduled').length,
+    cancelled: timeFilteredLogs.filter(l => l.status === 'cancelled').length,
+    failed: timeFilteredLogs.filter(l => l.status === 'failed' || l.status === 'failure').length,
+  }), [timeFilteredLogs])
+
+  // Apply status filter to time-filtered logs
+  const filteredLogs = useMemo(() => {
+    if (!statusFilter || statusFilter === 'total') return timeFilteredLogs
+    if (statusFilter === 'failed') {
+      return timeFilteredLogs.filter(log => log.status === 'failed' || log.status === 'failure')
+    }
+    return timeFilteredLogs.filter(log => log.status === statusFilter)
+  }, [timeFilteredLogs, statusFilter])
+
+  const handleViewTranscript = async (log: CallLog) => {
+    setSelectedLog(log)
+    setShowTranscript(true)
+    setLoadingTranscript(true)
+    try {
+      // Use id (number) converted to string for transcript fetch
+      const fetchedTranscript = await DoctorLogsAPI.getTranscript(log.id.toString())
+      setTranscript(fetchedTranscript)
+    } catch (error) {
+      console.error("Failed to fetch transcript:", error)
+      setTranscript([])
+    } finally {
+      setLoadingTranscript(false)
+    }
   }
 
   const tableHeaders = [
@@ -326,16 +174,53 @@ export function LogsPage() {
     { key: 'action', label: 'Actions' }
   ]
 
-  // Filter logs based on status
-  const filteredLogs = statusFilter 
-    ? logsWithStatus.filter(log => log.status === statusFilter)
-    : logsWithStatus
-
   // Get filter title
   const getFilterTitle = () => {
-    if (!statusFilter) return `All Call Logs (${logsWithStatus.length})`
+    if (!statusFilter || statusFilter === 'total') return `All Call Logs (${timeFilteredLogs.length})`
     const card = logsConfig.summaryCards.find(c => c.key === statusFilter)
     return `${card?.title || 'Filtered'} Call Logs (${filteredLogs.length})`
+  }
+
+  // Helper to calculate duration
+  const calculateDuration = (start: string, end: string) => {
+    const startTime = new Date(start).getTime()
+    const endTime = new Date(end).getTime()
+    const durationMs = endTime - startTime
+    const minutes = Math.floor(durationMs / 60000)
+    const seconds = Math.floor((durationMs % 60000) / 1000)
+    return `${minutes}m ${seconds}s`
+  }
+
+  // Helper to format date
+  const formatDate = (dateString: string) => {
+    // Ensure UTC if no timezone specified (API returns UTC)
+    const utcString = dateString.endsWith('Z') ? dateString : `${dateString}Z`
+    const date = new Date(utcString)
+
+    return new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/New_York',
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: true
+    }).format(date)
+  }
+
+  const handleDownloadTranscript = () => {
+    if (!selectedLog || !transcript.length) return
+
+    const blob = new Blob([JSON.stringify(transcript, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `transcript-${selectedLog.call_id || selectedLog.id}.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
   }
 
   return (
@@ -364,23 +249,17 @@ export function LogsPage() {
               }
             }
 
-            const isActive = card.key === 'total' 
-              ? statusFilter === null 
-              : statusFilter === card.key
+            const isActive = statusFilter === card.key
             const handleCardClick = () => {
-              if (card.key === 'total') {
-                setStatusFilter(null) // Show all logs
-              } else {
-                setStatusFilter(isActive ? null : card.key) // Toggle filter
-              }
+              // Clicking an active card resets back to "total" (all)
+              setStatusFilter(isActive ? 'total' : card.key)
             }
 
             return (
-              <div 
-                key={card.key} 
-                className={`neumorphic-inset p-4 neumorphic-hover transition-all duration-200 cursor-pointer ${
-                  isActive ? 'neumorphic-pressed' : ''
-                }`}
+              <div
+                key={card.key}
+                className={`neumorphic-inset p-4 neumorphic-hover transition-all duration-200 cursor-pointer ${isActive ? 'neumorphic-pressed ring-2 ring-primary' : ''
+                  }`}
                 onClick={handleCardClick}
               >
                 <div className="space-y-2">
@@ -389,7 +268,7 @@ export function LogsPage() {
                     {card.title}
                   </div>
                   <div className={`text-2xl font-bold tabular-nums sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl ${getCardColor(card.key)}`}>
-                    {callLogs.summaryStats[card.key as keyof typeof callLogs.summaryStats]}
+                    {summaryStats[card.key as keyof typeof summaryStats] || 0}
                   </div>
                 </div>
               </div>
@@ -441,33 +320,44 @@ export function LogsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y-2 divide-muted/90">
-                {filteredLogs.map((log, index) => (
-                  <tr key={index} className="hover:bg-muted/30 transition-colors">
-                    <td className="py-3 px-4">
-                      <span className="text-sm font-medium">{log.from}</span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <span className="text-sm">{log.startTime}</span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <span className="text-sm">{log.duration}</span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <SentimentRating rating={getRandomSentiment(index)} />
-                    </td>
-                    <td className="py-3 px-4">
-                      <Button
-                        onClick={() => {
-                          setSelectedLog(log)
-                          setShowTranscript(true)
-                        }}
-                        className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
-                      >
-                        View Conversation
-                      </Button>
+                {loading ? (
+                  <tr>
+                    <td colSpan={5} className="py-8 text-center text-muted-foreground">
+                      Loading logs...
                     </td>
                   </tr>
-                ))}
+                ) : filteredLogs.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="py-8 text-center text-muted-foreground">
+                      No logs found.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredLogs.map((log, index) => (
+                    <tr key={index} className="hover:bg-muted/30 transition-colors">
+                      <td className="py-3 px-4">
+                        <span className="text-sm font-medium">{log.from_phone}</span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="text-sm">{formatDate(log.start_time)}</span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="text-sm">{calculateDuration(log.start_time, log.end_time)}</span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <SentimentRating rating={log.sentiment_score || 0} />
+                      </td>
+                      <td className="py-3 px-4">
+                        <Button
+                          onClick={() => handleViewTranscript(log)}
+                          className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                        >
+                          View Conversation
+                        </Button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -481,6 +371,7 @@ export function LogsPage() {
           onClick={() => {
             setShowTranscript(false)
             setSelectedLog(null)
+            setTranscript([])
           }}
         >
           <div
@@ -491,14 +382,15 @@ export function LogsPage() {
               <div className="flex items-center justify-between mb-2">
                 <div>
                   <h3 className="text-base font-semibold">
-                    Conversational Transcript – <span className="font-mono">{selectedLog.from}</span>
+                    Conversational Transcript – <span className="font-mono">{selectedLog.from_phone}</span>
                   </h3>
                   <p className="text-xs">
-                    Start Time: {selectedLog.startTime} • Duration: {selectedLog.duration}
+                    Start Time: {formatDate(selectedLog.start_time)} • Duration: {calculateDuration(selectedLog.start_time, selectedLog.end_time)}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
+                    onClick={handleDownloadTranscript}
                     className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                   >
                     Download
@@ -508,6 +400,7 @@ export function LogsPage() {
                     onClick={() => {
                       setShowTranscript(false)
                       setSelectedLog(null)
+                      setTranscript([])
                     }}
                   >
                     <IconX className="size-4" />
@@ -516,20 +409,21 @@ export function LogsPage() {
               </div>
 
               <div className="max-h-[60vh] overflow-y-auto bg-card rounded-lg p-4 text-sm space-y-3">
-                {getTranscriptForLog(selectedLog).length === 0 ? (
+                {loadingTranscript ? (
+                  <p className="text-sm text-center py-4">Loading transcript...</p>
+                ) : transcript.length === 0 ? (
                   <p className="text-sm">
                     No transcript available for this call yet.
                   </p>
                 ) : (
-                  getTranscriptForLog(selectedLog).map((turn, idx) => (
+                  transcript.map((turn, idx) => (
                     <div key={idx} className="flex gap-3">
                       <div className="flex flex-col items-center mt-0.5">
                         <span
-                          className={`w-6 h-6 flex items-center justify-center rounded-full text-xs font-semibold ${
-                            turn.speaker === "A"
-                              ? "bg-primary/10"
-                              : "bg-muted"
-                          }`}
+                          className={`w-6 h-6 flex items-center justify-center rounded-full text-xs font-semibold ${turn.speaker === "A"
+                            ? "bg-primary/10"
+                            : "bg-muted"
+                            }`}
                         >
                           {turn.speaker}
                         </span>

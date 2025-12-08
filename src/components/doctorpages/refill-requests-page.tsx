@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react"
 import { IconUserCircle } from "@tabler/icons-react"
-import { AuthStorage, AppointmentsAPI } from "@/api/auth"
+import { AuthStorage } from "@/api/auth"
+import { DoctorRequestsAPI } from "@/api/doctor"
+import { useCounts } from "@/contexts/counts-context"
 
 export function RefillRequestsPage() {
   const [requests, setRequests] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { setRefillRequestsCount } = useCounts()
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -22,12 +25,14 @@ export function RefillRequestsPage() {
           return
         }
 
-        const data = await AppointmentsAPI.getRefillRequests(clinicId)
-        setRequests(Array.isArray(data) ? data : [])
+        const result = await DoctorRequestsAPI.getRefillRequests(clinicId)
+        setRequests(result.data)
+        setRefillRequestsCount(result.count)
       } catch (err) {
         console.error('Failed to fetch refill requests:', err)
         setError(err instanceof Error ? err.message : 'Failed to load refill requests')
         setRequests([])
+        setRefillRequestsCount(null)
       } finally {
         setLoading(false)
       }
@@ -36,14 +41,22 @@ export function RefillRequestsPage() {
     fetchRequests()
   }, [])
 
-  const formatDate = (dateString: string) => {
-    if (!dateString) return ''
+  const formatDate = (dateString: string | null | undefined) => {
+    if (!dateString) return 'N/A'
     try {
       const date = new Date(dateString)
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        return dateString // Return original string if invalid
+      }
       return date.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
     } catch {
-      return dateString
+      return dateString || 'N/A'
     }
+  }
+
+  const getPatientId = (request: any) => {
+    return request.patient_id || request.patient?.id || 'N/A'
   }
 
   const getPatientName = (request: any) => {
@@ -64,6 +77,40 @@ export function RefillRequestsPage() {
 
   const getDetails = (request: any) => {
     return request.details || request.request || ''
+  }
+
+  const getCreatedAt = (request: any) => {
+    // Check multiple possible date field names (top level)
+    let dateValue = request.created_at 
+      || request.createdAt 
+      || request.date 
+      || request.timestamp
+      || request.created_date
+      || request.created_date_time
+      || request.created
+      || request.date_created
+      || request.time_created
+      || request.inserted_at
+      || request.updated_at
+      || null
+    
+    // If not found at top level, check nested objects
+    if (!dateValue) {
+      // Check in patient object
+      if (request.patient) {
+        dateValue = request.patient.created_at 
+          || request.patient.createdAt
+          || request.patient.date_created
+          || null
+      }
+      
+      // Check if there's a metadata or extra field
+      if (!dateValue && request.metadata) {
+        dateValue = request.metadata.created_at || request.metadata.date_created || null
+      }
+    }
+    
+    return dateValue
   }
 
   if (loading) {
@@ -102,12 +149,6 @@ export function RefillRequestsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="px-4 lg:px-6">
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
-          Refill Requests
-        </h1>
-      </div>
 
       {/* Refill Requests Table */}
       <div className="px-4 lg:px-6">
@@ -124,40 +165,51 @@ export function RefillRequestsPage() {
               <table className="w-full text-sm">
                 <thead className="sticky top-0 z-10 bg-card">
                   <tr className="border-b-2 border-muted/90 bg-muted/10">
-                    <th className="text-left font-medium py-3 px-2 min-w-[120px]">Patient Name</th>
-                    <th className="text-left font-medium py-3 px-2 min-w-[115px]">Patient Phone</th>
-                    <th className="text-left font-medium py-3 px-2 min-w-[120px]">Caller Name</th>
-                    <th className="text-left font-medium py-3 px-2 min-w-[90px]">Relationship</th>
-                    <th className="text-left font-medium py-3 px-2 min-w-[210px]">Details</th>
-                    <th className="text-left font-medium py-3 px-2 min-w-[150px]">Pharmacy Name</th>
-                    <th className="text-left font-medium py-3 px-2 min-w-[175px]">Pharmacy Location</th>
-                    <th className="text-left font-medium py-3 px-2 min-w-[100px]">Created At</th>
+                    <th className="text-left font-medium py-3 px-1.5 min-w-[90px]">Patient ID</th>
+                    <th className="text-left font-medium py-3 px-1.5 min-w-[150px]">Patient Name</th>
+                    <th className="text-left font-medium py-3 px-1.5 min-w-[115px]">Patient Phone</th>
+                    <th className="text-left font-medium py-3 px-1.5 min-w-[120px]">Caller Name</th>
+                    <th className="text-left font-medium py-3 px-1.5 min-w-[70px]">Relationship</th>
+                    <th className="text-left font-medium py-3 px-1.5 min-w-[205px]">Details</th>
+                    <th className="text-left font-medium py-3 px-1.5 min-w-[150px]">Pharmacy Name</th>
+                    <th className="text-left font-medium py-3 px-1.5 min-w-[175px]">Pharmacy Location</th>
+                    <th className="text-left font-medium py-3 px-1.5 min-w-[100px]">Created At</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y-2 divide-muted/90">
                   {requests.map((request, index) => (
                     <tr key={request.id || index} className="hover:bg-muted/30 transition-colors">
-                      <td className="py-3 px-2 font-medium text-sm">
+                      <td className="py-3 px-1.5 text-sm font-medium">{getPatientId(request)}</td>
+                      <td className="py-3 px-1.5 font-medium text-sm">
                         <div className="flex items-center gap-1">
                           <IconUserCircle className="w-5 h-5" />
                           {getPatientName(request)}
                         </div>
                       </td>
-                      <td className="py-3 px-2 text-sm">{getPatientPhone(request)}</td>
-                      <td className="py-3 px-2 text-sm">{request.caller_name}</td>
-                      <td className="py-3 px-2 text-sm">{getRelationship(request)}</td>
-                      <td className="py-3 px-2 text-sm max-w-xs">
+                      <td className="py-3 px-1.5 text-sm">{getPatientPhone(request)}</td>
+                      <td className="py-3 px-1.5 text-sm">{request.caller_name}</td>
+                      <td className="py-3 px-1.5 text-sm">{getRelationship(request)}</td>
+                      <td className="py-3 px-1.5 text-sm max-w-xs">
                         <div className="line-clamp-2" title={getDetails(request)}>
                           {getDetails(request)}
                         </div>
                       </td>
-                      <td className="py-3 px-2 text-sm">{request.pharmacy_name}</td>
-                      <td className="py-3 px-2 text-sm max-w-xs">
+                      <td className="py-3 px-1.5 text-sm">{request.pharmacy_name}</td>
+                      <td className="py-3 px-1.5 text-sm max-w-xs">
                         <div className="line-clamp-2" title={request.pharmacy_location}>
                           {request.pharmacy_location}
                         </div>
                       </td>
-                      <td className="py-3 px-2 text-sm">{formatDate(request.created_at)}</td>
+                      <td className="py-3 px-1.5 text-sm">
+                        {(() => {
+                          const dateValue = getCreatedAt(request)
+                          // Debug: Show raw value temporarily to help identify the field
+                          if (!dateValue) {
+                            console.log(`Request ID ${request.id}: No date found. All fields:`, Object.keys(request))
+                          }
+                          return formatDate(dateValue)
+                        })()}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

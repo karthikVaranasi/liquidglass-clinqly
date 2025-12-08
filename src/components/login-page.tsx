@@ -6,15 +6,12 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Eye, EyeOff, AlertCircle } from "lucide-react"
 import { IconShield, IconStethoscope } from "@tabler/icons-react"
 import { AuthAPI, AuthStorage } from "@/api/auth"
-import data from "@/data.json"
 
 interface LoginPageProps {
   onLogin: (userType: 'admin' | 'doctor', userData?: any) => void
 }
 
 export function LoginPage({ onLogin }: LoginPageProps) {
-  const { app } = data
-  const { login } = app
 
   const [userType, setUserType] = useState<'admin' | 'doctor'>('admin')
   const [email, setEmail] = useState('')
@@ -91,19 +88,19 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         <div className="relative z-10 flex flex-col justify-between w-full px-12 py-12">
           <div className="flex items-center gap-2">
             <img src="/logo.svg" alt="EzMedTech Logo" className="w-8 h-8 object-contain" />
-            <h1 className="text-xl font-semibold">EZ MedTech</h1>
+            <h1 className="text-xl font-semibold">EZMedTech</h1>
           </div>
 
           <div className="flex-1 flex flex-col justify-center">
-            <h2 className="text-4xl mb-6 leading-tight">{app.taglines.loginHero}</h2>
+            <h2 className="text-4xl mb-6 leading-tight">Effortlessly manage your medical practice.</h2>
             <p className="text-lg leading-relaxed">
-              {app.taglines.loginSubtext}
+              Manage Patients Information, Appointments, and more.
             </p>
           </div>
 
           <div className="flex justify-between items-center text-sm">
-            <span>{app.copyright}</span>
-            <span className="cursor-pointer">{app.login.privacyPolicy}</span>
+            <span>© {new Date().getFullYear()} EZMedTech. All rights reserved.</span>
+            <span className="cursor-pointer">Privacy Policy</span>
           </div>
         </div>
       </div>
@@ -111,14 +108,14 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-background min-h-screen lg:min-h-0">
         <div className="w-full max-w-md mx-auto space-y-6 sm:space-y-8 p-6 sm:p-8 rounded-lg neumorphic-pressed">
           <div className="lg:hidden text-center mb-6 sm:mb-8">
-            <h1 className="text-xl sm:text-2xl font-semibold text-foreground mb-2">EZ Medtech</h1>
+            <h1 className="text-xl sm:text-2xl font-semibold text-foreground mb-2">EZMedtech</h1>
             <p className="text-sm">Medical Dashboard</p>
           </div>
 
           <div className="space-y-4">
-            <div className="text-center">
-              <h2 className="text-xl sm:text-2xl text-foreground font-semibold">{login.title}</h2>
-              <p className="text-sm sm:text-base mt-1">{login.subtitle}</p>
+            <div className="text-center -mt-3">
+              <h2 className="text-xl sm:text-2xl text-foreground font-semibold">Login</h2>
+              {/* <p className="text-sm sm:text-base mt-1">Sign in to your account</p> */}
             </div>
 
             {/* User Type Selection */}
@@ -129,12 +126,12 @@ export function LoginPage({ onLogin }: LoginPageProps) {
               <TabsList className="-p-2.5 w-full">
                 <TabsTrigger value="admin" className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-xs sm:text-sm">
                   <IconShield className="w-4 h-4" />
-                  <span className="hidden sm:inline">{login.adminLabel}</span>
+                  <span className="hidden sm:inline">Admin</span>
                   <span className="sm:hidden">Admin</span>
                 </TabsTrigger>
                 <TabsTrigger value="doctor" className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-xs sm:text-sm">
                   <IconStethoscope className="w-4 h-4" />
-                  <span className="hidden sm:inline">{login.doctorLabel}</span>
+                  <span className="hidden sm:inline">Doctor</span>
                   <span className="sm:hidden">Doctor</span>
                 </TabsTrigger>
               </TabsList>
@@ -152,7 +149,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
               {/* Email Field */}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium text-foreground">
-                  {login.emailLabel}
+                  Email
                 </Label>
                 <Input
                   id="email"
@@ -168,7 +165,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
               {/* Password Field */}
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-sm font-medium text-foreground">
-                  {login.passwordLabel}
+                  Password
                 </Label>
                 <div className="relative">
                   <Input
@@ -226,7 +223,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                     className="rounded border-gray-300 cursor-pointer"
                   />
                   <Label htmlFor="remember" className="text-sm cursor-pointer">
-                    {login.rememberMeLabel}
+                    Remember me
                   </Label>
                 </div>
                 <Button
@@ -234,7 +231,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                   className="p-0 h-auto text-sm cursor-pointer"
                   onClick={handleForgotPassword}
                 >
-                  {login.forgotPasswordLabel}
+                  Forgot password?
                 </Button>
               </div>
 
@@ -251,7 +248,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                   </>
                 ) : (
                   <>
-                    <span>{login.loginButton}</span>
+                    <span>Login</span>
                     <span className="text-lg ml-2">→</span>
                   </>
                 )}

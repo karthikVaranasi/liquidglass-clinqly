@@ -1,10 +1,11 @@
-import { useState } from "react"
-import { IconPlus, IconTrash, IconPencil, IconRefresh } from "@tabler/icons-react"
+import { useState, useEffect } from "react"
+import { IconPlus, IconTrash, IconPencil, IconRefresh, IconLoader2 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { TimePicker } from "@/components/ui/time-picker"
+import toast from "react-hot-toast"
 import {
   Table,
   TableBody,
@@ -19,16 +20,35 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
-import data from "@/data.json"
+import { AuthStorage } from "@/api/auth"
+import {
+  AvailabilityAPI,
+  workingHoursToApiFormat,
+  workingHoursFromApiFormat,
+  dateToDisplayFormat,
+  dateToApiFormat,
+  timeToApiFormat,
+  timeFromApiFormat,
+} from "@/api/doctor"
+import type { AvailabilityException } from "@/api/shared/types"
 
-const { workingHours: initialWorkingHours } = data
+// Default working hours structure (used as fallback)
+const defaultWorkingHours = [
+  { day: "Monday", open: "9:00 AM", close: "5:00 PM", isClosed: false },
+  { day: "Tuesday", open: "9:00 AM", close: "5:00 PM", isClosed: false },
+  { day: "Wednesday", open: "9:00 AM", close: "5:00 PM", isClosed: false },
+  { day: "Thursday", open: "9:00 AM", close: "5:00 PM", isClosed: false },
+  { day: "Friday", open: "9:00 AM", close: "5:00 PM", isClosed: false },
+  { day: "Saturday", open: "9:00 AM", close: "5:00 PM", isClosed: true },
+  { day: "Sunday", open: "9:00 AM", close: "5:00 PM", isClosed: true },
+]
 
-// Helpers to convert between stored "dd-mm-yyyy" format and native <input type="date"> "yyyy-mm-dd"
+// Helpers to convert between stored "MM-DD-YYYY" (US format) and native <input type="date"> "YYYY-MM-DD"
 const toInputDateValue = (value: string): string => {
   if (!value) return ""
   const parts = value.split("-")
   if (parts.length !== 3) return ""
-  const [dd, mm, yyyy] = parts
+  const [mm, dd, yyyy] = parts
   if (!dd || !mm || !yyyy) return ""
   return `${yyyy}-${mm}-${dd}`
 }
@@ -39,80 +59,52 @@ const fromInputDateValue = (value: string): string => {
   if (parts.length !== 3) return ""
   const [yyyy, mm, dd] = parts
   if (!dd || !mm || !yyyy) return ""
-  return `${dd}-${mm}-${yyyy}`
+  return `${mm}-${dd}-${yyyy}`
 }
 
-export function SettingsPage() {
-  const [workingHours, setWorkingHours] = useState(initialWorkingHours)
-  const [activeSettingsTab, setActiveSettingsTab] = useState<"working-hours" | "off-days" | "public-holidays">("working-hours")
-
-  type OffDay = {
+type OffDay = {
   id: number
-  startDate: string // dd-mm-yyyy
-  endDate?: string // dd-mm-yyyy
+  startDate: string // MM-DD-YYYY (US format)
+  endDate?: string // MM-DD-YYYY (US format)
   allDay: boolean
   startTime?: string
   endTime?: string
   reason?: string
+  isHoliday?: boolean
 }
 
-  const [offDays, setOffDays] = useState<OffDay[]>([
-    {
-      id: 1,
-      startDate: "06-12-2025",
-      endDate: "10-12-2025",
-      allDay: true,
-      startTime: "08:00 AM",
-      endTime: "06:00 PM",
-      reason: "Day off",
-    },
-    {
-      id: 2,
-      startDate: "12-12-2025",
-      allDay: true,
-      startTime: "08:00 AM",
-      endTime: "06:00 PM",
-      reason: "",
-    },
-    {
-      id: 3,
-      startDate: "06-12-2025",
-      allDay: true,
-      startTime: "08:00 AM",
-      endTime: "06:00 PM",
-      reason: "",
-    },
-  ])
+// Convert API AvailabilityException to local OffDay format
+const exceptionToOffDay = (exception: AvailabilityException): OffDay => ({
+  id: exception.id,
+  startDate: dateToDisplayFormat(exception.exception_date),
+  endDate: exception.end_date ? dateToDisplayFormat(exception.end_date) : undefined,
+  allDay: exception.is_all_day,
+  startTime: exception.start_time ? timeFromApiFormat(exception.start_time) : "08:00 AM",
+  endTime: exception.end_time ? timeFromApiFormat(exception.end_time) : "06:00 PM",
+  reason: exception.reason || "",
+  isHoliday: exception.is_us_holiday || false,
+})
 
+export function SettingsPage() {
+  const [workingHours, setWorkingHours] = useState(defaultWorkingHours)
+  const [activeSettingsTab, setActiveSettingsTab] = useState<"working-hours" | "off-days" | "public-holidays">("working-hours")
+
+  // Loading states
+  const [isLoadingWorkingHours, setIsLoadingWorkingHours] = useState(true)
+  const [isLoadingOffDays, setIsLoadingOffDays] = useState(true)
+  const [isSavingWorkingHours, setIsSavingWorkingHours] = useState(false)
+  const [isSavingOffDay, setIsSavingOffDay] = useState(false)
+  const [isDeletingOffDay, setIsDeletingOffDay] = useState(false)
+  const [isSyncingHolidays, setIsSyncingHolidays] = useState(false)
+
+  // Get clinic and doctor IDs from storage
+  const clinicData = AuthStorage.getClinicData()
+  const userData = AuthStorage.getUserData()
+  const clinicId = clinicData?.id
+  const doctorId = userData?.id
+
+  const [offDays, setOffDays] = useState<OffDay[]>([])
   const [publicHolidays, setPublicHolidays] = useState<OffDay[]>([])
-
-  // Default public holidays (could be fetched from an API in a real app)
-  const defaultPublicHolidays: OffDay[] = [
-    {
-      id: 1,
-      startDate: "01-01-2026",
-      allDay: true,
-      startTime: "12:00 AM",
-      endTime: "11:59 PM",
-      reason: "New Year's Day",
-    },
-    {
-      id: 2,
-      startDate: "26-01-2026",
-      allDay: true,
-      startTime: "12:00 AM",
-      endTime: "11:59 PM",
-      reason: "Republic Day",
-    },
-    {
-      id: 3,
-      startDate: "15-08-2026",
-      allDay: true,
-      startTime: "12:00 AM",
-      endTime: "11:59 PM",
-      reason: "Independence Day",
-    },
-  ]
 
   const [isOffDayDialogOpen, setIsOffDayDialogOpen] = useState(false)
   const [editingOffDay, setEditingOffDay] = useState<OffDay | null>(null)
@@ -134,6 +126,67 @@ export function SettingsPage() {
     endTime: "06:00 PM",
     reason: "",
   })
+
+  // Fetch clinic working hours on mount
+  useEffect(() => {
+    const fetchWorkingHours = async () => {
+      if (!clinicId) {
+        setIsLoadingWorkingHours(false)
+        return
+      }
+
+      try {
+        const response = await AvailabilityAPI.getClinicWorkingHours(clinicId)
+        if (response.working_hours && response.working_hours.length > 0) {
+          setWorkingHours(workingHoursFromApiFormat(response.working_hours))
+        }
+      } catch (error) {
+        console.error("Failed to fetch working hours:", error)
+        toast.error("Failed to load working hours")
+      } finally {
+        setIsLoadingWorkingHours(false)
+      }
+    }
+
+    fetchWorkingHours()
+  }, [clinicId])
+
+  // Fetch availability exceptions on mount
+  useEffect(() => {
+    const fetchExceptions = async () => {
+      if (!doctorId) {
+        setIsLoadingOffDays(false)
+        return
+      }
+
+      try {
+        const exceptions = await AvailabilityAPI.getAvailabilityExceptions(doctorId)
+
+        // Separate into off days and public holidays
+        const offDaysList: OffDay[] = []
+        const holidaysList: OffDay[] = []
+
+        exceptions.forEach((ex) => {
+          const offDay = exceptionToOffDay(ex)
+          if (ex.is_us_holiday) {
+            holidaysList.push(offDay)
+          } else {
+            offDaysList.push(offDay)
+          }
+        })
+
+        setOffDays(offDaysList)
+        setPublicHolidays(holidaysList)
+      } catch (error) {
+        console.error("Failed to fetch availability exceptions:", error)
+        toast.error("Failed to load off days")
+      } finally {
+        setIsLoadingOffDays(false)
+      }
+    }
+
+    fetchExceptions()
+  }, [doctorId])
 
   const resetOffDayForm = () => {
     setOffDayForm({
@@ -189,11 +242,25 @@ export function SettingsPage() {
     return `${start} - ${end}`
   }
 
-  const handleDeleteOffDay = (id: number) => {
-    if (activeSettingsTab === "off-days") {
-      setOffDays((prev) => prev.filter((d) => d.id !== id))
-    } else {
-      setPublicHolidays((prev) => prev.filter((d) => d.id !== id))
+  const handleDeleteOffDay = async (id: number) => {
+    setIsDeletingOffDay(true)
+    try {
+      await AvailabilityAPI.deleteAvailabilityException(id)
+
+      if (activeSettingsTab === "off-days") {
+        setOffDays((prev) => prev.filter((d) => d.id !== id))
+      } else {
+        setPublicHolidays((prev) => prev.filter((d) => d.id !== id))
+      }
+
+      toast.success("Off day deleted successfully")
+    } catch (error) {
+      console.error("Failed to delete off day:", error)
+      toast.error("Failed to delete off day")
+    } finally {
+      setIsDeletingOffDay(false)
+      setIsDeleteDialogOpen(false)
+      setDeleteTarget(null)
     }
   }
 
@@ -205,52 +272,69 @@ export function SettingsPage() {
   const confirmDeleteOffDay = () => {
     if (!deleteTarget) return
     handleDeleteOffDay(deleteTarget.id)
-    setIsDeleteDialogOpen(false)
-    setDeleteTarget(null)
   }
 
-  const handleSubmitOffDay = (e: React.FormEvent) => {
+  const handleSubmitOffDay = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!offDayForm.startDate.trim()) {
+    if (!offDayForm.startDate.trim() || !doctorId) {
       return
     }
 
-    const targetSetter =
-      activeSettingsTab === "off-days" ? setOffDays : setPublicHolidays
+    setIsSavingOffDay(true)
 
-    if (editingOffDay) {
-      targetSetter((prev) =>
-        prev.map((entry) =>
-          entry.id === editingOffDay.id
-            ? {
-                ...entry,
-                startDate: offDayForm.startDate,
-                endDate: offDayForm.endDate || undefined,
-                allDay: offDayForm.allDay,
-                startTime: offDayForm.allDay ? undefined : offDayForm.startTime,
-                endTime: offDayForm.allDay ? undefined : offDayForm.endTime,
-                reason: offDayForm.reason.trim(),
-              }
-            : entry
+    try {
+      const isHoliday = activeSettingsTab === "public-holidays"
+
+      if (editingOffDay) {
+        // Update existing exception
+        const updateData = {
+          exception_date: dateToApiFormat(offDayForm.startDate),
+          end_date: offDayForm.endDate ? dateToApiFormat(offDayForm.endDate) : null,
+          is_all_day: offDayForm.allDay,
+          start_time: offDayForm.allDay ? null : timeToApiFormat(offDayForm.startTime),
+          end_time: offDayForm.allDay ? null : timeToApiFormat(offDayForm.endTime),
+          reason: offDayForm.reason.trim() || null,
+        }
+
+        const updated = await AvailabilityAPI.updateAvailabilityException(editingOffDay.id, updateData)
+        const updatedOffDay = exceptionToOffDay(updated)
+
+        const targetSetter = isHoliday ? setPublicHolidays : setOffDays
+        targetSetter((prev) =>
+          prev.map((entry) => entry.id === editingOffDay.id ? updatedOffDay : entry)
         )
-      )
-    } else {
-      targetSetter((prev) => [
-        ...prev,
-        {
-          id: prev.length ? Math.max(...prev.map((p) => p.id)) + 1 : 1,
-          startDate: offDayForm.startDate,
-          endDate: offDayForm.endDate || undefined,
-          allDay: offDayForm.allDay,
-          startTime: offDayForm.allDay ? undefined : offDayForm.startTime,
-          endTime: offDayForm.allDay ? undefined : offDayForm.endTime,
-          reason: offDayForm.reason.trim(),
-        },
-      ])
-    }
 
-    setIsOffDayDialogOpen(false)
-    resetOffDayForm()
+        toast.success("Off day updated successfully")
+      } else {
+        // Create new exception
+        const createData = {
+          doctor_id: doctorId,
+          exception_date: dateToApiFormat(offDayForm.startDate),
+          end_date: offDayForm.endDate ? dateToApiFormat(offDayForm.endDate) : null,
+          is_all_day: offDayForm.allDay,
+          start_time: offDayForm.allDay ? null : timeToApiFormat(offDayForm.startTime),
+          end_time: offDayForm.allDay ? null : timeToApiFormat(offDayForm.endTime),
+          reason: offDayForm.reason.trim() || null,
+          is_us_holiday: isHoliday,
+        }
+
+        const created = await AvailabilityAPI.createAvailabilityException(createData)
+        const newOffDay = exceptionToOffDay(created)
+
+        const targetSetter = isHoliday ? setPublicHolidays : setOffDays
+        targetSetter((prev) => [...prev, newOffDay])
+
+        toast.success("Off day created successfully")
+      }
+
+      setIsOffDayDialogOpen(false)
+      resetOffDayForm()
+    } catch (error) {
+      console.error("Failed to save off day:", error)
+      toast.error("Failed to save off day")
+    } finally {
+      setIsSavingOffDay(false)
+    }
   }
 
   const handleTimeChange = (dayIndex: number, timeType: 'open' | 'close', value: string) => {
@@ -265,17 +349,66 @@ export function SettingsPage() {
     setWorkingHours(updatedHours)
   }
 
-  const handleSaveWorkingHours = () => {
-    // Handle saving working hours logic here
-    console.log("Saving working hours:", workingHours)
-    console.log("Saving off days:", offDays)
-    console.log("Saving public holidays:", publicHolidays)
-    // You could make an API call here
+  const handleSaveWorkingHours = async () => {
+    if (!clinicId) {
+      toast.error("Clinic ID not found")
+      return
+    }
+
+    setIsSavingWorkingHours(true)
+
+    try {
+      const apiHours = workingHoursToApiFormat(workingHours)
+      await AvailabilityAPI.updateClinicWorkingHours({
+        clinic_id: clinicId,
+        working_hours: apiHours,
+      })
+
+      toast.success("Working hours saved successfully")
+    } catch (error) {
+      console.error("Failed to save working hours:", error)
+      toast.error("Failed to save working hours")
+    } finally {
+      setIsSavingWorkingHours(false)
+    }
   }
 
-  const handleSyncPublicHolidays = () => {
-    setPublicHolidays(defaultPublicHolidays)
-    console.log("Synced public holidays:", defaultPublicHolidays)
+  const handleSyncPublicHolidays = async () => {
+    if (!doctorId) {
+      toast.error("Doctor ID not found")
+      return
+    }
+
+    setIsSyncingHolidays(true)
+
+    try {
+      const currentYear = new Date().getFullYear()
+      await AvailabilityAPI.syncHolidays(doctorId, currentYear)
+
+      // Refresh the exceptions list to get the synced holidays
+      const exceptions = await AvailabilityAPI.getAvailabilityExceptions(doctorId)
+      const holidaysList: OffDay[] = []
+      const offDaysList: OffDay[] = []
+
+      exceptions.forEach((ex) => {
+        const offDay = exceptionToOffDay(ex)
+        if (ex.is_us_holiday) {
+          holidaysList.push(offDay)
+        } else {
+          offDaysList.push(offDay)
+        }
+      })
+
+      setPublicHolidays(holidaysList)
+      setOffDays(offDaysList)
+
+      toast.success("Holidays synced successfully")
+    } catch (error) {
+      console.error("Failed to sync holidays:", error)
+      toast.error("Failed to sync holidays")
+    } finally {
+      setIsSyncingHolidays(false)
+    }
   }
 
   return (
@@ -296,53 +429,69 @@ export function SettingsPage() {
 
           {/* Working Hours Tab */}
           <TabsContent value="working-hours" className="mt-3 max-w-md">
-            <div className="space-y-3">
-              {workingHours.map((day, index) => (
-                <div
-                  key={day.day}
-                  className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-4 py-3 neumorphic-inset rounded-lg neumorphic-hover neumorphic-active transition-all duration-200"
-                >
-                  <div className="w-full sm:w-20 font-medium text-sm">{day.day}</div>
-                  {day.isClosed ? (
-                    <div className="flex-1 text-center text-sm">Closed</div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <TimePicker
-                        value={day.open}
-                        onChange={(value) => handleTimeChange(index, "open", value)}
-                        className="flex-1 w-fit"
-                      />
+            {isLoadingWorkingHours ? (
+              <div className="flex items-center justify-center py-8">
+                <IconLoader2 className="w-6 h-6 animate-spin text-primary" />
+                <span className="ml-2 text-sm">Loading working hours...</span>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-3">
+                  {workingHours.map((day, index) => (
+                    <div
+                      key={day.day}
+                      className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-4 py-3 neumorphic-inset rounded-lg neumorphic-hover neumorphic-active transition-all duration-200"
+                    >
+                      <div className="w-full sm:w-20 font-medium text-sm">{day.day}</div>
+                      {day.isClosed ? (
+                        <div className="flex-1 text-center text-sm">Closed</div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <TimePicker
+                            value={day.open}
+                            onChange={(value) => handleTimeChange(index, "open", value)}
+                            className="flex-1 w-fit"
+                          />
 
-                      <span className="text-sm flex-shrink-0">to</span>
+                          <span className="text-sm flex-shrink-0">to</span>
 
-                      <TimePicker
-                        value={day.close}
-                        onChange={(value) => handleTimeChange(index, "close", value)}
-                        className="flex-1 w-fit"
-                      />
+                          <TimePicker
+                            value={day.close}
+                            onChange={(value) => handleTimeChange(index, "close", value)}
+                            className="flex-1 w-fit"
+                          />
+                        </div>
+                      )}
+
+                      <Button
+                        onClick={() => handleToggleClosed(index)}
+                        className={`ml-auto w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 ${day.isClosed ? "" : "hover:bg-destructive"
+                          }`}
+                      >
+                        {day.isClosed ? "Open" : "Close"}
+                      </Button>
                     </div>
-                  )}
+                  ))}
+                </div>
 
+                <div className="mt-4 sm:mt-6 flex justify-center sm:justify-end">
                   <Button
-                    onClick={() => handleToggleClosed(index)}
-                    className={`ml-auto w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 ${
-                      day.isClosed ? "" : "hover:bg-destructive"
-                    }`}
+                    onClick={handleSaveWorkingHours}
+                    disabled={isSavingWorkingHours}
+                    className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                   >
-                    {day.isClosed ? "Open" : "Close"}
+                    {isSavingWorkingHours ? (
+                      <>
+                        <IconLoader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      "Save Working Hours"
+                    )}
                   </Button>
                 </div>
-              ))}
-            </div>
-
-            <div className="mt-4 sm:mt-6 flex justify-center sm:justify-end">
-              <Button
-                onClick={handleSaveWorkingHours}
-                className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
-              >
-                Save Working Hours
-              </Button>
-            </div>
+              </>
+            )}
           </TabsContent>
 
           {/* Off Days Tab */}
@@ -362,68 +511,75 @@ export function SettingsPage() {
               </div>
 
               <div className="neumorphic-inset rounded-lg p-3 sm:p-4 border-0">
-                <div className="max-h-[50vh] overflow-y-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-[200px]">Date(s)</TableHead>
-                        <TableHead className="w-[120px]">Time Range</TableHead>
-                        <TableHead>Reason</TableHead>
-                        <TableHead className="w-[120px] text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {offDays.length === 0 ? (
+                {isLoadingOffDays ? (
+                  <div className="flex items-center justify-center py-8">
+                    <IconLoader2 className="w-6 h-6 animate-spin text-primary" />
+                    <span className="ml-2 text-sm">Loading off days...</span>
+                  </div>
+                ) : (
+                  <div className="max-h-[70vh] overflow-y-auto">
+                    <Table>
+                      <TableHeader>
                         <TableRow>
-                          <TableCell
-                            colSpan={4}
-                            className="py-6 text-center text-sm"
-                          >
-                            No off days added yet.
-                          </TableCell>
+                          <TableHead className="w-[200px]">Date(s)</TableHead>
+                          <TableHead className="w-[120px]">Time Range</TableHead>
+                          <TableHead>Reason</TableHead>
+                          <TableHead className="w-[120px] text-right">Actions</TableHead>
                         </TableRow>
-                      ) : (
-                        offDays.map((entry) => (
-                          <TableRow key={entry.id}>
-                            <TableCell className="text-sm font-medium">
-                              {formatOffDayDateRange(entry)}
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              {getOffDayTimeRangeLabel(entry)}
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              {entry.reason && entry.reason.trim().length > 0
-                                ? entry.reason
-                                : "No reason provided"}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <div className="flex items-center justify-end gap-2">
-                                <Button
-                                  onClick={() => {
-                                    setActiveSettingsTab("off-days")
-                                    openEditOffDayDialog(entry)
-                                  }}
-                                  className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
-                                >
-                                  <IconPencil className="w-3 h-3" />
-                                </Button>
-                                <Button
-                                  onClick={() => {
-                                    setActiveSettingsTab("off-days")
-                                    openDeleteDialog(entry)
-                                  }}
-                                  className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
-                                >
-                                  <IconTrash className="w-3 h-3" />
-                                </Button>
-                              </div>
+                      </TableHeader>
+                      <TableBody>
+                        {offDays.length === 0 ? (
+                          <TableRow>
+                            <TableCell
+                              colSpan={4}
+                              className="py-6 text-center text-sm"
+                            >
+                              No off days added yet.
                             </TableCell>
                           </TableRow>
-                        ))
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
+                        ) : (
+                          offDays.map((entry) => (
+                            <TableRow key={entry.id}>
+                              <TableCell className="text-sm font-medium">
+                                {formatOffDayDateRange(entry)}
+                              </TableCell>
+                              <TableCell className="text-sm">
+                                {getOffDayTimeRangeLabel(entry)}
+                              </TableCell>
+                              <TableCell className="text-sm">
+                                {entry.reason && entry.reason.trim().length > 0
+                                  ? entry.reason
+                                  : "No reason provided"}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex items-center justify-end gap-2">
+                                  <Button
+                                    onClick={() => {
+                                      setActiveSettingsTab("off-days")
+                                      openEditOffDayDialog(entry)
+                                    }}
+                                    className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
+                                  >
+                                    <IconPencil className="w-3 h-3" />
+                                  </Button>
+                                  <Button
+                                    onClick={() => {
+                                      setActiveSettingsTab("off-days")
+                                      openDeleteDialog(entry)
+                                    }}
+                                    className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
+                                  >
+                                    <IconTrash className="w-3 h-3" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
               </div>
             </div>
           </TabsContent>
@@ -438,76 +594,93 @@ export function SettingsPage() {
                 </span>
                 <Button
                   onClick={handleSyncPublicHolidays}
+                  disabled={isSyncingHolidays}
                   className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
                 >
-                  <IconRefresh className="w-3 h-3" />
-                  Sync Holidays
+                  {isSyncingHolidays ? (
+                    <>
+                      <IconLoader2 className="w-3 h-3 animate-spin" />
+                      Syncing...
+                    </>
+                  ) : (
+                    <>
+                      <IconRefresh className="w-3 h-3" />
+                      Sync Holidays
+                    </>
+                  )}
                 </Button>
               </div>
 
               <div className="neumorphic-inset rounded-lg p-3 sm:p-4 border-0">
-                <div className="max-h-[50vh] overflow-y-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-[200px]">Date(s)</TableHead>
-                        <TableHead className="w-[120px]">Time Range</TableHead>
-                        <TableHead>Reason</TableHead>
-                        <TableHead className="w-[120px] text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {publicHolidays.length === 0 ? (
+                {isLoadingOffDays ? (
+                  <div className="flex items-center justify-center py-8">
+                    <IconLoader2 className="w-6 h-6 animate-spin text-primary" />
+                    <span className="ml-2 text-sm">Loading holidays...</span>
+                  </div>
+                ) : (
+                  <div className="max-h-[70vh] overflow-y-auto">
+                    <Table>
+                      <TableHeader>
                         <TableRow>
-                          <TableCell
-                            colSpan={4}
-                            className="py-6 text-center text-sm"
-                          >
-                            No public holidays synced yet. Click "Sync Holidays" to load them.
-                          </TableCell>
+                          <TableHead className="w-[200px]">Date(s)</TableHead>
+                          <TableHead className="w-[120px]">Time Range</TableHead>
+                          <TableHead>Reason</TableHead>
+                          <TableHead className="w-[120px] text-right">Actions</TableHead>
                         </TableRow>
-                      ) : (
-                        publicHolidays.map((entry) => (
-                          <TableRow key={entry.id}>
-                            <TableCell className="text-sm font-medium">
-                              {formatOffDayDateRange(entry)}
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              {getOffDayTimeRangeLabel(entry)}
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              {entry.reason && entry.reason.trim().length > 0
-                                ? entry.reason
-                                : "No reason provided"}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <div className="flex items-center justify-end gap-2">
-                                <Button
-                                  onClick={() => {
-                                    setActiveSettingsTab("public-holidays")
-                                    openEditOffDayDialog(entry)
-                                  }}
-                                  className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
-                                >
-                                  <IconPencil className="w-3 h-3" />
-                                </Button>
-                                <Button
-                                  onClick={() => {
-                                    setActiveSettingsTab("public-holidays")
-                                    openDeleteDialog(entry)
-                                  }}
-                                  className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
-                                >
-                                  <IconTrash className="w-3 h-3" />
-                                </Button>
-                              </div>
+                      </TableHeader>
+                      <TableBody>
+                        {publicHolidays.length === 0 ? (
+                          <TableRow>
+                            <TableCell
+                              colSpan={4}
+                              className="py-6 text-center text-sm"
+                            >
+                              No public holidays synced yet. Click "Sync Holidays" to load them.
                             </TableCell>
                           </TableRow>
-                        ))
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
+                        ) : (
+                          publicHolidays.map((entry) => (
+                            <TableRow key={entry.id}>
+                              <TableCell className="text-sm font-medium">
+                                {formatOffDayDateRange(entry)}
+                              </TableCell>
+                              <TableCell className="text-sm">
+                                {getOffDayTimeRangeLabel(entry)}
+                              </TableCell>
+                              <TableCell className="text-sm">
+                                {entry.reason && entry.reason.trim().length > 0
+                                  ? entry.reason
+                                  : "No reason provided"}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex items-center justify-end gap-2">
+                                  <Button
+                                    onClick={() => {
+                                      setActiveSettingsTab("public-holidays")
+                                      openEditOffDayDialog(entry)
+                                    }}
+                                    className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
+                                  >
+                                    <IconPencil className="w-3 h-3" />
+                                  </Button>
+                                  <Button
+                                    onClick={() => {
+                                      setActiveSettingsTab("public-holidays")
+                                      openDeleteDialog(entry)
+                                    }}
+                                    className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
+                                  >
+                                    <IconTrash className="w-3 h-3" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
               </div>
             </div>
           </TabsContent>
@@ -564,6 +737,7 @@ export function SettingsPage() {
                       id="offday-end-date"
                       type="date"
                       value={toInputDateValue(offDayForm.endDate)}
+                      min={toInputDateValue(offDayForm.startDate)}
                       onChange={(e) =>
                         handleOffDayFormChange("endDate", fromInputDateValue(e.target.value))
                       }
@@ -651,9 +825,17 @@ export function SettingsPage() {
                 </Button>
                 <Button
                   type="submit"
+                  disabled={isSavingOffDay}
                   className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                 >
-                  {editingOffDay ? "Update" : "Create"}
+                  {isSavingOffDay ? (
+                    <>
+                      <IconLoader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    editingOffDay ? "Update" : "Create"
+                  )}
                 </Button>
               </div>
             </form>
@@ -720,9 +902,17 @@ export function SettingsPage() {
               <Button
                 type="button"
                 onClick={confirmDeleteOffDay}
+                disabled={isDeletingOffDay}
                 className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
               >
-                Delete
+                {isDeletingOffDay ? (
+                  <>
+                    <IconLoader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  "Delete"
+                )}
               </Button>
             </div>
           </div>

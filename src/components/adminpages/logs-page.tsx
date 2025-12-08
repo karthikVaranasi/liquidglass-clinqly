@@ -8,7 +8,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import data from "@/data.json"
 
 // Sentiment Analysis Component
 const SentimentRating = ({ rating }: { rating: number }) => {
@@ -26,11 +25,10 @@ const SentimentRating = ({ rating }: { rating: number }) => {
       {[1, 2, 3, 4, 5].map((star) => (
         <IconStar
           key={star}
-          className={`w-4 h-4 ${
-            star <= roundedRating
+          className={`w-4 h-4 ${star <= roundedRating
               ? "fill-current"
               : ""
-          }`}
+            }`}
           style={{ color: getSentimentColor(roundedRating) }}
         />
       ))}
@@ -38,38 +36,48 @@ const SentimentRating = ({ rating }: { rating: number }) => {
   )
 }
 
-const { callLogs, logsConfig } = data
-
-type CallLog = (typeof callLogs.logs)[number] & { status?: string }
-
-// Assign status to each log based on summary stats distribution
-const assignStatusToLogs = (logs: CallLog[]): CallLog[] => {
-  const stats = callLogs.summaryStats
-  const scheduled = stats.scheduled
-  const rescheduled = stats.rescheduled
-  const cancelled = stats.cancelled
-  const failed = stats.failed
-
-  return logs.map((log, index) => {
-    let status = 'scheduled' // default
-    
-    if (index < scheduled) {
-      status = 'scheduled'
-    } else if (index < scheduled + rescheduled) {
-      status = 'rescheduled'
-    } else if (index < scheduled + rescheduled + cancelled) {
-      status = 'cancelled'
-    } else if (index < scheduled + rescheduled + cancelled + failed) {
-      status = 'failed'
-    } else {
-      status = 'scheduled' // remaining logs default to scheduled
-    }
-    
-    return { ...log, status }
-  })
+// Static logs config
+const logsConfig = {
+  pageTitle: "Call Logs",
+  summaryCards: [
+    { key: "total", title: "Total Calls", icon: "IconPhone" },
+    { key: "scheduled", title: "Scheduled", icon: "IconCheck" },
+    { key: "rescheduled", title: "Rescheduled", icon: "IconRefresh" },
+    { key: "cancelled", title: "Cancelled", icon: "IconX" },
+    { key: "failed", title: "Failed", icon: "IconExclamationCircle" }
+  ],
+  filters: [
+    { label: "All Time", value: "all-time" },
+    { label: "Today", value: "today" },
+    { label: "This Week", value: "week" },
+    { label: "This Month", value: "month" }
+  ]
 }
 
-const logsWithStatus = assignStatusToLogs(callLogs.logs as CallLog[])
+// Static summary stats for admin (demo purposes)
+// TODO: Replace with admin API when available
+const callLogsSummaryStats = {
+  total: 92,
+  scheduled: 47,
+  rescheduled: 3,
+  cancelled: 0,
+  failed: 30
+}
+
+// Static sample call logs for admin (demo purposes)
+// TODO: Replace with admin API when available
+const sampleCallLogs = [
+  { from: "+12245549339", to: "+14709448601", startTime: "Nov 17, 2025 5:13 PM", duration: "1:41", action: "View Conversation", status: "scheduled" },
+  { from: "+12245549339", to: "+14709448601", startTime: "Nov 17, 2025 5:11 PM", duration: "2:05", action: "View Conversation", status: "scheduled" },
+  { from: "+12245549339", to: "+14709448601", startTime: "Nov 17, 2025 5:09 PM", duration: "1:23", action: "View Conversation", status: "scheduled" },
+  { from: "+12674679709", to: "+14709448601", startTime: "Nov 17, 2025 4:47 PM", duration: "4:36", action: "View Conversation", status: "scheduled" },
+  { from: "+12245549339", to: "+14709448601", startTime: "Nov 17, 2025 4:37 PM", duration: "0:17", action: "View Conversation", status: "failed" },
+  { from: "+12674679709", to: "+14709448601", startTime: "Nov 17, 2025 4:23 PM", duration: "2:56", action: "View Conversation", status: "scheduled" },
+  { from: "+12674679709", to: "+14709448601", startTime: "Nov 17, 2025 4:22 PM", duration: "0:48", action: "View Conversation", status: "failed" },
+  { from: "+12674679709", to: "+14709448601", startTime: "Nov 17, 2025 4:16 PM", duration: "1:09", action: "View Conversation", status: "scheduled" }
+]
+
+type CallLog = typeof sampleCallLogs[number]
 
 type TranscriptTurn = {
   speaker: "A" | "P"
@@ -96,103 +104,6 @@ const sampleTranscriptByFrom: Record<string, TranscriptTurn[]> = {
       label: "Assistant",
       text: "Hey Radha! Thanks for that information. Let me just pull up your record real quick.",
     },
-    {
-      speaker: "P",
-      label: "Patient",
-      text: "I'm actually new to your clinic.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Perfect! Let me create a new patient record for you real quick. Just to confirm, is the best number to reach you the one you're calling from, or would you prefer a different number?",
-    },
-    {
-      speaker: "P",
-      label: "Patient",
-      text: "No, I'll give you the other number like it's 224-554-9339.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text: "Got it, creating your record.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Excellent! I've created your patient record, Radha. Now, what date would you like to schedule your appointment with Dr. Martha Nelson?",
-    },
-    {
-      speaker: "P",
-      label: "Patient",
-      text: "On December 8th, Monday.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text: "Perfect! Let me check Dr. Nelson's availability for Monday, December 8th.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Great news! Dr. Nelson is available on Monday, December 8th. I have several time slots open. Do you prefer a morning or afternoon appointment?",
-    },
-    {
-      speaker: "P",
-      label: "Patient",
-      text: "Morning appointment?",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Perfect! Here are the morning times I have available: 9:00 AM or 9:30 AM. Which time works better for you?",
-    },
-    {
-      speaker: "P",
-      label: "Patient",
-      text: "...",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Are you still there, Radha? Which time would you prefer – 9:00 AM or 9:30 AM?",
-    },
-    {
-      speaker: "P",
-      label: "Patient",
-      text: "Yes, 9 a.m. is fine for me.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text: "Excellent! Let me book that for you now.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text: "I'm having a little trouble booking that right now. Let me try again for you.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "I apologize, Radha, but I'm unable to complete your booking at the moment due to a system issue. Could you please try calling back in a few minutes, and we'll get you scheduled for that 9:00 AM appointment?",
-    },
-    {
-      speaker: "P",
-      label: "Patient",
-      text: "Yes please.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Thanks so much for your patience, Radha. We'll get you taken care of when you call back. Have a great day!",
-    },
   ],
   "+12245549339": [
     {
@@ -212,36 +123,6 @@ const sampleTranscriptByFrom: Record<string, TranscriptTurn[]> = {
       label: "Assistant",
       text:
         "Absolutely, I'd be happy to confirm that for you. Can I have your full name and date of birth?",
-    },
-    {
-      speaker: "P",
-      label: "Patient",
-      text:
-        "Sure, it's David Johnson, and my date of birth is January 12th, 1985.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Thank you, David. I see you have an appointment booked with Dr. Martha Nelson for a follow-up consultation.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Your appointment is scheduled for tomorrow at 9:00 AM. Please arrive 10 minutes early to complete any paperwork if needed.",
-    },
-    {
-      speaker: "P",
-      label: "Patient",
-      text:
-        "Perfect, thank you so much. That time works for me.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "You're very welcome, David. We look forward to seeing you then. Have a great day!",
     },
   ],
   "+12674679709": [
@@ -263,42 +144,6 @@ const sampleTranscriptByFrom: Record<string, TranscriptTurn[]> = {
       text:
         "Of course, I can help with that. Can I have your name and the date of your last visit?",
     },
-    {
-      speaker: "P",
-      label: "Patient",
-      text:
-        "My name is Tony, and my last visit was earlier this month.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Thank you, Tony. I see your account here. We accept all major credit cards, debit cards, and HSA cards, and you can also pay your bill online through our patient portal.",
-    },
-    {
-      speaker: "P",
-      label: "Patient",
-      text:
-        "Great, can you text me the link to the portal?",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Absolutely, I’ll send a secure link to the phone number we have on file ending in 9709. You can use that to view and pay your bill.",
-    },
-    {
-      speaker: "P",
-      label: "Patient",
-      text:
-        "Perfect, thanks for your help.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "You’re welcome, Tony. If you have any other questions, feel free to call us back. Have a good day!",
-    },
   ],
 }
 
@@ -308,7 +153,8 @@ const getTranscriptForLog = (log: CallLog): TranscriptTurn[] => {
 
 export function LogsPage() {
   const [timeFilter, setTimeFilter] = useState("all-time")
-  const [statusFilter, setStatusFilter] = useState<string | null>(null)
+  // Default to "total" so the first card is active and table shows all
+  const [statusFilter, setStatusFilter] = useState<string>("total")
   const [selectedLog, setSelectedLog] = useState<CallLog | null>(null)
   const [showTranscript, setShowTranscript] = useState(false)
 
@@ -326,14 +172,14 @@ export function LogsPage() {
     { key: 'action', label: 'Actions' }
   ]
 
-  // Filter logs based on status
-  const filteredLogs = statusFilter 
-    ? logsWithStatus.filter(log => log.status === statusFilter)
-    : logsWithStatus
+  // Filter logs based on status (treat "total" as all)
+  const filteredLogs = statusFilter && statusFilter !== 'total'
+    ? sampleCallLogs.filter(log => log.status === statusFilter)
+    : sampleCallLogs
 
   // Get filter title
   const getFilterTitle = () => {
-    if (!statusFilter) return `All Call Logs (${logsWithStatus.length})`
+    if (!statusFilter || statusFilter === 'total') return `All Call Logs (${sampleCallLogs.length})`
     const card = logsConfig.summaryCards.find(c => c.key === statusFilter)
     return `${card?.title || 'Filtered'} Call Logs (${filteredLogs.length})`
   }
@@ -364,23 +210,17 @@ export function LogsPage() {
               }
             }
 
-            const isActive = card.key === 'total' 
-              ? statusFilter === null 
-              : statusFilter === card.key
+            const isActive = statusFilter === card.key
             const handleCardClick = () => {
-              if (card.key === 'total') {
-                setStatusFilter(null) // Show all logs
-              } else {
-                setStatusFilter(isActive ? null : card.key) // Toggle filter
-              }
+              // Clicking an active card resets back to "total" (all)
+              setStatusFilter(isActive ? 'total' : card.key)
             }
 
             return (
-              <div 
-                key={card.key} 
-                className={`neumorphic-inset p-4 neumorphic-hover transition-all duration-200 cursor-pointer ${
-                  isActive ? 'neumorphic-pressed' : ''
-                }`}
+              <div
+                key={card.key}
+                className={`neumorphic-inset p-4 neumorphic-hover transition-all duration-200 cursor-pointer ${isActive ? 'neumorphic-pressed ring-2 ring-primary' : ''
+                  }`}
                 onClick={handleCardClick}
               >
                 <div className="space-y-2">
@@ -389,7 +229,7 @@ export function LogsPage() {
                     {card.title}
                   </div>
                   <div className={`text-2xl font-bold tabular-nums sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl ${getCardColor(card.key)}`}>
-                    {callLogs.summaryStats[card.key as keyof typeof callLogs.summaryStats]}
+                    {callLogsSummaryStats[card.key as keyof typeof callLogsSummaryStats]}
                   </div>
                 </div>
               </div>
@@ -525,11 +365,10 @@ export function LogsPage() {
                     <div key={idx} className="flex gap-3">
                       <div className="flex flex-col items-center mt-0.5">
                         <span
-                          className={`w-6 h-6 flex items-center justify-center rounded-full text-xs font-semibold ${
-                            turn.speaker === "A"
+                          className={`w-6 h-6 flex items-center justify-center rounded-full text-xs font-semibold ${turn.speaker === "A"
                               ? "bg-primary/10"
                               : "bg-muted"
-                          }`}
+                            }`}
                         >
                           {turn.speaker}
                         </span>

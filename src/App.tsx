@@ -4,12 +4,11 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar"
 import { AuthStorage, AuthAPI } from "@/api/auth"
+import { CountsProvider } from "@/contexts/counts-context"
 
-// Dynamic imports for user-specific components
-const DoctorSidebar = lazy(() => import("@/components/doctorpages/app-sidebar").then(module => ({ default: module.AppSidebar })))
-const DoctorHeader = lazy(() => import("@/components/doctorpages/app-header").then(module => ({ default: module.AppHeader })))
-const AdminSidebar = lazy(() => import("@/components/adminpages/app-sidebar").then(module => ({ default: module.AppSidebar })))
-const AdminHeader = lazy(() => import("@/components/adminpages/app-header").then(module => ({ default: module.AppHeader })))
+// Dynamic imports for shared components
+const AppSidebar = lazy(() => import("@/components/app-sidebar").then(module => ({ default: module.AppSidebar })))
+const AppHeader = lazy(() => import("@/components/app-header").then(module => ({ default: module.AppHeader })))
 
 const API_BASE_URL = 'https://staging-api.clinqly.ai'
 
@@ -72,6 +71,7 @@ export default function App() {
         const clinic = await response.json()
         console.log('✅ Clinic data fetched:', clinic)
         setClinicData(clinic)
+        AuthStorage.setClinicData(clinic) // Store clinic data in localStorage
         return clinic
       } else {
         console.warn('⚠️ Failed to fetch clinic data:', response.status)
@@ -82,6 +82,14 @@ export default function App() {
       return null
     }
   }
+
+  // Expose navigation function globally for use in page components
+  useEffect(() => {
+    window.navigateToPage = setCurrentPage
+    return () => {
+      delete window.navigateToPage
+    }
+  }, [])
 
   // Check for stored authentication token on app load
   useEffect(() => {
@@ -302,67 +310,53 @@ export default function App() {
   }
 
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 64)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as React.CSSProperties
-      }
-    >
-      <Suspense fallback={
-        <div className="w-64 bg-background border-r animate-pulse">
-          <div className="h-16 border-b"></div>
-          <div className="p-4 space-y-2">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-8 bg-muted rounded"></div>
-            ))}
-          </div>
-        </div>
-      }>
-        {isAdmin ? (
-          <AdminSidebar
-            variant="floating"
-            onPageChange={setCurrentPage}
-            currentPage={currentPage}
-            onLogout={handleLogout}
-            clinicData={clinicData}
-            userData={userData}
-            userType={userType}
-          />
-        ) : (
-          <DoctorSidebar
-            variant="floating"
-            onPageChange={setCurrentPage}
-            currentPage={currentPage}
-            onLogout={handleLogout}
-            clinicData={clinicData}
-            userData={userData}
-            userType={userType}
-          />
-        )}
-      </Suspense>
-      <main className="flex-1">
+    <CountsProvider>
+      <SidebarProvider
+        style={
+          {
+            "--sidebar-width": "calc(var(--spacing) * 64)",
+            "--header-height": "calc(var(--spacing) * 12)",
+          } as React.CSSProperties
+        }
+      >
         <Suspense fallback={
-          <div className="h-16 bg-background border-b animate-pulse flex items-center px-4">
-            <div className="h-8 w-32 bg-muted rounded"></div>
-          </div>
-        }>
-          {isAdmin ? (
-            <AdminHeader currentPage={currentPage} />
-          ) : (
-            <DoctorHeader currentPage={currentPage} />
-          )}
-        </Suspense>
-        <div className="flex flex-1 flex-col">
-          <div className="@container/main flex flex-1 flex-col my-2">
-            <div className="flex flex-col">
-              {renderContent()}
-
+          <div className="w-64 bg-background border-r animate-pulse">
+            <div className="h-16 border-b"></div>
+            <div className="p-4 space-y-2">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="h-8 bg-muted rounded"></div>
+              ))}
             </div>
           </div>
-        </div>
-      </main>
-    </SidebarProvider>
+        }>
+          <AppSidebar
+            variant="floating"
+            onPageChange={setCurrentPage}
+            currentPage={currentPage}
+            onLogout={handleLogout}
+            clinicData={clinicData}
+            userData={userData}
+            userType={userType}
+          />
+        </Suspense>
+        <main className="flex-1">
+          <Suspense fallback={
+            <div className="h-16 bg-background border-b animate-pulse flex items-center px-4">
+              <div className="h-8 w-32 bg-muted rounded"></div>
+            </div>
+          }>
+            <AppHeader currentPage={currentPage} userType={userType} />
+          </Suspense>
+          <div className="flex flex-1 flex-col">
+            <div className="@container/main flex flex-1 flex-col my-2">
+              <div className="flex flex-col">
+                {renderContent()}
+
+              </div>
+            </div>
+          </div>
+        </main>
+      </SidebarProvider>
+    </CountsProvider>
   )
 }

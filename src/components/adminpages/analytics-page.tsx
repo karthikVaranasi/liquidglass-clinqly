@@ -29,10 +29,50 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 
-import data from "@/data.json"
+// Static chart data for admin dashboard (demo purposes)
+// TODO: Replace with admin API endpoints when available
+const patientAgeData = [
+  { name: "Young Adults (18-25)", value: 12, color: "#8884d8" },
+  { name: "Adults (26-35)", value: 6, color: "#82ca9d" },
+  { name: "Middle Age (36-45)", value: 3, color: "#ffc658" },
+  { name: "Others", value: 1, color: "#ff7c7c" }
+]
 
-// Destructure data from imported JSON
-const { patientAgeData, appointmentData } = data
+const appointmentData = [
+  { day: "Mon", scheduled: 5, cancelled: 1 },
+  { day: "Tue", scheduled: 7, cancelled: 2 },
+  { day: "Wed", scheduled: 6, cancelled: 1 },
+  { day: "Thu", scheduled: 8, cancelled: 3 },
+  { day: "Fri", scheduled: 4, cancelled: 0 },
+  { day: "Sat", scheduled: 3, cancelled: 1 },
+  { day: "Sun", scheduled: 2, cancelled: 0 }
+]
+
+// Static dashboard config and stats for admin
+const dashboardConfig = {
+  stats: [
+    { id: "totalPatients", label: "Total Patients", value: 22, icon: "IconUsers" },
+    { id: "totalDoctors", label: "Total Doctors", value: 1, icon: "IconMedicalCross" },
+    { id: "totalAppointments", label: "Total Appointments", value: 29, icon: "IconCalendar" },
+    { id: "upcomingAppointments", label: "Upcoming Appointments", value: 12, icon: "IconCalendar" }
+  ],
+  sections: {
+    appointmentTrends: {
+      title: "Appointment Trends",
+      description: "Today's Appointments - 5"
+    },
+    patientsOverview: {
+      title: "Patients Overview",
+      description: "Total Patients: 22",
+      legend: [
+        { label: "Young Adults (18-25)", value: 12, color: "#8884d8" },
+        { label: "Adults (26-35)", value: 6, color: "#82ca9d" },
+        { label: "Middle Age (36-45)", value: 3, color: "#ffc658" },
+        { label: "Others", value: 1, color: "#ff7c7c" }
+      ]
+    }
+  }
+}
 
 const patientChartConfig = {
   value: {
@@ -56,7 +96,6 @@ interface AnalyticsPageProps {
 }
 
 export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
-  const { dashboard } = data
   const [selectedPieSlice, setSelectedPieSlice] = useState<string | null>(null)
   const [selectedBar, setSelectedBar] = useState<string | null>(null)
   const [chartSize, setChartSize] = useState({ innerRadius: 20, outerRadius: 45 })
@@ -100,7 +139,7 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
       {/* Statistics Cards Section */}
       <div className="px-4 lg:px-6">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          {dashboard.stats.map((stat) => {
+          {dashboardConfig.stats.map((stat) => {
             const IconComponent = getIcon(stat.icon)
             const handleCardClick = () => {
               if (stat.id === "totalPatients" && onPageChange) {
@@ -115,9 +154,8 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
             return (
               <div
                 key={stat.id}
-                className={`neumorphic-inset p-4 neumorphic-hover transition-all duration-200 ${
-                  isClickable ? "cursor-pointer" : ""
-                }`}
+                className={`neumorphic-inset p-4 neumorphic-hover transition-all duration-200 ${isClickable ? "cursor-pointer" : ""
+                  }`}
                 onClick={isClickable ? handleCardClick : undefined}
               >
                 <div className="space-y-2">
@@ -142,7 +180,7 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
         <Card className="neumorphic-inset border-0">
           <CardHeader>
             <CardTitle>
-              {dashboard.sections.appointmentTrends.title}
+              {dashboardConfig.sections.appointmentTrends.title}
             </CardTitle>
             <CardDescription>
               {selectedBar ? (
@@ -150,7 +188,7 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
                   {selectedBar} - Scheduled: {appointmentData.find(d => d.day === selectedBar)?.scheduled || 0}, Cancelled: {appointmentData.find(d => d.day === selectedBar)?.cancelled || 0}
                 </div>
               ) : (
-                <span>{dashboard.sections.appointmentTrends.description}</span>
+                <span>{dashboardConfig.sections.appointmentTrends.description}</span>
               )}
             </CardDescription>
           </CardHeader>
@@ -217,11 +255,11 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
         {/* Patients Overview */}
         <div className="neumorphic-inset rounded-lg p-4 border-0">
           <div className="pb-4">
-            <h3 className="text-lg font-semibold">{dashboard.sections.patientsOverview.title}</h3>
+            <h3 className="text-lg font-semibold">{dashboardConfig.sections.patientsOverview.title}</h3>
             <div className="flex items-center justify-between mt-1">
               <span className="flex items-center gap-2 text-sm">
                 <IconUsers className="size-4" />
-                {dashboard.sections.patientsOverview.description}
+                {dashboardConfig.sections.patientsOverview.description}
               </span>
             </div>
           </div>
@@ -273,12 +311,11 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
                 </ChartContainer>
               </div>
               <div className="flex-1 space-y-3">
-                {dashboard.sections.patientsOverview.legend.map((item, index) => (
+                {dashboardConfig.sections.patientsOverview.legend.map((item, index) => (
                   <div
                     key={index}
-                    className={`flex items-center justify-between text-sm cursor-pointer p-2 rounded-md transition-all duration-200 ${
-                      selectedPieSlice === item.label ? 'neumorphic-pressed' : 'neumorphic-soft neumorphic-hover neumorphic-active'
-                    }`}
+                    className={`flex items-center justify-between text-sm cursor-pointer p-2 rounded-md transition-all duration-200 ${selectedPieSlice === item.label ? 'neumorphic-pressed' : 'neumorphic-soft neumorphic-hover neumorphic-active'
+                      }`}
                     onClick={() => handlePieClick({ name: item.label })}
                   >
                     <span className="flex items-center gap-2">

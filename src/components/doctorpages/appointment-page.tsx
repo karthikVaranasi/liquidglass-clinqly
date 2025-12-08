@@ -2,7 +2,8 @@
 import { useState, useEffect } from "react"
 import { IconChevronLeft, IconChevronRight, IconCalendar, IconUserCircle } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
-import { AppointmentsAPI, AuthStorage } from "@/api/auth"
+import { AuthStorage } from "@/api/auth"
+import { DoctorAppointmentsAPI } from "@/api/doctor"
 import { formatDateUS } from "@/lib/date"
 
 
@@ -133,7 +134,7 @@ export function AppointmentPage() {
           console.log('👨‍⚕️ Filtering appointments by doctor:', userData?.id)
         }
 
-        const appointmentsData = await AppointmentsAPI.getAllAppointments(params)
+        const appointmentsData = await DoctorAppointmentsAPI.getAllAppointments(params)
         console.log('📅 API response:', appointmentsData, 'Type:', typeof appointmentsData, 'Is array:', Array.isArray(appointmentsData))
 
         // Handle API response structure: { appointments: [...] }
@@ -207,9 +208,19 @@ export function AppointmentPage() {
     return sortAppointmentsByTime(selected)
   }
 
+  const isSelectedDatePast = () => {
+    if (!selectedDate) return false
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const selectedDateObj = new Date(currentYear, currentMonth - 1, selectedDate)
+    selectedDateObj.setHours(0, 0, 0, 0)
+    return selectedDateObj < today
+  }
+
   const calendarGrid = generateCalendarGrid(currentMonth, currentYear)
   const todaysAppointments = getTodaysAppointments()
   const selectedDateAppointments = getSelectedDateAppointments()
+  const isPastDate = isSelectedDatePast()
 
   // Show loading state
   if (loading) {
@@ -337,7 +348,9 @@ export function AppointmentPage() {
         <div
           className="mb-2"
         >
-          <h1 className="text-lg md:text-xl font-semibold text-foreground">Manage Future Appointments</h1>
+          <h1 className="text-lg md:text-xl font-semibold text-foreground">
+            {selectedDate && isPastDate ? "Past Appointments" : "Future Appointments"}
+          </h1>
         </div>
 
         {/* Bento Grid Layout - Calendar and Appointments Table */}
@@ -453,14 +466,14 @@ export function AppointmentPage() {
 
           {/* Calendar Component */}
           <div
-            className="col-span-12 md:col-span-4 lg:col-span-4 xl:col-span-4"
+            className="col-span-12 md:col-span-4 lg:col-span-4 xl:col-span-4 w-full"
           >
             {/* Calendar Content */}
             <div
-              className="p-4 items-center justify-center neumorphic-pressed rounded-lg overflow-hidden aspect-square flex flex-col"
+              className="p-1.5 sm:p-2 md:p-3 items-center justify-center neumorphic-pressed rounded-lg overflow-hidden w-full min-h-[240px] sm:min-h-[280px] md:min-h-[320px] flex flex-col"
             >
                 <div
-                  className="flex items-center gap-2 mb-3"
+                  className="flex items-center gap-1 sm:gap-2 mb-1.5 sm:mb-2 px-6 w-full justify-center"
                 >
                   <div
                   >
@@ -468,14 +481,14 @@ export function AppointmentPage() {
                       onClick={handlePrevMonth}
                       variant="outline"
                       size="sm"
-                      className="h-7 w-7 p-0"
+                      className="h-6 w-6 sm:h-7 sm:w-7 p-0"
                     >
                       <IconChevronLeft className="w-3 h-3" />
                     </Button>
                   </div>
                     <h1
                       key={`${currentMonth}-${currentYear}`}
-                      className="text-sm md:text-base font-semibold"
+                      className="text-xs sm:text-sm md:text-base font-semibold flex-1 text-center"
                     >
                       {months[currentMonth - 1]} {currentYear}
                     </h1>
@@ -485,23 +498,24 @@ export function AppointmentPage() {
                       onClick={handleNextMonth}
                       variant="outline"
                       size="sm"
-                      className="h-7 w-7 p-0"
+                      className="h-6 w-6 sm:h-7 sm:w-7 p-0"
                     >
                       <IconChevronRight className="w-3 h-3" />
                     </Button>
                   </div>
                 </div>
-              <div className="flex-1 flex flex-col">
+              <div className="flex-1 flex flex-col w-full">
                 {/* Day Headers */}
                 <div
-                  className="grid grid-cols-7 gap-0 p-1 mb-2"
+                  className="grid grid-cols-7 gap-0.5 sm:gap-0.5 px-6 w-full"
                 >
                   {weekDays.map((day) => (
                     <div
                       key={day}
-                      className="mx-0.5 text-center text-xs font-medium neumorphic-inset px-1 py-1 rounded"
+                      className="text-center text-[10px] sm:text-xs font-medium neumorphic-inset px-0.5 py-0.5 sm:py-1 rounded min-w-0"
                     >
-                      {day}
+                      <span className="hidden sm:inline">{day}</span>
+                      <span className="sm:hidden">{day.charAt(0)}</span>
                     </div>
                   ))}
                 </div>
@@ -509,15 +523,15 @@ export function AppointmentPage() {
                 {/* Calendar Grid */}
                   <div
                     key={`${currentMonth}-${currentYear}`}
-                    className="grid grid-cols-7 gap-0 p-1 flex-1"
+                    className="grid grid-cols-7 gap-0.5 sm:gap-0.5 p-5 flex-1 w-full auto-rows-fr"
                   >
                     {calendarGrid.map((day, index) => (
                       <div
                         key={index}
                         onClick={() => day.isCurrentMonth ? handleDateClick(day.date, day.isCurrentMonth) : undefined}
                         className={`
-                          calendar-cell relative mx-0.5 my-0.5 rounded-lg cursor-pointer
-                          aspect-square flex flex-col justify-center items-center
+                          calendar-cell relative rounded-lg cursor-pointer
+                          w-full min-h-0 flex flex-col justify-center items-center
                           ${day.isCurrentMonth
                             ? selectedDate === day.date
                               ? 'neumorphic-pressed shadow-inner border-1 border-primary'
@@ -526,10 +540,11 @@ export function AppointmentPage() {
                           }
                           ${day.isToday && day.isCurrentMonth ? 'ring-2 ring-primary ring-inset' : ''}
                         `}
+                        style={{ aspectRatio: '1' }}
                       >
                         <div
                           className={`
-                            text-xs font-bold text-center
+                            text-sm font-bold text-center leading-tight
                             ${day.isCurrentMonth
                               ? selectedDate === day.date
                                 ? 'font-bold'
@@ -547,7 +562,7 @@ export function AppointmentPage() {
                         {day.appointments.length > 0 && day.isCurrentMonth && (
                           <div className="-mt-0.5">
                             <div
-                              className={`appointment-badge inline-flex items-center justify-center text-xs font-medium rounded-full px-1 neumorphic-inset bg-primary/10 border border-primary/20`}
+                              className={`appointment-badge inline-flex items-center justify-center text-[8px] sm:text-[10px] font-medium rounded-full px-0.5 sm:px-1 neumorphic-inset bg-primary/10 border border-primary/20`}
                             >
                               {day.appointments.length}
                             </div>

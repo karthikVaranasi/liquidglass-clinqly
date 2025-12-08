@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react"
 import { IconUserCircle } from "@tabler/icons-react"
-import { AuthStorage, AppointmentsAPI } from "@/api/auth"
+import { AuthStorage } from "@/api/auth"
+import { DoctorRequestsAPI } from "@/api/doctor"
+import { useCounts } from "@/contexts/counts-context"
 
 export function FrontDeskPage() {
   const [requests, setRequests] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { setFrontDeskCount } = useCounts()
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -22,12 +25,14 @@ export function FrontDeskPage() {
           return
         }
 
-        const data = await AppointmentsAPI.getFrontDeskRequests(clinicId)
-        setRequests(Array.isArray(data) ? data : [])
+        const result = await DoctorRequestsAPI.getFrontDeskRequests(clinicId)
+        setRequests(result.data)
+        setFrontDeskCount(result.count)
       } catch (err) {
         console.error('Failed to fetch front desk requests:', err)
         setError(err instanceof Error ? err.message : 'Failed to load front desk requests')
         setRequests([])
+        setFrontDeskCount(null)
       } finally {
         setLoading(false)
       }
@@ -40,7 +45,22 @@ export function FrontDeskPage() {
     if (!dateString) return ''
     try {
       const date = new Date(dateString)
-      return date.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        return dateString
+      }
+      // Format date and time: MM/DD/YYYY, HH:MM AM/PM
+      const datePart = date.toLocaleDateString('en-US', { 
+        month: '2-digit', 
+        day: '2-digit', 
+        year: 'numeric' 
+      })
+      const timePart = date.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: true 
+      })
+      return `${datePart}, ${timePart}`
     } catch {
       return dateString
     }
@@ -82,12 +102,6 @@ export function FrontDeskPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="px-4 lg:px-6">
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
-          Front Desk Requests
-        </h1>
-      </div>
 
       {/* Front Desk Requests Table */}
       <div className="px-4 lg:px-6">
@@ -107,7 +121,7 @@ export function FrontDeskPage() {
                     <th className="text-left font-medium py-3 px-2 min-w-[120px]">Name</th>
                     <th className="text-left font-medium py-3 px-2 min-w-[140px]">Phone Number</th>
                     <th className="text-left font-medium py-3 px-2 min-w-[300px]">Message</th>
-                    <th className="text-left font-medium py-3 px-2 min-w-[120px]">Created At</th>
+                    <th className="text-left font-medium py-3 px-2 min-w-[160px]">Created At</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y-2 divide-muted/90">

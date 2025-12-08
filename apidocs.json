@@ -12,7 +12,7 @@
                     "bland"
                 ],
                 "summary": "Check Availability",
-                "description": "Check if a doctor is available on a specific date or date range and suggest alternatives.\n\nArgs:\n    request: Availability check request containing doctor name and date(s)\n    session: Database session (injected by FastAPI)\n    \nReturns:\n    TimeSlotResponse for single day queries, AvailabilityCheckResponse for date range queries\n    \nRaises:\n    404: Doctor not found\n    422: Invalid date format\n    500: Database error",
+                "description": "Check if a doctor is available on a specific date or date range and suggest alternatives.\n\nArgs:\n    request: Availability check request containing doctor name and date(s)\n    session: Database session (injected by FastAPI)\n\nReturns:\n    TimeSlotResponse for single day queries, AvailabilityCheckResponse for date range queries\n\nRaises:\n    404: Doctor not found\n    422: Invalid date format\n    500: Database error",
                 "operationId": "check_availability_bland_doctors_check_availability_post",
                 "requestBody": {
                     "content": {
@@ -30,15 +30,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "anyOf": [
-                                        {
-                                            "$ref": "#/components/schemas/TimeSlotResponse"
-                                        },
-                                        {
-                                            "$ref": "#/components/schemas/AvailabilityCheckResponse"
-                                        }
-                                    ],
-                                    "title": "Response Check Availability Bland Doctors Check Availability Post"
+                                    "$ref": "#/components/schemas/AvailabilityCheckResponse"
                                 }
                             }
                         }
@@ -67,7 +59,7 @@
                     "bland"
                 ],
                 "summary": "Get Weekly Availability",
-                "description": "Get available dates for a doctor for the next 7 days.\nNow uses the unified check_availability function with date range.\n\nArgs:\n    request: Weekly availability request containing clinic ID and doctor ID\n    session: Database session (injected by FastAPI)\n    \nReturns:\n    AvailabilityCheckResponse with available dates in the next 7 days\n    \nRaises:\n    404: Doctor not found\n    500: Database error",
+                "description": "Get available dates for a doctor for the next 7 days.\nNow uses the unified check_availability function with date range.\n\nArgs:\n    request: Weekly availability request containing clinic ID and doctor ID\n    session: Database session (injected by FastAPI)\n\nReturns:\n    AvailabilityCheckResponse with available dates in the next 7 days\n\nRaises:\n    404: Doctor not found\n    500: Database error",
                 "operationId": "get_weekly_availability_bland_doctors_weekly_availability_post",
                 "requestBody": {
                     "content": {
@@ -108,13 +100,93 @@
                 ]
             }
         },
+        "/bland/doctors/is-working": {
+            "get": {
+                "tags": [
+                    "bland"
+                ],
+                "summary": "Check Doctor Working",
+                "description": "Check if a doctor is working on a specific date.\n\nThis endpoint is used by AI agents when callers ask if the clinic is open today.\nA doctor is working if:\n1. The clinic is open (has working hours for that day)\n2. The doctor does NOT have an all-day exception for that date\n\nArgs:\n    clinic_id: Clinic ID\n    doctor_id: Doctor ID\n    check_date: Date to check (YYYY-MM-DD format). If not provided, defaults to today in Eastern timezone.\n\nReturns:\n    DoctorWorkingCheckResponse with working status and details\n\nRaises:\n    404: If clinic or doctor not found\n    422: If validation fails (e.g., doctor doesn't belong to clinic)\n    500: If database error occurs",
+                "operationId": "check_doctor_working_bland_doctors_is_working_get",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "clinic_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Clinic ID",
+                            "title": "Clinic Id"
+                        },
+                        "description": "Clinic ID"
+                    },
+                    {
+                        "name": "doctor_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Doctor ID",
+                            "title": "Doctor Id"
+                        },
+                        "description": "Doctor ID"
+                    },
+                    {
+                        "name": "check_date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Date to check (YYYY-MM-DD). Defaults to today if not provided.",
+                            "title": "Check Date"
+                        },
+                        "description": "Date to check (YYYY-MM-DD). Defaults to today if not provided."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DoctorWorkingCheckResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/bland/patients/validate": {
             "post": {
                 "tags": [
                     "bland"
                 ],
                 "summary": "Validate Patient",
-                "description": "Validate if a patient exists in the system using phone number and date of birth.\n\nArgs:\n    request: Patient validation request containing DOB and phone\n    \nReturns:\n    PatientResponse with validation result\n    \nRaises:\n    422: Invalid date format or missing required fields\n    500: Database error",
+                "description": "Validate if a patient exists in the system using phone number and date of birth.\n\nArgs:\n    request: Patient validation request containing DOB and phone\n\nReturns:\n    PatientResponse with validation result\n\nRaises:\n    422: Invalid date format or missing required fields\n    500: Database error",
                 "operationId": "validate_patient_bland_patients_validate_post",
                 "requestBody": {
                     "content": {
@@ -208,7 +280,7 @@
                     "bland"
                 ],
                 "summary": "Create Patient",
-                "description": "Create a new patient record in the system.\n\nArgs:\n    request: Patient creation request containing first name, DOB, and phone\n    \nReturns:\n    PatientResponse with creation result and new patient ID\n    \nRaises:\n    422: Invalid input data or missing required fields\n    500: Database error",
+                "description": "Create a new patient record in the system.\n\nArgs:\n    request: Patient creation request containing first name, DOB, and phone\n\nReturns:\n    PatientResponse with creation result and new patient ID\n\nRaises:\n    422: Invalid input data or missing required fields\n    500: Database error",
                 "operationId": "create_patient_bland_patients_create_post",
                 "requestBody": {
                     "content": {
@@ -308,7 +380,7 @@
                     "bland"
                 ],
                 "summary": "Create Refill Request",
-                "description": "Create a new refill request for a patient.\n\nThis endpoint allows creating a refill request with the following information:\n- patient_id: The ID of the patient the request is for\n- caller_name: Name of the person making the request\n- relationship_to_patient: How the caller is related to the patient (optional)\n- request: Details of the refill request\n\nArgs:\n    request: RefillRequest containing all necessary information\n    session: Database session (injected via FastAPI dependency)\n    \nReturns:\n    RefillRequest with the newly created request ID\n    \nRaises:\n    422: Invalid input data or patient doesn't exist\n    500: Database error",
+                "description": "Create a new refill request for a patient.\n\nThis endpoint allows creating a refill request with the following information:\n- patient_id: The ID of the patient the request is for\n- caller_name: Name of the person making the request\n- relationship_to_patient: How the caller is related to the patient (optional)\n- request: Details of the refill request\n\nArgs:\n    request: RefillRequest containing all necessary information\n    session: Database session (injected via FastAPI dependency)\n\nReturns:\n    RefillRequest with the newly created request ID\n\nRaises:\n    422: Invalid input data or patient doesn't exist\n    500: Database error",
                 "operationId": "create_refill_request_bland_patients_refill_request_post",
                 "requestBody": {
                     "content": {
@@ -399,7 +471,7 @@
                     "bland"
                 ],
                 "summary": "Book Appointment",
-                "description": "Book a new appointment. If the slot is taken, it suggests alternatives.\n\nArgs:\n    request: Appointment booking request\n    session: Database session (injected by FastAPI)\n    \nReturns:\n    AppointmentBookingResponse with booking result\n    \nRaises:\n    404: Doctor not found\n    422: Invalid appointment data or slot unavailable\n    500: Database error",
+                "description": "Book a new appointment. If the slot is taken, it suggests alternatives.\n\nArgs:\n    request: Appointment booking request\n    session: Database session (injected by FastAPI)\n\nReturns:\n    AppointmentBookingResponse with booking result\n\nRaises:\n    404: Doctor not found\n    422: Invalid appointment data or slot unavailable\n    500: Database error",
                 "operationId": "book_appointment_bland_appointments_book_post",
                 "requestBody": {
                     "content": {
@@ -446,7 +518,7 @@
                     "bland"
                 ],
                 "summary": "Reschedule Appointment",
-                "description": "Reschedule an existing appointment by appointment ID.\n\nArgs:\n    request: Appointment reschedule request\n    session: Database session (injected by FastAPI)\n    \nReturns:\n    AppointmentRescheduleResponse with reschedule result\n    \nRaises:\n    404: Appointment or doctor not found\n    422: Invalid appointment data or slot unavailable\n    500: Database error",
+                "description": "Reschedule an existing appointment by appointment ID.\n\nArgs:\n    request: Appointment reschedule request\n    session: Database session (injected by FastAPI)\n\nReturns:\n    AppointmentRescheduleResponse with reschedule result\n\nRaises:\n    404: Appointment or doctor not found\n    422: Invalid appointment data or slot unavailable\n    500: Database error",
                 "operationId": "reschedule_appointment_bland_appointments_reschedule_post",
                 "requestBody": {
                     "content": {
@@ -493,7 +565,7 @@
                     "bland"
                 ],
                 "summary": "Get Appointment Details",
-                "description": "Get appointment details by appointment ID.\n\nArgs:\n    appointment_id: Appointment ID\n    session: Database session (injected by FastAPI)\n    \nReturns:\n    Appointment with appointment details\n    \nRaises:\n    404: Appointment not found\n    500: Database error",
+                "description": "Get appointment details by appointment ID.\n\nArgs:\n    appointment_id: Appointment ID\n    session: Database session (injected by FastAPI)\n\nReturns:\n    Appointment with appointment details\n\nRaises:\n    404: Appointment not found\n    500: Database error",
                 "operationId": "get_appointment_details_bland_appointments_details__appointment_id__get",
                 "security": [
                     {
@@ -541,7 +613,7 @@
                     "bland"
                 ],
                 "summary": "Get Appointment",
-                "description": "Retrieve all upcoming appointments for a patient.\n\nArgs:\n    patient_id: Patient ID\n    session: Database session (injected by FastAPI)\n    \nReturns:\n    List[Appointment] with all upcoming appointment details\n    \nRaises:\n    500: Database error",
+                "description": "Retrieve all upcoming appointments for a patient.\n\nArgs:\n    patient_id: Patient ID\n    session: Database session (injected by FastAPI)\n\nReturns:\n    List[Appointment] with all upcoming appointment details\n\nRaises:\n    500: Database error",
                 "operationId": "get_appointment_bland_appointments_get__patient_id__get",
                 "security": [
                     {
@@ -589,7 +661,7 @@
                     "bland"
                 ],
                 "summary": "Cancel Appointment",
-                "description": "Cancel an existing appointment using appointment ID.\n\nArgs:\n    request: Cancel appointment request with appointment ID\n    session: Database session (injected by FastAPI)\n    \nReturns:\n    CancelAppointmentResponse with cancellation result\n    \nRaises:\n    404: Appointment not found\n    500: Database error",
+                "description": "Cancel an existing appointment using appointment ID.\n\nArgs:\n    request: Cancel appointment request with appointment ID\n    session: Database session (injected by FastAPI)\n\nReturns:\n    CancelAppointmentResponse with cancellation result\n\nRaises:\n    404: Appointment not found\n    500: Database error",
                 "operationId": "cancel_appointment_bland_appointments_cancel_post",
                 "requestBody": {
                     "content": {
@@ -675,13 +747,99 @@
                 }
             }
         },
+        "/bland/sms": {
+            "post": {
+                "tags": [
+                    "bland"
+                ],
+                "summary": "Handle Twilio Sms",
+                "description": "Handle incoming SMS messages from Twilio webhook.\n\nThis endpoint receives form-encoded data from Twilio and processes SMS messages\nthrough the ElevenLabs conversational AI bridge.",
+                "operationId": "handle_twilio_sms_bland_sms_post",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body_handle_twilio_sms_bland_sms_post"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/date-to-weekday/{date}": {
+            "get": {
+                "tags": [
+                    "bland"
+                ],
+                "summary": "Date To Weekday",
+                "description": "Convert a date to its weekday and also return the next 15 days\nwith their corresponding weekdays.",
+                "operationId": "date_to_weekday_date_to_weekday__date__get",
+                "parameters": [
+                    {
+                        "name": "date",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "title": "Date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": true,
+                                    "title": "Response Date To Weekday Date To Weekday  Date  Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/dashboard/appointments": {
             "get": {
                 "tags": [
                     "dashboard appointments"
                 ],
                 "summary": "Get All Appointments",
-                "description": "Get all appointments with optional filtering by doctor, status, and clinic.\n\nArgs:\n    doctor_id: Optional doctor ID to filter appointments\n    status: Optional status to filter appointments (e.g., 'scheduled', 'completed', 'cancelled')\n    clinic_id: Optional clinic ID to filter appointments\n    session: Database session (injected by FastAPI)\n    \nReturns:\n    GetAppointmentByPatientIdResponse with appointments list\n    \nRaises:\n    500: Database error",
+                "description": "Get all appointments with optional filtering by doctor, status, and clinic.\n\nArgs:\n    doctor_id: Optional doctor ID to filter appointments\n    status: Optional status to filter appointments (e.g., 'scheduled', 'completed', 'cancelled')\n    clinic_id: Optional clinic ID to filter appointments\n    session: Database session (injected by FastAPI)\n\nReturns:\n    GetAppointmentByPatientIdResponse with appointments list\n\nRaises:\n    500: Database error",
                 "operationId": "get_all_appointments_dashboard_appointments_get",
                 "security": [
                     {
@@ -800,7 +958,7 @@
                     "dashboard appointments"
                 ],
                 "summary": "Book Appointment",
-                "description": "Book a new appointment. If the slot is taken, it suggests alternatives.\n\nArgs:\n    request: Appointment booking request\n    session: Database session (injected by FastAPI)\n    \nReturns:\n    AppointmentBookingResponse with booking result\n    \nRaises:\n    404: Doctor not found\n    422: Invalid appointment data or slot unavailable\n    500: Database error",
+                "description": "Book a new appointment. If the slot is taken, it suggests alternatives.\n\nArgs:\n    request: Appointment booking request\n    session: Database session (injected by FastAPI)\n\nReturns:\n    AppointmentBookingResponse with booking result\n\nRaises:\n    404: Doctor not found\n    422: Invalid appointment data or slot unavailable\n    500: Database error",
                 "operationId": "book_appointment_dashboard_appointments_book_post",
                 "requestBody": {
                     "content": {
@@ -847,7 +1005,7 @@
                     "dashboard appointments"
                 ],
                 "summary": "Reschedule Appointment",
-                "description": "Reschedule an existing appointment by appointment ID.\n\nArgs:\n    request: Appointment reschedule request\n    session: Database session (injected by FastAPI)\n    \nReturns:\n    AppointmentRescheduleResponse with reschedule result\n    \nRaises:\n    404: Appointment or doctor not found\n    422: Invalid appointment data or slot unavailable\n    500: Database error",
+                "description": "Reschedule an existing appointment by appointment ID.\n\nArgs:\n    request: Appointment reschedule request\n    session: Database session (injected by FastAPI)\n\nReturns:\n    AppointmentRescheduleResponse with reschedule result\n\nRaises:\n    404: Appointment or doctor not found\n    422: Invalid appointment data or slot unavailable\n    500: Database error",
                 "operationId": "reschedule_appointment_dashboard_appointments_reschedule_post",
                 "requestBody": {
                     "content": {
@@ -894,7 +1052,7 @@
                     "dashboard appointments"
                 ],
                 "summary": "Cancel Appointment",
-                "description": "Cancel an existing appointment using appointment ID.\n\nArgs:\n    request: Cancel appointment request with appointment ID\n    session: Database session (injected by FastAPI)\n    \nReturns:\n    CancelAppointmentResponse with cancellation result\n    \nRaises:\n    404: Appointment not found\n    500: Database error",
+                "description": "Cancel an existing appointment using appointment ID.\n\nArgs:\n    request: Cancel appointment request with appointment ID\n    session: Database session (injected by FastAPI)\n\nReturns:\n    CancelAppointmentResponse with cancellation result\n\nRaises:\n    404: Appointment not found\n    500: Database error",
                 "operationId": "cancel_appointment_dashboard_appointments_cancel_post",
                 "requestBody": {
                     "content": {
@@ -941,7 +1099,7 @@
                     "dashboard patients"
                 ],
                 "summary": "Get Patients Count",
-                "description": "Get the total count of patients in the system with optional filtering.\n\nArgs:\n    clinic_id: Clinic ID to filter patients\n    session: Database session (injected by FastAPI)\n\nReturns:\n    GetPatientsCountResponse with patients count\n    \nRaises:\n    500: Database error",
+                "description": "Get the total count of patients in the system with optional filtering.\n\nArgs:\n    clinic_id: Clinic ID to filter patients\n    session: Database session (injected by FastAPI)\n\nReturns:\n    GetPatientsCountResponse with patients count\n\nRaises:\n    500: Database error",
                 "operationId": "get_patients_count_dashboard_patients_count_get",
                 "security": [
                     {
@@ -989,7 +1147,7 @@
                     "dashboard patients"
                 ],
                 "summary": "Get Patients",
-                "description": "Get all patients or patients for a specific clinic.\n\nArgs:\n    clinic_id: Optional clinic ID to filter patients. If not provided, returns all patients.\n    session: Database session (injected by FastAPI)\n    \nReturns:\n    GetPatientsResponse with patients list including guardians\n    \nRaises:\n    500: Database error",
+                "description": "Get all patients or patients for a specific clinic.\n\nArgs:\n    clinic_id: Optional clinic ID to filter patients. If not provided, returns all patients.\n    session: Database session (injected by FastAPI)\n\nReturns:\n    GetPatientsResponse with patients list including guardians\n\nRaises:\n    500: Database error",
                 "operationId": "get_patients_dashboard_patients_get",
                 "security": [
                     {
@@ -1044,7 +1202,7 @@
                     "dashboard patients"
                 ],
                 "summary": "Get Refill Requests",
-                "description": "Get all refill requests with patient information for display in frontend table.\n\nArgs:\n    clinic_id: clinic ID to filter requests\n    \nReturns:\n    GetRefillRequestResponse with refill requests list including:\n    - Request ID\n    - Patient ID and name\n    - Patient phone number\n    - Caller name\n    - Relationship to patient\n    - Request details\n    - Created timestamp (in MM/DD/YYYY format)\n    \nRaises:\n    500: Database error",
+                "description": "Get all refill requests with patient information for display in frontend table.\n\nArgs:\n    clinic_id: clinic ID to filter requests\n\nReturns:\n    GetRefillRequestResponse with refill requests list including:\n    - Request ID\n    - Patient ID and name\n    - Patient phone number\n    - Caller name\n    - Relationship to patient\n    - Request details\n    - Created timestamp (in MM/DD/YYYY format)\n\nRaises:\n    500: Database error",
                 "operationId": "get_refill_requests_dashboard_patients_refill_requests_get",
                 "security": [
                     {
@@ -1092,7 +1250,7 @@
                     "dashboard patients"
                 ],
                 "summary": "Create Patient",
-                "description": "Create a new patient record in the system.\n\nArgs:\n    request: Patient creation request containing first name, DOB, and phone\n    \nReturns:\n    PatientResponse with creation result and new patient ID\n    \nRaises:\n    422: Invalid input data or missing required fields\n    500: Database error",
+                "description": "Create a new patient record in the system.\n\nArgs:\n    request: Patient creation request containing first name, DOB, and phone\n\nReturns:\n    PatientResponse with creation result and new patient ID\n\nRaises:\n    422: Invalid input data or missing required fields\n    500: Database error",
                 "operationId": "create_patient_dashboard_patients_create_post",
                 "requestBody": {
                     "content": {
@@ -1368,7 +1526,7 @@
                     "dashboard doctors"
                 ],
                 "summary": "Get Doctors",
-                "description": "Get all doctors with their basic information, optionally filtered by clinic.\n\nArgs:\n    clinic_id: Optional clinic ID to filter doctors\n    session: Database session (injected by FastAPI)\n\nReturns:\n    GetDoctorsResponse with doctors list\n    \nRaises:\n    500: Database error",
+                "description": "Get all doctors with their basic information, optionally filtered by clinic.\n\nArgs:\n    clinic_id: Optional clinic ID to filter doctors\n    session: Database session (injected by FastAPI)\n\nReturns:\n    GetDoctorsResponse with doctors list\n\nRaises:\n    500: Database error",
                 "operationId": "get_doctors_dashboard_doctors_get",
                 "security": [
                     {
@@ -1462,13 +1620,315 @@
                 ]
             }
         },
+        "/dashboard/doctors/availability-exceptions": {
+            "post": {
+                "tags": [
+                    "dashboard doctors"
+                ],
+                "summary": "Create Doctor Availability Exception",
+                "description": "Create a new availability exception for a doctor.\n\nArgs:\n    doctor_id: Doctor's ID\n    request: Exception creation data\n    session: Database session\n    user: Current authenticated user\n\nReturns:\n    Created DoctorAvailabilityException\n\nRaises:\n    403: If user doesn't have access to this doctor\n    404: If doctor not found\n    422: If validation fails\n    500: If database error occurs",
+                "operationId": "create_doctor_availability_exception_dashboard_doctors_availability_exceptions_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DoctorAvailabilityExceptionCreate"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DoctorAvailabilityException"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ]
+            }
+        },
+        "/dashboard/doctors/availability-exceptions/{exception_id}": {
+            "put": {
+                "tags": [
+                    "dashboard doctors"
+                ],
+                "summary": "Update Doctor Availability Exception",
+                "description": "Update an existing availability exception.\n\nArgs:\n    exception_id: Exception's ID\n    request: Exception update data\n    session: Database session\n    user: Current authenticated user\n\nReturns:\n    Updated DoctorAvailabilityException\n\nRaises:\n    403: If user doesn't have access to this exception's doctor\n    404: If exception not found\n    422: If validation fails\n    500: If database error occurs",
+                "operationId": "update_doctor_availability_exception_dashboard_doctors_availability_exceptions__exception_id__put",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "exception_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Exception Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DoctorAvailabilityExceptionUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DoctorAvailabilityException"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "dashboard doctors"
+                ],
+                "summary": "Delete Doctor Availability Exception",
+                "operationId": "delete_doctor_availability_exception_dashboard_doctors_availability_exceptions__exception_id__delete",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "exception_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Exception Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/dashboard/doctors/availability-exceptions/{doctor_id}": {
+            "get": {
+                "tags": [
+                    "dashboard doctors"
+                ],
+                "summary": "Get Doctor Availability Exceptions",
+                "description": "Get availability exceptions for a doctor, optionally filtered by date range.\n\nArgs:\n    doctor_id: Doctor's ID\n    start_date: Optional start date for filtering\n    end_date: Optional end date for filtering\n    session: Database session\n    user: Current authenticated user\n\nReturns:\n    List of DoctorAvailabilityException objects\n\nRaises:\n    403: If user doesn't have access to this doctor\n    404: If doctor not found\n    500: If database error occurs",
+                "operationId": "get_doctor_availability_exceptions_dashboard_doctors_availability_exceptions__doctor_id__get",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "doctor_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Doctor Id"
+                        }
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filter by start date",
+                            "title": "Start Date"
+                        },
+                        "description": "Filter by start date"
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filter by end date",
+                            "title": "End Date"
+                        },
+                        "description": "Filter by end date"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/DoctorAvailabilityException"
+                                    },
+                                    "title": "Response Get Doctor Availability Exceptions Dashboard Doctors Availability Exceptions  Doctor Id  Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/dashboard/doctors/{doctor_id}/sync-holidays": {
+            "post": {
+                "tags": [
+                    "dashboard doctors"
+                ],
+                "summary": "Sync Doctor Holidays",
+                "description": "Sync US federal holidays as availability exceptions for a doctor.\n\nArgs:\n    doctor_id: Doctor's ID\n    year: Optional year to sync holidays for (defaults to current year)\n    session: Database session\n    user: Current authenticated user\n\nReturns:\n    JSON with sync summary\n\nRaises:\n    403: If user doesn't have access to this doctor\n    404: If doctor not found\n    500: If database error occurs",
+                "operationId": "sync_doctor_holidays_dashboard_doctors__doctor_id__sync_holidays_post",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "doctor_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Doctor Id"
+                        }
+                    },
+                    {
+                        "name": "year",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "integer"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Year to sync holidays for (defaults to current year)",
+                            "title": "Year"
+                        },
+                        "description": "Year to sync holidays for (defaults to current year)"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/dashboard/stats/age-distribution": {
             "get": {
                 "tags": [
                     "dashboard statistics"
                 ],
                 "summary": "Get Age Distribution",
-                "description": "Get patient age distribution statistics.\n\nArgs:\n    clinic_id: Optional clinic ID to filter data\n    doctor_id: Optional doctor ID to filter data\n    session: Database session (injected by FastAPI)\n\nReturns:\n    GetAgeDistributionResponse with age distribution data\n    \nRaises:\n    500: Database error",
+                "description": "Get patient age distribution statistics.\n\nArgs:\n    clinic_id: Optional clinic ID to filter data\n    doctor_id: Optional doctor ID to filter data\n    session: Database session (injected by FastAPI)\n\nReturns:\n    GetAgeDistributionResponse with age distribution data\n\nRaises:\n    500: Database error",
                 "operationId": "get_age_distribution_dashboard_stats_age_distribution_get",
                 "security": [
                     {
@@ -1541,7 +2001,7 @@
                     "dashboard statistics"
                 ],
                 "summary": "Get Appointment Trends",
-                "description": "Get appointment trends for the current week showing scheduled and cancelled counts.\n\nArgs:\n    clinic_id: Optional clinic ID to filter data\n    doctor_id: Optional doctor ID to filter data\n    session: Database session (injected by FastAPI)\n\nReturns:\n    JSON response with appointment trends data for current week\n    \nRaises:\n    500: Database error",
+                "description": "Get appointment trends for the current week showing scheduled and cancelled counts.\n\nArgs:\n    clinic_id: Optional clinic ID to filter data\n    doctor_id: Optional doctor ID to filter data\n    session: Database session (injected by FastAPI)\n\nReturns:\n    JSON response with appointment trends data for current week\n\nRaises:\n    500: Database error",
                 "operationId": "get_appointment_trends_dashboard_stats_appointment_trends_get",
                 "security": [
                     {
@@ -1614,7 +2074,7 @@
                     "dashboard statistics"
                 ],
                 "summary": "Get All Dashboard Stats",
-                "description": "Get comprehensive dashboard statistics including:\n- Total patients count\n- Total doctors count\n- Total appointments count\n- Today's appointments count\n- Recent appointments (last 5)\n- Upcoming appointments count\n\nArgs:\n    clinic_id: Optional clinic ID to filter data\n    doctor_id: Optional doctor ID to filter data\n    session: Database session (injected by FastAPI)\n\nReturns:\n    JSON response with comprehensive dashboard statistics\n    \nExample Response:\n    {\n        \"stats\": {\n            \"total_patients\": 248,\n            \"total_doctors\": 2,\n            \"total_appointments\": 257,\n            \"todays_appointments\": 11,\n            \"recent_appointments\": [\n                {\n                    \"id\": 278,\n                    \"patient_name\": \"Ethan Patel\",\n                    \"doctor_name\": \"Dr. David Green\",\n                    \"appointment_time\": \"1989-09-18 11:00\"\n                }\n            ],\n            \"upcoming_appointments\": 29\n        }\n    }\n    \nRaises:\n    500: Database error",
+                "description": "Get comprehensive dashboard statistics including:\n- Total patients count\n- Total doctors count\n- Total appointments count\n- Today's appointments count\n- Recent appointments (last 5)\n- Upcoming appointments count\n\nArgs:\n    clinic_id: Optional clinic ID to filter data\n    doctor_id: Optional doctor ID to filter data\n    session: Database session (injected by FastAPI)\n\nReturns:\n    JSON response with comprehensive dashboard statistics\n\nExample Response:\n    {\n        \"stats\": {\n            \"total_patients\": 248,\n            \"total_doctors\": 2,\n            \"total_appointments\": 257,\n            \"todays_appointments\": 11,\n            \"recent_appointments\": [\n                {\n                    \"id\": 278,\n                    \"patient_name\": \"Ethan Patel\",\n                    \"doctor_name\": \"Dr. David Green\",\n                    \"appointment_time\": \"1989-09-18 11:00\"\n                }\n            ],\n            \"upcoming_appointments\": 29\n        }\n    }\n\nRaises:\n    500: Database error",
                 "operationId": "get_all_dashboard_stats_dashboard_stats_all_get",
                 "security": [
                     {
@@ -1687,7 +2147,6 @@
                     "dashboard authentication"
                 ],
                 "summary": "Admin Login",
-                "description": "Admin login endpoint.\n\nArgs:\n    request: Login credentials\n    \nReturns:\n    AdminLoginResponse with admin details\n    \nRaises:\n    401: Invalid credentials\n    500: Database error",
                 "operationId": "admin_login_dashboard_auth_admin_login_post",
                 "requestBody": {
                     "content": {
@@ -1729,7 +2188,7 @@
                     "dashboard authentication"
                 ],
                 "summary": "Doctor Login",
-                "description": "Doctor login endpoint.\n\nArgs:\n    request: Login credentials\n    \nReturns:\n    DoctorLoginResponse with doctor details\n    \nRaises:\n    401: Invalid credentials\n    500: Database error",
+                "description": "Doctor login endpoint.\n\nArgs:\n    request: Login credentials\n\nReturns:\n    DoctorLoginResponse with doctor details\n\nRaises:\n    401: Invalid credentials\n    500: Database error",
                 "operationId": "doctor_login_dashboard_auth_doctor_login_post",
                 "requestBody": {
                     "content": {
@@ -1771,7 +2230,7 @@
                     "dashboard authentication"
                 ],
                 "summary": "Sso Login",
-                "description": "SSO login endpoint for IMS authentication.\n\nArgs:\n    request: SSO login request containing JWT token from SSO provider\n    session: Database session (injected via FastAPI dependency)\n    \nReturns:\n    SSOLoginResponse with doctor details and access token\n    \nRaises:\n    401: Invalid or expired token\n    500: Server error",
+                "description": "SSO login endpoint for IMS authentication.\n\nArgs:\n    request: SSO login request containing JWT token from SSO provider\n    session: Database session (injected via FastAPI dependency)\n\nReturns:\n    SSOLoginResponse with doctor details and access token\n\nRaises:\n    401: Invalid or expired token\n    500: Server error",
                 "operationId": "sso_login_dashboard_auth_sso_login_post",
                 "requestBody": {
                     "content": {
@@ -1807,13 +2266,59 @@
                 }
             }
         },
+        "/dashboard/auth/admin/login-as-doctor": {
+            "post": {
+                "tags": [
+                    "dashboard authentication"
+                ],
+                "summary": "Admin Login As Doctor",
+                "operationId": "admin_login_as_doctor_dashboard_auth_admin_login_as_doctor_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AdminLoginAsDoctorRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DoctorLoginResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ]
+            }
+        },
         "/dashboard/reminders/send/appointment/{appointment_id}": {
             "post": {
                 "tags": [
                     "dashboard reminders"
                 ],
                 "summary": "Send Appointment Reminder",
-                "description": "Send a reminder for a specific appointment by ID.\nPerfect for UI \"Remind\" button functionality.\n\nArgs:\n    appointment_id: The ID of the appointment to send reminder for\n\nReturns:\n    JSON response with reminder status\n    \nRaises:\n    404: Appointment not found\n    400: Appointment not eligible for reminder (not scheduled, no phone number, etc.)\n    500: Database error or reminder sending failure",
+                "description": "Send a reminder for a specific appointment by ID.\nPerfect for UI \"Remind\" button functionality.\n\nArgs:\n    appointment_id: The ID of the appointment to send reminder for\n\nReturns:\n    JSON response with reminder status\n\nRaises:\n    404: Appointment not found\n    400: Appointment not eligible for reminder (not scheduled, no phone number, etc.)\n    500: Database error or reminder sending failure",
                 "operationId": "send_appointment_reminder_dashboard_reminders_send_appointment__appointment_id__post",
                 "security": [
                     {
@@ -1853,13 +2358,64 @@
                 }
             }
         },
+        "/dashboard/reminders/send/batch/doctor": {
+            "post": {
+                "tags": [
+                    "dashboard reminders"
+                ],
+                "summary": "Send Batch Doctor Reminders",
+                "description": "Send batch reminders for all appointments for a specific doctor appointments.",
+                "operationId": "send_batch_doctor_reminders_dashboard_reminders_send_batch_doctor_post",
+                "parameters": [
+                    {
+                        "name": "x-api-key",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "X-Api-Key"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BatchRemindersRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/dashboard/logs": {
             "get": {
                 "tags": [
                     "dashboard logs"
                 ],
                 "summary": "Get Logs",
-                "description": "Get all call logs (without sensitive call_id for HIPAA compliance) with optional status filter.\n\nArgs:\n    status: Optional filter by status\n    session: Database session (injected by FastAPI)\n    \nReturns:\n    List of call logs\n    \nRaises:\n    400: Invalid status parameter\n    500: Database error",
+                "description": "Get all call logs (without sensitive call_id for HIPAA compliance) with optional status filter.\n\nArgs:\n    status: Optional filter by status\n    session: Database session (injected by FastAPI)\n\nReturns:\n    List of call logs\n\nRaises:\n    400: Invalid status parameter\n    500: Database error",
                 "operationId": "get_logs_dashboard_logs_get",
                 "security": [
                     {
@@ -1907,7 +2463,7 @@
                     "dashboard logs"
                 ],
                 "summary": "Get Status Counts",
-                "description": "Get count of logs by status.\n\nArgs:\n    session: Database session (injected by FastAPI)\n\nReturns:\n    Dictionary with status counts\n    \nRaises:\n    500: Database error",
+                "description": "Get count of logs by status.\n\nArgs:\n    session: Database session (injected by FastAPI)\n\nReturns:\n    Dictionary with status counts\n\nRaises:\n    500: Database error",
                 "operationId": "get_status_counts_dashboard_logs_status_counts_get",
                 "responses": {
                     "200": {
@@ -1932,7 +2488,7 @@
                     "dashboard logs"
                 ],
                 "summary": "Get Log Transcript",
-                "description": "Get transcript for a specific log by ID.\n\nArgs:\n    id: Log ID\n    session: Database session (injected by FastAPI)\n    \nReturns:\n    Transcript data\n    \nRaises:\n    404: Log or transcript not found\n    500: Database error",
+                "description": "Get transcript for a specific log by ID.\n\nArgs:\n    id: Log ID\n    session: Database session (injected by FastAPI)\n\nReturns:\n    Transcript data\n\nRaises:\n    404: Log or transcript not found\n    500: Database error",
                 "operationId": "get_log_transcript_dashboard_logs_transcript_get",
                 "security": [
                     {
@@ -1978,7 +2534,7 @@
                     "dashboard logs"
                 ],
                 "summary": "Get Pathway Logs",
-                "description": "Get pathway logs with webhook classification for a specific log by ID.\n\nArgs:\n    id: Log ID\n    session: Database session (injected by FastAPI)\n    \nReturns:\n    Pathway logs data\n    \nRaises:\n    404: Log or pathway logs not found\n    500: Database error",
+                "description": "Get pathway logs with webhook classification for a specific log by ID.\n\nArgs:\n    id: Log ID\n    session: Database session (injected by FastAPI)\n\nReturns:\n    Pathway logs data\n\nRaises:\n    404: Log or pathway logs not found\n    500: Database error",
                 "operationId": "get_pathway_logs_dashboard_logs_pathway_logs_get",
                 "security": [
                     {
@@ -2026,7 +2582,7 @@
                     "dashboard postcall"
                 ],
                 "summary": "New Call",
-                "description": "Handle new call webhook from Bland AI.\n\nArgs:\n    request: Raw request body from Bland AI\n    session: Database session (injected by FastAPI)\n    \nReturns:\n    JSON response with call processing result\n    \nRaises:\n    400: Invalid data format\n    422: Validation error\n    500: Database error",
+                "description": "Handle new call webhook from Bland AI.\n\nArgs:\n    request: Raw request body from Bland AI\n    session: Database session (injected by FastAPI)\n\nReturns:\n    JSON response with call processing result\n\nRaises:\n    400: Invalid data format\n    422: Validation error\n    500: Database error",
                 "operationId": "new_call_dashboard_postcall_post",
                 "responses": {
                     "200": {
@@ -2046,7 +2602,7 @@
                     "dashboard postcall"
                 ],
                 "summary": "Receive Webhook",
-                "description": "ElevenLabs webhook endpoint - receives call data after each call ends.\nHandles both transcript and audio webhooks.\n\nArgs:\n    request: ElevenLabs post-call request payload (transcript or audio)\n    session: Database session (injected by FastAPI)",
+                "description": "ElevenLabs webhook endpoint - receives call data after each call ends.\nHandles both transcript and audio webhooks.\nArgs:\n    request: ElevenLabs post-call request payload (transcript or audio)\n    session: Database session (injected by FastAPI)",
                 "operationId": "receive_webhook_dashboard_postcall_elevenlabs_post",
                 "responses": {
                     "200": {
@@ -2125,7 +2681,6 @@
                     "calendar integration"
                 ],
                 "summary": "Oauth Callback",
-                "description": "Handle OAuth callback from provider (both success and error cases).\n\nArgs:\n    provider: OAuth provider (google or microsoft)\n    code: Authorization code (present on success)\n    state: State parameter containing doctor_id (present on success)\n    error: Error code (present on failure, e.g., 'access_denied')\n    error_description: Human-readable error description (optional)\n    \nReturns:\n    RedirectResponse: Redirect to frontend with appropriate status",
                 "operationId": "oauth_callback_dashboard_calendar_callback__provider__get",
                 "parameters": [
                     {
@@ -2224,148 +2779,13 @@
                 }
             }
         },
-        "/dashboard/calendar/calendar/events": {
-            "post": {
-                "tags": [
-                    "calendar integration"
-                ],
-                "summary": "Create Calendar Event",
-                "description": "Create a calendar event using OAuth provider.\n\nArgs:\n    request: Calendar event details\n    \nReturns:\n    CalendarEventResponse with event information",
-                "operationId": "create_calendar_event_dashboard_calendar_calendar_events_post",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/CalendarEventRequest"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/CalendarEventResponse"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/dashboard/calendar/status/{provider}/{doctor_id}": {
-            "get": {
-                "tags": [
-                    "calendar integration"
-                ],
-                "summary": "Get Provider Status",
-                "description": "Get OAuth provider connection status.\n\nArgs:\n    provider: OAuth provider name\n    doctor_id: Doctor ID\n    \nReturns:\n    OAuthStatusResponse with connection status",
-                "operationId": "get_provider_status_dashboard_calendar_status__provider___doctor_id__get",
-                "parameters": [
-                    {
-                        "name": "provider",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "title": "Provider"
-                        }
-                    },
-                    {
-                        "name": "doctor_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "title": "Doctor Id"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/OAuthStatusResponse"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/dashboard/calendar/status/{doctor_id}": {
-            "get": {
-                "tags": [
-                    "calendar integration"
-                ],
-                "summary": "Get All Provider Status",
-                "description": "Get connection status for all OAuth providers.\n\nArgs:\n    doctor_id: Doctor ID\n    \nReturns:\n    Dict with status for all providers",
-                "operationId": "get_all_provider_status_dashboard_calendar_status__doctor_id__get",
-                "parameters": [
-                    {
-                        "name": "doctor_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "title": "Doctor Id"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/dashboard/calendar/accounts/{doctor_id}": {
             "get": {
                 "tags": [
                     "calendar integration"
                 ],
                 "summary": "Get All Connected Accounts",
-                "description": "Get all connected calendar accounts for a doctor across all providers.\n\nArgs:\n    doctor_id: Doctor ID\n    \nReturns:\n    AllAccountsResponse with all connected accounts grouped by provider",
+                "description": "Get all connected calendar accounts for a doctor across all providers.\n\nArgs:\n    doctor_id: Doctor ID\n\nReturns:\n    AllAccountsResponse with all connected accounts grouped by provider",
                 "operationId": "get_all_connected_accounts_dashboard_calendar_accounts__doctor_id__get",
                 "security": [
                     {
@@ -2407,69 +2827,13 @@
                 }
             }
         },
-        "/dashboard/calendar/accounts/{provider}/{doctor_id}": {
-            "get": {
-                "tags": [
-                    "calendar integration"
-                ],
-                "summary": "Get Provider Accounts",
-                "description": "Get all connected accounts for a specific provider.\n\nArgs:\n    provider: OAuth provider (google/microsoft)\n    doctor_id: Doctor ID\n    \nReturns:\n    List of connected accounts for the provider",
-                "operationId": "get_provider_accounts_dashboard_calendar_accounts__provider___doctor_id__get",
-                "parameters": [
-                    {
-                        "name": "provider",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "title": "Provider"
-                        }
-                    },
-                    {
-                        "name": "doctor_id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "title": "Doctor Id"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/ConnectedAccountResponse"
-                                    },
-                                    "title": "Response Get Provider Accounts Dashboard Calendar Accounts  Provider   Doctor Id  Get"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/dashboard/calendar/accounts/{provider}/{doctor_id}/{account_id}": {
             "delete": {
                 "tags": [
                     "calendar integration"
                 ],
                 "summary": "Disconnect Account",
-                "description": "Disconnect a specific calendar account.\n\nArgs:\n    provider: OAuth provider (google/microsoft)\n    doctor_id: Doctor ID\n    account_id: Account ID to disconnect\n    \nReturns:\n    Success message",
+                "description": "Disconnect a specific calendar account.\n\nArgs:\n    provider: OAuth provider (google/microsoft)\n    doctor_id: Doctor ID\n    account_id: Account ID to disconnect\n\nReturns:\n    Success message",
                 "operationId": "disconnect_account_dashboard_calendar_accounts__provider___doctor_id___account_id__delete",
                 "security": [
                     {
@@ -2533,7 +2897,7 @@
                     "calendar integration"
                 ],
                 "summary": "Set Primary Calendar",
-                "description": "Set a specific calendar account as primary for availability checks.\nOnly the primary calendar is used when checking doctor availability.\nEvents are still synced to all connected calendars.\n\nArgs:\n    provider: OAuth provider (google/microsoft)\n    doctor_id: Doctor ID\n    account_id: Account ID to set as primary\n    \nReturns:\n    Success message with updated primary status",
+                "description": "Set a specific calendar account as primary for availability checks.\nOnly the primary calendar is used when checking doctor availability.\nEvents are still synced to all connected calendars.\n\nArgs:\n    provider: OAuth provider (google/microsoft)\n    doctor_id: Doctor ID\n    account_id: Account ID to set as primary\n\nReturns:\n    Success message with updated primary status",
                 "operationId": "set_primary_calendar_dashboard_calendar_primary__provider___doctor_id___account_id__put",
                 "security": [
                     {
@@ -2597,7 +2961,7 @@
                     "dashboard clinics"
                 ],
                 "summary": "Get Clinics",
-                "description": "Get all clinics with their basic information.\n\nArgs:\n    session: Database session (injected by FastAPI)\n\nReturns:\n    JSON response with clinics list\n    \nRaises:\n    500: Database error",
+                "description": "Get all clinics with their basic information.\n\nArgs:\n    session: Database session (injected by FastAPI)\n\nReturns:\n    JSON response with clinics list\n\nRaises:\n    500: Database error",
                 "operationId": "get_clinics_dashboard_clinics_get",
                 "responses": {
                     "200": {
@@ -2622,7 +2986,7 @@
                     "dashboard clinics"
                 ],
                 "summary": "Update Clinic Working Hours",
-                "description": "Update clinic working hours for specific days.\n\nArgs:\n    request: Clinic working hours request containing clinic ID and working hours\n    \nReturns:\n    ClinicWorkingHoursResponse with success message and updated days\n    \nRaises:\n    422: Invalid time format or data\n    500: Database error",
+                "description": "Update clinic working hours for specific days.\n\nArgs:\n    request: Clinic working hours request containing clinic ID and working hours\n\nReturns:\n    ClinicWorkingHoursResponse with success message and updated days\n\nRaises:\n    422: Invalid time format or data\n    500: Database error",
                 "operationId": "update_clinic_working_hours_dashboard_clinics_clinic_working_hours_put",
                 "security": [
                     {
@@ -2667,7 +3031,7 @@
                     "dashboard clinics"
                 ],
                 "summary": "Get Clinic Working Hours",
-                "description": "Get clinic working hours for specific days.\n\nArgs:\n    clinic_id: Clinic ID\n    \nReturns:\n    ClinicWorkingHoursGetResponse with working hours for each day\n    \nRaises:\n    404: Clinic not found\n    500: Database error",
+                "description": "Get clinic working hours for specific days.\n\nArgs:\n    clinic_id: Clinic ID\n\nReturns:\n    ClinicWorkingHoursGetResponse with working hours for each day\n\nRaises:\n    404: Clinic not found\n    500: Database error",
                 "operationId": "get_clinic_working_hours_dashboard_clinics_clinic_working_hours_get",
                 "security": [
                     {
@@ -2757,6 +3121,52 @@
                         }
                     }
                 }
+            }
+        },
+        "/dashboard/clinics/cancellation-window": {
+            "put": {
+                "tags": [
+                    "dashboard clinics"
+                ],
+                "summary": "Update Cancellation Window",
+                "operationId": "update_cancellation_window_dashboard_clinics_cancellation_window_put",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CancellationWindowUpdateRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Clinic"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ]
             }
         },
         "/dashboard/external/logs/all": {
@@ -2948,6 +3358,356 @@
                         }
                     }
                 }
+            }
+        },
+        "/dashboard/reminder-preferences/clinic/{clinic_id}": {
+            "get": {
+                "tags": [
+                    "reminder preferences"
+                ],
+                "summary": "Get Reminder Preferences",
+                "description": "Get reminder preferences for a clinic.\n\nArgs:\n    clinic_id: The clinic ID\n\nReturns:\n    ReminderPreferences with current settings",
+                "operationId": "get_reminder_preferences_dashboard_reminder_preferences_clinic__clinic_id__get",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "clinic_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Clinic Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReminderPreferences"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/dashboard/reminder-preferences/clinic": {
+            "post": {
+                "tags": [
+                    "reminder preferences"
+                ],
+                "summary": "Create Or Update Reminder Preferences",
+                "description": "Create or update reminder preferences for a clinic.\n\nArgs:\n    request: Reminder preferences data\n\nReturns:\n    Updated ReminderPreferences",
+                "operationId": "create_or_update_reminder_preferences_dashboard_reminder_preferences_clinic_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReminderPreferencesBase"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReminderPreferences"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": [
+                    "reminder preferences"
+                ],
+                "summary": "Update Reminder Preferences Partial",
+                "description": "Partially update reminder preferences for a clinic.\n\nArgs:\n    request: Partial reminder preferences data\n\nReturns:\n    Updated ReminderPreferences",
+                "operationId": "update_reminder_preferences_partial_dashboard_reminder_preferences_clinic_patch",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReminderPreferencesUpdate"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReminderPreferences"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ]
+            }
+        },
+        "/dashboard/reminder-preferences/all": {
+            "get": {
+                "tags": [
+                    "reminder preferences"
+                ],
+                "summary": "Get All Preferences",
+                "description": "Get all reminder preferences (admin only).\n\nReturns:\n    List of all ReminderPreferences",
+                "operationId": "get_all_preferences_dashboard_reminder_preferences_all_get",
+                "parameters": [
+                    {
+                        "name": "x-api-key",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "X-Api-Key"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ReminderPreferences"
+                                    },
+                                    "title": "Response Get All Preferences Dashboard Reminder Preferences All Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/dashboard/reminder-preferences/scheduled-jobs": {
+            "get": {
+                "tags": [
+                    "reminder preferences"
+                ],
+                "summary": "Get Scheduled Jobs",
+                "description": "Get all currently scheduled reminder jobs with detailed information.\n\nReturns:\n    List of scheduled jobs with details including:\n    - job_id: Unique job identifier\n    - clinic_id: Clinic ID for this job\n    - next_run_time: Next scheduled execution time (ISO format)\n    - hour: Hour of day when job runs\n    - minute: Minute of hour when job runs\n    - timezone: Timezone for the job\n    - reminder_days: Days before appointment to send reminders\n    - enabled: Whether reminders are enabled for this clinic\n    - max_instances: Maximum concurrent instances allowed\n    - misfire_grace_time: Grace period for missed executions (seconds)\n    - coalesce: Whether to combine multiple pending executions",
+                "operationId": "get_scheduled_jobs_dashboard_reminder_preferences_scheduled_jobs_get",
+                "parameters": [
+                    {
+                        "name": "x-api-key",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "X-Api-Key"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/dashboard/mfa/setup": {
+            "get": {
+                "tags": [
+                    "dashboard mfa"
+                ],
+                "summary": "Initiate Mfa",
+                "operationId": "initiate_mfa_dashboard_mfa_setup_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MFASetupResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ]
+            }
+        },
+        "/dashboard/mfa/verify": {
+            "post": {
+                "tags": [
+                    "dashboard mfa"
+                ],
+                "summary": "Verify Mfa Code",
+                "operationId": "verify_mfa_code_dashboard_mfa_verify_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MFAVerifyRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MFAVerifyResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ]
+            }
+        },
+        "/dashboard/mfa/status": {
+            "get": {
+                "tags": [
+                    "dashboard mfa"
+                ],
+                "summary": "Get Mfa Status",
+                "operationId": "get_mfa_status_dashboard_mfa_status_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MFAStatusResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ]
+            }
+        },
+        "/dashboard/mfa/disable": {
+            "post": {
+                "tags": [
+                    "dashboard mfa"
+                ],
+                "summary": "Disable Mfa",
+                "operationId": "disable_mfa_dashboard_mfa_disable_post",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ]
             }
         },
         "/elation/patients/validate": {
@@ -3159,7 +3919,7 @@
                     "athena"
                 ],
                 "summary": "Search Patient",
-                "description": "Validate if a patient exists in the system using first name, last name, and date of birth.\n\nThis endpoint searches for an existing patient in the Athena system using their personal information.\nIt returns whether the patient was found and their patient ID if available.\n\nParameters:\n- first_name: First name of the patient\n- last_name: Last name of the patient  \n- date_of_birth: Date of birth in YYYY-MM-DD format\n\nReturns:\n- found: Boolean indicating if patient was found\n- patient_id: Patient ID if found, null otherwise\n- error: Error message if any issue occurred",
+                "description": "Validate if a patient exists in the system using first name, last name, and date of birth.\n\nThis endpoint searches for an existing patient in the Athena system using their personal information.\nIt returns whether the patient was found and their patient ID if available.\n\nParameters:\n- first_name: First name of the patient\n- last_name: Last name of the patient\n- date_of_birth: Date of birth in YYYY-MM-DD format\n\nReturns:\n- found: Boolean indicating if patient was found\n- patient_id: Patient ID if found, null otherwise\n- error: Error message if any issue occurred",
                 "operationId": "validate_patient_athena",
                 "requestBody": {
                     "content": {
@@ -3484,7 +4244,7 @@
         "/epic/callback": {
             "get": {
                 "summary": "Epic Callback",
-                "description": "Generate and return a randomly generated UUID for Epic callback.\n\nReturns:\n    JSON with generated UUID\n    \nRaises:\n    500: Internal server error",
+                "description": "Generate and return a randomly generated UUID for Epic callback.\n\nReturns:\n    JSON with generated UUID\n\nRaises:\n    500: Internal server error",
                 "operationId": "epic_callback_epic_callback_get",
                 "responses": {
                     "200": {
@@ -3501,6 +4261,33 @@
     },
     "components": {
         "schemas": {
+            "AdminLoginAsDoctorRequest": {
+                "properties": {
+                    "doctor_id": {
+                        "type": "integer",
+                        "title": "Doctor Id",
+                        "description": "Doctor ID to impersonate"
+                    },
+                    "mfa_code": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Mfa Code",
+                        "description": "6-digit MFA code (required if MFA is enabled)"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "doctor_id"
+                ],
+                "title": "AdminLoginAsDoctorRequest",
+                "description": "Request model for admin login as doctor with MFA."
+            },
             "AdminLoginResponse": {
                 "properties": {
                     "message": {
@@ -3509,22 +4296,41 @@
                         "description": "Login result message"
                     },
                     "admin": {
-                        "additionalProperties": true,
-                        "type": "object",
+                        "anyOf": [
+                            {
+                                "additionalProperties": true,
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
                         "title": "Admin",
                         "description": "Admin details"
                     },
                     "access_token": {
-                        "type": "string",
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
                         "title": "Access Token",
-                        "description": "Access token for authentication"
+                        "description": "Access token for authentication (null if MFA required)"
+                    },
+                    "mfa_required": {
+                        "type": "boolean",
+                        "title": "Mfa Required",
+                        "description": "Whether MFA code is required",
+                        "default": false
                     }
                 },
                 "type": "object",
                 "required": [
                     "message",
-                    "admin",
-                    "access_token"
+                    "admin"
                 ],
                 "title": "AdminLoginResponse",
                 "description": "Response model for admin login."
@@ -4171,17 +4977,62 @@
                         "title": "Doctor Name",
                         "description": "Doctor's name"
                     },
-                    "requested_date": {
+                    "requested_date_range": {
                         "type": "string",
-                        "title": "Requested Date",
-                        "description": "Requested date or date range"
+                        "title": "Requested Date Range",
+                        "description": "Requested date or date range (e.g., '2025-12-04 to 2025-12-10')"
                     },
-                    "available": {
-                        "type": "boolean",
-                        "title": "Available",
-                        "description": "Whether the doctor is available"
+                    "availability": {
+                        "items": {
+                            "$ref": "#/components/schemas/DayAvailability"
+                        },
+                        "type": "array",
+                        "title": "Availability",
+                        "description": "Day-by-day availability information"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "doctor_name",
+                    "requested_date_range",
+                    "availability"
+                ],
+                "title": "AvailabilityCheckResponse",
+                "description": "Response model for availability check."
+            },
+            "BatchRemindersRequest": {
+                "properties": {
+                    "doctor_id": {
+                        "type": "integer",
+                        "title": "Doctor Id",
+                        "description": "Doctor ID"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "doctor_id"
+                ],
+                "title": "BatchRemindersRequest",
+                "description": "Request to send batch reminders for a specific doctor."
+            },
+            "Body_handle_twilio_sms_bland_sms_post": {
+                "properties": {
+                    "From": {
+                        "type": "string",
+                        "title": "From",
+                        "description": "Phone number that sent the message"
                     },
-                    "message": {
+                    "Body": {
+                        "type": "string",
+                        "title": "Body",
+                        "description": "Message body/content"
+                    },
+                    "To": {
+                        "type": "string",
+                        "title": "To",
+                        "description": "Phone number that received the message (clinic number)"
+                    },
+                    "ToCountry": {
                         "anyOf": [
                             {
                                 "type": "string"
@@ -4190,51 +5041,209 @@
                                 "type": "null"
                             }
                         ],
-                        "title": "Message",
-                        "description": "Additional message"
+                        "title": "Tocountry",
+                        "description": "Country code of the recipient"
                     },
-                    "available_dates": {
+                    "ToState": {
                         "anyOf": [
                             {
-                                "items": {
-                                    "type": "string"
-                                },
-                                "type": "array"
+                                "type": "string"
                             },
                             {
                                 "type": "null"
                             }
                         ],
-                        "title": "Available Dates",
-                        "description": "Alternative or range available dates"
+                        "title": "Tostate",
+                        "description": "State of the recipient"
                     },
-                    "dates_with_slots": {
+                    "ToCity": {
                         "anyOf": [
                             {
-                                "additionalProperties": {
-                                    "items": {
-                                        "type": "string"
-                                    },
-                                    "type": "array"
-                                },
-                                "type": "object"
+                                "type": "string"
                             },
                             {
                                 "type": "null"
                             }
                         ],
-                        "title": "Dates With Slots",
-                        "description": "Dictionary mapping dates to available slots (for date ranges)"
+                        "title": "Tocity",
+                        "description": "City of the recipient"
+                    },
+                    "ToZip": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Tozip",
+                        "description": "ZIP code of the recipient"
+                    },
+                    "FromCountry": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Fromcountry",
+                        "description": "Country code of the sender"
+                    },
+                    "FromState": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Fromstate",
+                        "description": "State of the sender"
+                    },
+                    "FromCity": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Fromcity",
+                        "description": "City of the sender"
+                    },
+                    "FromZip": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Fromzip",
+                        "description": "ZIP code of the sender"
+                    },
+                    "SmsMessageSid": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Smsmessagesid",
+                        "description": "SMS message SID"
+                    },
+                    "SmsSid": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Smssid",
+                        "description": "SMS SID"
+                    },
+                    "MessageSid": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Messagesid",
+                        "description": "Message SID"
+                    },
+                    "AccountSid": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Accountsid",
+                        "description": "Twilio account SID"
+                    },
+                    "MessagingServiceSid": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Messagingservicesid",
+                        "description": "Messaging service SID"
+                    },
+                    "NumMedia": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Nummedia",
+                        "description": "Number of media attachments"
+                    },
+                    "NumSegments": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Numsegments",
+                        "description": "Number of message segments"
+                    },
+                    "SmsStatus": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Smsstatus",
+                        "description": "SMS status"
+                    },
+                    "ApiVersion": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Apiversion",
+                        "description": "Twilio API version"
                     }
                 },
                 "type": "object",
                 "required": [
-                    "doctor_name",
-                    "requested_date",
-                    "available"
+                    "From",
+                    "Body",
+                    "To"
                 ],
-                "title": "AvailabilityCheckResponse",
-                "description": "Response model for availability check."
+                "title": "Body_handle_twilio_sms_bland_sms_post"
             },
             "Body_upload_patient_documents_dashboard_patients_documents_upload_post": {
                 "properties": {
@@ -4263,132 +5272,6 @@
                     "insurance_id_document"
                 ],
                 "title": "Body_upload_patient_documents_dashboard_patients_documents_upload_post"
-            },
-            "CalendarEventRequest": {
-                "properties": {
-                    "doctor_id": {
-                        "type": "integer",
-                        "title": "Doctor Id",
-                        "description": "Doctor ID"
-                    },
-                    "provider": {
-                        "type": "string",
-                        "title": "Provider",
-                        "description": "OAuth provider (google/microsoft)"
-                    },
-                    "summary": {
-                        "type": "string",
-                        "title": "Summary",
-                        "description": "Event title"
-                    },
-                    "description": {
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Description",
-                        "description": "Event description"
-                    },
-                    "start_time": {
-                        "type": "string",
-                        "title": "Start Time",
-                        "description": "Start time in ISO format"
-                    },
-                    "end_time": {
-                        "type": "string",
-                        "title": "End Time",
-                        "description": "End time in ISO format"
-                    },
-                    "timezone": {
-                        "type": "string",
-                        "title": "Timezone",
-                        "description": "Timezone",
-                        "default": "UTC"
-                    },
-                    "attendees": {
-                        "anyOf": [
-                            {
-                                "items": {
-                                    "additionalProperties": {
-                                        "type": "string"
-                                    },
-                                    "type": "object"
-                                },
-                                "type": "array"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Attendees",
-                        "description": "List of attendees"
-                    }
-                },
-                "type": "object",
-                "required": [
-                    "doctor_id",
-                    "provider",
-                    "summary",
-                    "start_time",
-                    "end_time"
-                ],
-                "title": "CalendarEventRequest",
-                "description": "Request model for creating calendar events."
-            },
-            "CalendarEventResponse": {
-                "properties": {
-                    "success": {
-                        "type": "boolean",
-                        "title": "Success",
-                        "description": "Operation success status"
-                    },
-                    "event_id": {
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Event Id",
-                        "description": "Created event ID"
-                    },
-                    "web_link": {
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Web Link",
-                        "description": "Event web link"
-                    },
-                    "error_message": {
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Error Message",
-                        "description": "Error message if failed"
-                    }
-                },
-                "type": "object",
-                "required": [
-                    "success"
-                ],
-                "title": "CalendarEventResponse",
-                "description": "Response model for calendar events."
             },
             "CancelAppointmentRequest": {
                 "properties": {
@@ -4488,6 +5371,27 @@
                 "title": "CancelAppointmentResponse",
                 "description": "Response model for appointment cancellation."
             },
+            "CancellationWindowUpdateRequest": {
+                "properties": {
+                    "clinic_id": {
+                        "type": "integer",
+                        "title": "Clinic Id",
+                        "description": "Clinic ID"
+                    },
+                    "cancellation_window": {
+                        "type": "integer",
+                        "title": "Cancellation Window",
+                        "description": "Cancellation window in hours"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "clinic_id",
+                    "cancellation_window"
+                ],
+                "title": "CancellationWindowUpdateRequest",
+                "description": "Request model for updating the cancellation window."
+            },
             "Clinic": {
                 "properties": {
                     "name": {
@@ -4511,6 +5415,12 @@
                         ],
                         "title": "Logo Url",
                         "description": "Clinic logo URL"
+                    },
+                    "cancellation_window": {
+                        "type": "integer",
+                        "title": "Cancellation Window",
+                        "description": "Cancellation window in hours",
+                        "default": 24
                     },
                     "address": {
                         "type": "string",
@@ -4749,6 +5659,55 @@
                 ],
                 "title": "CreateAppointmentRequest"
             },
+            "DayAvailability": {
+                "properties": {
+                    "date": {
+                        "type": "string",
+                        "title": "Date",
+                        "description": "Date in YYYY-MM-DD format"
+                    },
+                    "day_of_week": {
+                        "type": "string",
+                        "title": "Day Of Week",
+                        "description": "Day of the week (e.g., 'Monday')"
+                    },
+                    "is_available": {
+                        "type": "boolean",
+                        "title": "Is Available",
+                        "description": "Whether the doctor has any available slots"
+                    },
+                    "time_slots": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/TimeSlots"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "description": "Categorized time slots (only present if available)"
+                    },
+                    "unavailability_reason": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/UnavailabilityReason"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "description": "Reason for unavailability (only present if unavailable)"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "date",
+                    "day_of_week",
+                    "is_available"
+                ],
+                "title": "DayAvailability",
+                "description": "Model for a single day's availability information."
+            },
             "Doctor": {
                 "properties": {
                     "name": {
@@ -4793,6 +5752,288 @@
                 "title": "Doctor",
                 "description": "Complete doctor model with ID."
             },
+            "DoctorAvailabilityException": {
+                "properties": {
+                    "doctor_id": {
+                        "type": "integer",
+                        "title": "Doctor Id",
+                        "description": "Doctor's ID"
+                    },
+                    "exception_date": {
+                        "type": "string",
+                        "format": "date",
+                        "title": "Exception Date",
+                        "description": "Start date of the exception"
+                    },
+                    "end_date": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "End Date",
+                        "description": "End date for date range exceptions (optional)"
+                    },
+                    "is_all_day": {
+                        "type": "boolean",
+                        "title": "Is All Day",
+                        "description": "Whether the exception is for the entire day(s)",
+                        "default": true
+                    },
+                    "start_time": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Start Time",
+                        "description": "Start time for partial day exceptions (required if is_all_day=False)"
+                    },
+                    "end_time": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "End Time",
+                        "description": "End time for partial day exceptions (required if is_all_day=False)"
+                    },
+                    "reason": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 255
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Reason",
+                        "description": "Reason or description for the exception"
+                    },
+                    "is_us_holiday": {
+                        "type": "boolean",
+                        "title": "Is Us Holiday",
+                        "description": "Whether the exception is a US holiday",
+                        "default": false
+                    },
+                    "id": {
+                        "type": "integer",
+                        "title": "Id",
+                        "description": "Exception record ID"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At",
+                        "description": "Creation timestamp"
+                    },
+                    "updated_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Updated At",
+                        "description": "Last update timestamp"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "doctor_id",
+                    "exception_date",
+                    "id",
+                    "created_at"
+                ],
+                "title": "DoctorAvailabilityException",
+                "description": "Complete doctor availability exception model with ID and timestamps."
+            },
+            "DoctorAvailabilityExceptionCreate": {
+                "properties": {
+                    "doctor_id": {
+                        "type": "integer",
+                        "title": "Doctor Id",
+                        "description": "Doctor's ID"
+                    },
+                    "exception_date": {
+                        "type": "string",
+                        "format": "date",
+                        "title": "Exception Date",
+                        "description": "Start date of the exception"
+                    },
+                    "end_date": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "End Date",
+                        "description": "End date for date range exceptions (optional)"
+                    },
+                    "is_all_day": {
+                        "type": "boolean",
+                        "title": "Is All Day",
+                        "description": "Whether the exception is for the entire day(s)",
+                        "default": true
+                    },
+                    "start_time": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Start Time",
+                        "description": "Start time for partial day exceptions (required if is_all_day=False)"
+                    },
+                    "end_time": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "End Time",
+                        "description": "End time for partial day exceptions (required if is_all_day=False)"
+                    },
+                    "reason": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 255
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Reason",
+                        "description": "Reason or description for the exception"
+                    },
+                    "is_us_holiday": {
+                        "type": "boolean",
+                        "title": "Is Us Holiday",
+                        "description": "Whether the exception is a US holiday",
+                        "default": false
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "doctor_id",
+                    "exception_date"
+                ],
+                "title": "DoctorAvailabilityExceptionCreate",
+                "description": "Model for creating a doctor availability exception."
+            },
+            "DoctorAvailabilityExceptionUpdate": {
+                "properties": {
+                    "exception_date": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Exception Date",
+                        "description": "Start date of the exception"
+                    },
+                    "end_date": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "End Date",
+                        "description": "End date for date range exceptions"
+                    },
+                    "is_all_day": {
+                        "anyOf": [
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Is All Day",
+                        "description": "Whether the exception is for the entire day(s)"
+                    },
+                    "start_time": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Start Time",
+                        "description": "Start time for partial day exceptions"
+                    },
+                    "end_time": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "End Time",
+                        "description": "End time for partial day exceptions"
+                    },
+                    "reason": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 255
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Reason",
+                        "description": "Reason or description for the exception"
+                    }
+                },
+                "type": "object",
+                "title": "DoctorAvailabilityExceptionUpdate",
+                "description": "Model for updating a doctor availability exception."
+            },
             "DoctorLoginResponse": {
                 "properties": {
                     "message": {
@@ -4820,6 +6061,80 @@
                 ],
                 "title": "DoctorLoginResponse",
                 "description": "Response model for doctor login."
+            },
+            "DoctorWorkingCheckResponse": {
+                "properties": {
+                    "clinic_id": {
+                        "type": "integer",
+                        "title": "Clinic Id",
+                        "description": "Clinic ID"
+                    },
+                    "doctor_id": {
+                        "type": "integer",
+                        "title": "Doctor Id",
+                        "description": "Doctor ID"
+                    },
+                    "check_date": {
+                        "type": "string",
+                        "format": "date",
+                        "title": "Check Date",
+                        "description": "Date checked"
+                    },
+                    "day_of_week": {
+                        "type": "string",
+                        "title": "Day Of Week",
+                        "description": "Day name (e.g., 'Monday')"
+                    },
+                    "is_working": {
+                        "type": "boolean",
+                        "title": "Is Working",
+                        "description": "True if doctor is working (clinic open AND no all-day exception)"
+                    },
+                    "clinic_working_hours": {
+                        "anyOf": [
+                            {
+                                "additionalProperties": {
+                                    "type": "string",
+                                    "format": "time"
+                                },
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Clinic Working Hours",
+                        "description": "Clinic working hours if open, includes start_time and end_time"
+                    },
+                    "has_all_day_exception": {
+                        "type": "boolean",
+                        "title": "Has All Day Exception",
+                        "description": "True if doctor has an all-day exception for this date",
+                        "default": false
+                    },
+                    "exception_reason": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Exception Reason",
+                        "description": "Reason from exception if doctor has an all-day exception"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "clinic_id",
+                    "doctor_id",
+                    "check_date",
+                    "day_of_week",
+                    "is_working"
+                ],
+                "title": "DoctorWorkingCheckResponse",
+                "description": "Response model for doctor working check."
             },
             "ElevenLabsCallInitiationRequest": {
                 "properties": {
@@ -5172,6 +6487,18 @@
                         "type": "string",
                         "title": "Password",
                         "description": "User's password"
+                    },
+                    "mfa_code": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Mfa Code",
+                        "description": "6-digit MFA code (required if MFA is enabled)"
                     }
                 },
                 "type": "object",
@@ -5182,56 +6509,98 @@
                 "title": "LoginRequest",
                 "description": "Request model for login authentication."
             },
-            "OAuthStatusResponse": {
+            "MFASetupResponse": {
                 "properties": {
-                    "connected": {
-                        "type": "boolean",
-                        "title": "Connected",
-                        "description": "Whether provider is connected"
-                    },
-                    "provider": {
+                    "secret": {
                         "type": "string",
-                        "title": "Provider",
-                        "description": "Provider name"
+                        "title": "Secret",
+                        "description": "TOTP secret (for manual entry)"
                     },
-                    "email": {
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Email",
-                        "description": "Connected email address"
-                    },
-                    "expires_at": {
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Expires At",
-                        "description": "Token expiration time"
-                    },
-                    "message": {
+                    "qr_code": {
                         "type": "string",
-                        "title": "Message",
-                        "description": "Status message"
+                        "title": "Qr Code",
+                        "description": "Base64-encoded QR code image (data URI)"
                     }
                 },
                 "type": "object",
                 "required": [
-                    "connected",
-                    "provider",
+                    "secret",
+                    "qr_code"
+                ],
+                "title": "MFASetupResponse",
+                "description": "Response model for MFA setup initiation."
+            },
+            "MFAStatusResponse": {
+                "properties": {
+                    "mfa_enabled": {
+                        "type": "boolean",
+                        "title": "Mfa Enabled",
+                        "description": "Whether MFA is enabled"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "mfa_enabled"
+                ],
+                "title": "MFAStatusResponse",
+                "description": "Response model for MFA status."
+            },
+            "MFAVerifyRequest": {
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "maxLength": 6,
+                        "minLength": 6,
+                        "title": "Code",
+                        "description": "6-digit TOTP code"
+                    },
+                    "secret": {
+                        "type": "string",
+                        "title": "Secret",
+                        "description": "TOTP secret (for manual entry)"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "code",
+                    "secret"
+                ],
+                "title": "MFAVerifyRequest",
+                "description": "Request model for verifying MFA code during setup."
+            },
+            "MFAVerifyResponse": {
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "title": "Success",
+                        "description": "Whether verification was successful"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message",
+                        "description": "Verification result message"
+                    },
+                    "admin": {
+                        "anyOf": [
+                            {
+                                "additionalProperties": true,
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Admin",
+                        "description": "Admin details (returned after successful login verification)"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "success",
                     "message"
                 ],
-                "title": "OAuthStatusResponse",
-                "description": "Response model for OAuth provider status."
+                "title": "MFAVerifyResponse",
+                "description": "Response model for MFA verification."
             },
             "Patient": {
                 "properties": {
@@ -5550,6 +6919,173 @@
                 ],
                 "title": "RefillRequestBase"
             },
+            "ReminderPreferences": {
+                "properties": {
+                    "clinic_id": {
+                        "type": "integer",
+                        "title": "Clinic Id",
+                        "description": "Clinic ID"
+                    },
+                    "enabled": {
+                        "type": "boolean",
+                        "title": "Enabled",
+                        "description": "Whether reminders are enabled",
+                        "default": true
+                    },
+                    "reminder_days": {
+                        "items": {
+                            "type": "integer"
+                        },
+                        "type": "array",
+                        "title": "Reminder Days",
+                        "description": "Days before appointment to send reminders (e.g., [1, 3, 7] or [4, 8])",
+                        "default": [
+                            1,
+                            3,
+                            7
+                        ]
+                    },
+                    "reminder_time": {
+                        "type": "string",
+                        "format": "time",
+                        "title": "Reminder Time",
+                        "description": "Time of day to send reminders (HH:MM format)",
+                        "default": "09:00:00"
+                    },
+                    "timezone": {
+                        "type": "string",
+                        "title": "Timezone",
+                        "description": "Timezone for reminder time",
+                        "default": "America/New_York"
+                    },
+                    "id": {
+                        "type": "integer",
+                        "title": "Id",
+                        "description": "Reminder preferences ID"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "clinic_id",
+                    "id"
+                ],
+                "title": "ReminderPreferences",
+                "description": "Complete reminder preferences model with ID."
+            },
+            "ReminderPreferencesBase": {
+                "properties": {
+                    "clinic_id": {
+                        "type": "integer",
+                        "title": "Clinic Id",
+                        "description": "Clinic ID"
+                    },
+                    "enabled": {
+                        "type": "boolean",
+                        "title": "Enabled",
+                        "description": "Whether reminders are enabled",
+                        "default": true
+                    },
+                    "reminder_days": {
+                        "items": {
+                            "type": "integer"
+                        },
+                        "type": "array",
+                        "title": "Reminder Days",
+                        "description": "Days before appointment to send reminders (e.g., [1, 3, 7] or [4, 8])",
+                        "default": [
+                            1,
+                            3,
+                            7
+                        ]
+                    },
+                    "reminder_time": {
+                        "type": "string",
+                        "format": "time",
+                        "title": "Reminder Time",
+                        "description": "Time of day to send reminders (HH:MM format)",
+                        "default": "09:00:00"
+                    },
+                    "timezone": {
+                        "type": "string",
+                        "title": "Timezone",
+                        "description": "Timezone for reminder time",
+                        "default": "America/New_York"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "clinic_id"
+                ],
+                "title": "ReminderPreferencesBase",
+                "description": "Base reminder preferences model."
+            },
+            "ReminderPreferencesUpdate": {
+                "properties": {
+                    "clinic_id": {
+                        "type": "integer",
+                        "title": "Clinic Id",
+                        "description": "Clinic ID"
+                    },
+                    "enabled": {
+                        "anyOf": [
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Enabled",
+                        "description": "Whether reminders are enabled"
+                    },
+                    "reminder_days": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "integer"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Reminder Days",
+                        "description": "Days before appointment to send reminders"
+                    },
+                    "reminder_time": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Reminder Time",
+                        "description": "Time of day to send reminders"
+                    },
+                    "timezone": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Timezone",
+                        "description": "Timezone for reminder time"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "clinic_id"
+                ],
+                "title": "ReminderPreferencesUpdate",
+                "description": "Model for updating reminder preferences."
+            },
             "SSOLoginRequest": {
                 "properties": {
                     "token": {
@@ -5652,52 +7188,49 @@
                 ],
                 "title": "SearchPatientResponse"
             },
-            "TimeSlotResponse": {
+            "TimeSlots": {
                 "properties": {
-                    "doctor_name": {
-                        "type": "string",
-                        "title": "Doctor Name",
-                        "description": "Doctor's name"
-                    },
-                    "date": {
-                        "type": "string",
-                        "title": "Date",
-                        "description": "Date in YYYY-MM-DD format"
-                    },
-                    "availability": {
-                        "type": "string",
-                        "title": "Availability",
-                        "description": "Availability status"
-                    },
-                    "available_slots": {
+                    "morning": {
                         "items": {
                             "type": "string"
                         },
                         "type": "array",
-                        "title": "Available Slots",
-                        "description": "Available time slots"
+                        "title": "Morning",
+                        "description": "Morning time slots (before 12:00 PM)"
                     },
-                    "available_string": {
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Available String",
-                        "description": "Comma-separated available slots"
+                    "afternoon": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Afternoon",
+                        "description": "Afternoon time slots (12:00 PM and after)"
+                    }
+                },
+                "type": "object",
+                "title": "TimeSlots",
+                "description": "Model for categorized time slots."
+            },
+            "UnavailabilityReason": {
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "title": "Code",
+                        "description": "Reason code: 'holiday', 'not_working', 'fully_booked', 'exception'"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message",
+                        "description": "Human-readable reason message"
                     }
                 },
                 "type": "object",
                 "required": [
-                    "doctor_name",
-                    "date",
-                    "availability"
+                    "code",
+                    "message"
                 ],
-                "title": "TimeSlotResponse",
-                "description": "Response model for time slots."
+                "title": "UnavailabilityReason",
+                "description": "Model for structured unavailability reasons."
             },
             "ValidatePatientRequest": {
                 "properties": {

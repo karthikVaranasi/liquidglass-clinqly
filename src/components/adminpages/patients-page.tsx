@@ -1,15 +1,125 @@
 import { useState } from "react"
 import { IconArrowLeft, IconUserCircle } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
-import data from "@/data.json"
 import { formatDateUS, formatDateUSShort } from "@/lib/date"
+
+// Static sample patients for admin (demo purposes)
+// TODO: Replace with admin API when available
+const patients = [
+  {
+    first_name: "Samantha",
+    last_name: "Reeves",
+    dob: "1977-08-14",
+    phone_number: "+14152223344",
+    clinic_id: 56,
+    status: "active",
+    id: 290,
+    guardians: [
+      {
+        clinic_id: 56,
+        first_name: "Jessica",
+        last_name: "Reeves",
+        dob: "1972-03-25",
+        relationship_to_patient: "sister",
+        id: 31
+      }
+    ],
+    documents: [
+      {
+        document_id: 12,
+        title: "Insurance Card",
+        type: "insurance",
+        uploaded_at: "2024-04-02T14:12:00Z"
+      }
+    ],
+    appointments: {
+      upcoming: [
+        { date: "2025-11-14", time: "10:15 AM", status: "Scheduled" }
+      ],
+      past: [
+        { date: "2024-12-01", time: "03:00 PM", status: "Completed" }
+      ]
+    }
+  },
+  {
+    first_name: "Oliver",
+    last_name: "Harper",
+    dob: "1986-09-22",
+    phone_number: "+12025550123",
+    clinic_id: 56,
+    status: "inactive",
+    id: 897,
+    guardians: [],
+    documents: [],
+    appointments: {
+      upcoming: [],
+      past: [
+        { date: "2023-08-19", time: "01:45 PM", status: "Cancelled" }
+      ]
+    }
+  },
+  {
+    first_name: "Emily",
+    last_name: "Zhang",
+    dob: "2015-05-11",
+    phone_number: "+14705557890",
+    clinic_id: 56,
+    status: "active",
+    id: 614,
+    guardians: [
+      {
+        clinic_id: 56,
+        first_name: "Wei",
+        last_name: "Zhang",
+        dob: "1979-12-02",
+        relationship_to_patient: "mother",
+        id: 77
+      }
+    ],
+    documents: [],
+    appointments: {
+      upcoming: [],
+      past: []
+    }
+  },
+  {
+    first_name: "Michael",
+    last_name: "Smith",
+    dob: "2000-09-22",
+    phone_number: "+14848001855",
+    clinic_id: 56,
+    status: "active",
+    id: 489,
+    guardians: [],
+    documents: [],
+    appointments: {
+      upcoming: [],
+      past: []
+    }
+  },
+  {
+    first_name: "Jonas",
+    last_name: "Kahnwald",
+    dob: "2000-08-06",
+    phone_number: "+916305128196",
+    clinic_id: 56,
+    status: "active",
+    id: 453,
+    guardians: [],
+    documents: [],
+    appointments: {
+      upcoming: [],
+      past: []
+    }
+  }
+]
+
+type Patient = typeof patients[number]
 
 export function PatientsPage() {
   const [showAddForm, setShowAddForm] = useState(false)
-  const [selectedPatient, setSelectedPatient] = useState<typeof data.patients[0] | null>(null)
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null)
   const [viewMode, setViewMode] = useState<'table' | 'profile'>('table')
-
-  const { patients } = data
 
   const calculateAge = (dob: string) => {
     const birthDate = new Date(dob)
@@ -27,7 +137,7 @@ export function PatientsPage() {
   const formatDate = (dateString: string) => {
     return formatDateUS(dateString)
   }
-  const handleViewProfile = (patient: typeof patients[0]) => {
+  const handleViewProfile = (patient: Patient) => {
     setSelectedPatient(patient)
     setViewMode('profile')
   }
@@ -146,9 +256,9 @@ export function PatientsPage() {
                     >
                       <div>
                         <div className="font-medium text-sm">{doc.type}</div>
-                        {"description" in doc && (
+                        {"title" in doc && (
                           <div className="text-xs">
-                            {(doc as { description: string }).description}
+                            {(doc as { title: string }).title}
                           </div>
                         )}
                       </div>
@@ -171,9 +281,7 @@ export function PatientsPage() {
                 <div className="text-center py-8 neumorphic-inset rounded-lg">
                   <p className="text-sm mb-2">No documents uploaded</p>
                   <p className="text-xs">
-                    {selectedPatient?.id === 612 || selectedPatient?.id === 581 || selectedPatient?.id === 616
-                      ? "This patient has not uploaded any documents yet."
-                      : "This patient has not uploaded any documents yet."}
+                    This patient has not uploaded any documents yet.
                   </p>
                 </div>
               )}
@@ -185,7 +293,7 @@ export function PatientsPage() {
                 <h3 className="text-lg font-semibold">
                   Upcoming Appointments{" "}
                   {selectedPatient?.appointments?.upcoming &&
-                  selectedPatient.appointments.upcoming.length > 0
+                    selectedPatient.appointments.upcoming.length > 0
                     ? `(${selectedPatient.appointments.upcoming.length})`
                     : ""}
                 </h3>
@@ -229,9 +337,7 @@ export function PatientsPage() {
                 <div className="text-center py-8 neumorphic-inset rounded-lg">
                   <p className="text-sm mb-2">No upcoming appointments</p>
                   <p className="text-xs">
-                    {selectedPatient?.id === 579 || selectedPatient?.id === 616
-                      ? "This patient has no scheduled appointments."
-                      : "This patient has no upcoming appointments."}
+                    This patient has no upcoming appointments.
                   </p>
                 </div>
               )}
@@ -258,10 +364,9 @@ export function PatientsPage() {
                       <span
                         className={`
                           inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
-                          ${
-                            appointment.status && appointment.status.toLowerCase() === "completed"
-                              ? "bg-green-100"
-                              : appointment.status && appointment.status.toLowerCase() === "cancelled"
+                          ${appointment.status && appointment.status.toLowerCase() === "completed"
+                            ? "bg-green-100"
+                            : appointment.status && appointment.status.toLowerCase() === "cancelled"
                               ? "bg-destructive/20"
                               : "bg-primary/10"
                           }

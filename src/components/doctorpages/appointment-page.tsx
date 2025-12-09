@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { AuthStorage } from "@/api/auth"
 import { DoctorAppointmentsAPI } from "@/api/doctor"
 import { formatDateUS } from "@/lib/date"
+import { getErrorMessage } from "@/lib/errors"
 
 
 
@@ -152,7 +153,7 @@ export function AppointmentPage() {
         console.log('✅ Set appointments to:', appointmentsArray.length, 'items')
       } catch (err) {
         console.error('Failed to fetch appointments:', err)
-        setError(err instanceof Error ? err.message : 'Failed to load appointments')
+        setError(getErrorMessage(err))
         setAppointments([]) // Ensure we set an empty array on error
       } finally {
         setLoading(false)
@@ -291,54 +292,54 @@ export function AppointmentPage() {
           <h2 className="text-lg md:text-xl font-semibold">Today's Appointments ({todaysAppointments.length})</h2>
         </div>
 
-          {todaysAppointments.length > 0 ? (
-            <div
-              className="grid grid-cols-1 sm:grid-cols-2 gap-3"
-            >
-              {todaysAppointments.map((apt: any, index: number) => (
-                <div
-                  key={index}
-                  className="neumorphic-inset p-3 md:p-4 rounded-lg neumorphic-hover cursor-pointer"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                        <span className="font-medium text-sm">
-                          {new Date(apt.appointment_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                      </div>
-                      <div className="w-px h-6 bg-muted/50" />
-                      <div className="flex-1">
-                        <span className="font-medium text-sm">{apt.patient_name}</span>
-                        <p className="text-xs font-medium">Patient ID: {apt.patient_id}</p>
-                        <p className="text-xs font-medium">{apt.doctor_name}</p>
-                      </div>
-                    </div>
-                    <span
-                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusStyle(apt.status)}`}
-                    >
-                      {apt.status}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div
-              className="neumorphic-inset p-6 rounded-lg text-center"
-            >
+        {todaysAppointments.length > 0 ? (
+          <div
+            className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+          >
+            {todaysAppointments.map((apt: any, index: number) => (
               <div
+                key={index}
+                className="neumorphic-inset p-3 md:p-4 rounded-lg neumorphic-hover cursor-pointer"
               >
-                <IconCalendar className="w-10 h-10 mx-auto mb-3" />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                      <span className="font-medium text-sm">
+                        {new Date(apt.appointment_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                    <div className="w-px h-6 bg-muted/50" />
+                    <div className="flex-1">
+                      <span className="font-medium text-sm">{apt.patient_name}</span>
+                      <p className="text-xs font-medium">Patient ID: {apt.patient_id}</p>
+                      <p className="text-xs font-medium">{apt.doctor_name}</p>
+                    </div>
+                  </div>
+                  <span
+                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusStyle(apt.status)}`}
+                  >
+                    {apt.status}
+                  </span>
+                </div>
               </div>
-              <p
-                className=""
-              >
-                No appointments scheduled for today
-              </p>
+            ))}
+          </div>
+        ) : (
+          <div
+            className="neumorphic-inset p-6 rounded-lg text-center"
+          >
+            <div
+            >
+              <IconCalendar className="w-10 h-10 mx-auto mb-3" />
             </div>
-          )}
+            <p
+              className=""
+            >
+              No appointments scheduled for today
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Calendar Section */}
@@ -360,108 +361,108 @@ export function AppointmentPage() {
             className="col-span-12 md:col-span-8 lg:col-span-8 xl:col-span-8 flex flex-col"
           >
             {/* Selected Date Appointments */}
-              {selectedDate ? (
+            {selectedDate ? (
+              <div
+                className="flex-1 flex flex-col"
+                key={selectedDate}
+              >
                 <div
-                  className="flex-1 flex flex-col"
-                  key={selectedDate}
+                  className="flex items-center justify-between mb-3"
                 >
-                  <div
-                    className="flex items-center justify-between mb-3"
+                  <h2 className="text-sm md:text-lg font-semibold text-foreground">
+                    {formatDateUS(new Date(currentYear, currentMonth - 1, selectedDate))}
+                  </h2>
+                  <span
+                    className="text-sm"
                   >
-                    <h2 className="text-sm md:text-lg font-semibold text-foreground">
-                      {formatDateUS(new Date(currentYear, currentMonth - 1, selectedDate))}
-                    </h2>
-                    <span
-                      className="text-sm"
-                    >
-                      {selectedDateAppointments.length > 0
-                        ? `${selectedDateAppointments.length} appointments`
-                        : 'No appointments'
-                      }
-                    </span>
-                  </div>
-
-                    {selectedDateAppointments.length > 0 ? (
-                      <div
-                        className="neumorphic-inset rounded-lg p-4 border-0 flex flex-col"
-                      >
-                        <div className="overflow-x-auto flex-1">
-                          <div className="max-h-[80vh] overflow-y-auto bg-card rounded-lg">
-                            <table className="w-full text-sm">
-                              <thead className="sticky top-0 z-10 bg-card">
-                                <tr className="border-b-2 border-muted/90 bg-muted/10">
-                                  <th className="text-left font-medium py-3 px-2">Time</th>
-                                  <th className="text-left font-medium py-3 px-2">Patient</th>
-                                  <th className="text-left font-medium py-3 px-2">Doctor</th>
-                                  <th className="text-left font-medium py-3 px-2">Status</th>
-                                </tr>
-                              </thead>
-                              <tbody className="divide-y-2 divide-muted/90">
-                              {selectedDateAppointments.map((apt: any, index: number) => (
-                                <tr key={index} className="hover:bg-muted/30 transition-colors">
-                                  <td className="py-3 px-2 font-medium text-sm">
-                                    {new Date(apt.appointment_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                  </td>
-                                  <td className="py-3 px-2">
-                                    <div className="flex items-center gap-1">
-                                    <IconUserCircle className="w-5 h-5" />
-                                      <span className="font-medium text-sm">{apt.patient_name}</span>
-                                    </div>
-                                  </td>
-                                  <td className="py-3 px-2 text-sm">{apt.doctor_name}</td>
-                                  <td className="py-3 px-2">
-                                    <span
-                                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusStyle(apt.status)}`}
-                                    >
-                                      {apt.status}
-                                    </span>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div
-                        className="neumorphic-inset rounded-lg p-8 border-0 flex flex-col items-center justify-center text-center"
-                      >
-                        <div>
-                          <IconCalendar className="w-12 h-12 mb-4" />
-                        </div>
-                        <h3
-                          className="text-lg font-medium text-foreground mb-2"
-                        >
-                          No Appointments Scheduled
-                        </h3>
-                      </div>
-                    )}
+                    {selectedDateAppointments.length > 0
+                      ? `${selectedDateAppointments.length} appointments`
+                      : 'No appointments'
+                    }
+                  </span>
                 </div>
-              ) : (
-                <div
-                  className="flex flex-col items-center justify-center"
-                >
+
+                {selectedDateAppointments.length > 0 ? (
                   <div
-                    className="neumorphic-inset rounded-lg p-8 border-0 flex flex-col items-center justify-center text-center max-w-md"
+                    className="neumorphic-inset rounded-lg p-4 border-0 flex flex-col"
                   >
-                    <div
-                    >
-                      <IconCalendar className="w-16 h-16 mb-4" />
+                    <div className="overflow-x-auto flex-1">
+                      <div className="max-h-[80vh] overflow-y-auto bg-card rounded-lg">
+                        <table className="w-full text-sm">
+                          <thead className="sticky top-0 z-10 bg-card">
+                            <tr className="border-b-2 border-muted/90 bg-muted/10">
+                              <th className="text-left font-medium py-3 px-2">Time</th>
+                              <th className="text-left font-medium py-3 px-2">Patient</th>
+                              <th className="text-left font-medium py-3 px-2">Doctor</th>
+                              <th className="text-left font-medium py-3 px-2">Status</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y-2 divide-muted/90">
+                            {selectedDateAppointments.map((apt: any, index: number) => (
+                              <tr key={index} className="hover:bg-muted/30 transition-colors">
+                                <td className="py-3 px-2 font-medium text-sm">
+                                  {new Date(apt.appointment_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </td>
+                                <td className="py-3 px-2">
+                                  <div className="flex items-center gap-1">
+                                    <IconUserCircle className="w-5 h-5" />
+                                    <span className="font-medium text-sm">{apt.patient_name}</span>
+                                  </div>
+                                </td>
+                                <td className="py-3 px-2 text-sm">{apt.doctor_name}</td>
+                                <td className="py-3 px-2">
+                                  <span
+                                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusStyle(apt.status)}`}
+                                  >
+                                    {apt.status}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    className="neumorphic-inset rounded-lg p-8 border-0 flex flex-col items-center justify-center text-center"
+                  >
+                    <div>
+                      <IconCalendar className="w-12 h-12 mb-4" />
                     </div>
                     <h3
-                      className="text-xl font-semibold text-foreground mb-2"
+                      className="text-lg font-medium text-foreground mb-2"
                     >
-                      Select a Date
+                      No Appointments Scheduled
                     </h3>
-                    <p
-                      className="text-sm"
-                    >
-                      Choose a date from the calendar to view and manage appointments for that day.
-                    </p>
                   </div>
+                )}
+              </div>
+            ) : (
+              <div
+                className="flex flex-col items-center justify-center"
+              >
+                <div
+                  className="neumorphic-inset rounded-lg p-8 border-0 flex flex-col items-center justify-center text-center max-w-md"
+                >
+                  <div
+                  >
+                    <IconCalendar className="w-16 h-16 mb-4" />
+                  </div>
+                  <h3
+                    className="text-xl font-semibold text-foreground mb-2"
+                  >
+                    Select a Date
+                  </h3>
+                  <p
+                    className="text-sm"
+                  >
+                    Choose a date from the calendar to view and manage appointments for that day.
+                  </p>
                 </div>
-              )}
+              </div>
+            )}
           </div>
 
           {/* Calendar Component */}
@@ -472,38 +473,38 @@ export function AppointmentPage() {
             <div
               className="p-1.5 sm:p-2 md:p-3 items-center justify-center neumorphic-pressed rounded-lg overflow-hidden w-full min-h-[240px] sm:min-h-[280px] md:min-h-[320px] flex flex-col"
             >
+              <div
+                className="flex items-center gap-1 sm:gap-2 mb-1.5 sm:mb-2 px-6 w-full justify-center"
+              >
                 <div
-                  className="flex items-center gap-1 sm:gap-2 mb-1.5 sm:mb-2 px-6 w-full justify-center"
                 >
-                  <div
+                  <Button
+                    onClick={handlePrevMonth}
+                    variant="outline"
+                    size="sm"
+                    className="h-6 w-6 sm:h-7 sm:w-7 p-0"
                   >
-                    <Button
-                      onClick={handlePrevMonth}
-                      variant="outline"
-                      size="sm"
-                      className="h-6 w-6 sm:h-7 sm:w-7 p-0"
-                    >
-                      <IconChevronLeft className="w-3 h-3" />
-                    </Button>
-                  </div>
-                    <h1
-                      key={`${currentMonth}-${currentYear}`}
-                      className="text-xs sm:text-sm md:text-base font-semibold flex-1 text-center"
-                    >
-                      {months[currentMonth - 1]} {currentYear}
-                    </h1>
-                  <div
-                  >
-                    <Button
-                      onClick={handleNextMonth}
-                      variant="outline"
-                      size="sm"
-                      className="h-6 w-6 sm:h-7 sm:w-7 p-0"
-                    >
-                      <IconChevronRight className="w-3 h-3" />
-                    </Button>
-                  </div>
+                    <IconChevronLeft className="w-3 h-3" />
+                  </Button>
                 </div>
+                <h1
+                  key={`${currentMonth}-${currentYear}`}
+                  className="text-xs sm:text-sm md:text-base font-semibold flex-1 text-center"
+                >
+                  {months[currentMonth - 1]} {currentYear}
+                </h1>
+                <div
+                >
+                  <Button
+                    onClick={handleNextMonth}
+                    variant="outline"
+                    size="sm"
+                    className="h-6 w-6 sm:h-7 sm:w-7 p-0"
+                  >
+                    <IconChevronRight className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
               <div className="flex-1 flex flex-col w-full">
                 {/* Day Headers */}
                 <div
@@ -521,56 +522,56 @@ export function AppointmentPage() {
                 </div>
 
                 {/* Calendar Grid */}
-                  <div
-                    key={`${currentMonth}-${currentYear}`}
-                    className="grid grid-cols-7 gap-0.5 sm:gap-0.5 p-5 flex-1 w-full auto-rows-fr"
-                  >
-                    {calendarGrid.map((day, index) => (
-                      <div
-                        key={index}
-                        onClick={() => day.isCurrentMonth ? handleDateClick(day.date, day.isCurrentMonth) : undefined}
-                        className={`
+                <div
+                  key={`${currentMonth}-${currentYear}`}
+                  className="grid grid-cols-7 gap-0.5 sm:gap-0.5 p-5 flex-1 w-full auto-rows-fr"
+                >
+                  {calendarGrid.map((day, index) => (
+                    <div
+                      key={index}
+                      onClick={() => day.isCurrentMonth ? handleDateClick(day.date, day.isCurrentMonth) : undefined}
+                      className={`
                           calendar-cell relative rounded-lg cursor-pointer
                           w-full min-h-0 flex flex-col justify-center items-center
                           ${day.isCurrentMonth
-                            ? selectedDate === day.date
-                              ? 'neumorphic-pressed shadow-inner border-1 border-primary'
-                              : 'neumorphic'
-                            : 'neumorphic-inset opacity-50 cursor-not-allowed'
-                          }
+                          ? selectedDate === day.date
+                            ? 'neumorphic-pressed shadow-inner border-1 border-primary'
+                            : 'neumorphic'
+                          : 'neumorphic-inset opacity-50 cursor-not-allowed'
+                        }
                           ${day.isToday && day.isCurrentMonth ? 'ring-2 ring-primary ring-inset' : ''}
                         `}
-                        style={{ aspectRatio: '1' }}
-                      >
-                        <div
-                          className={`
+                      style={{ aspectRatio: '1' }}
+                    >
+                      <div
+                        className={`
                             text-sm font-bold text-center leading-tight
                             ${day.isCurrentMonth
-                              ? selectedDate === day.date
+                            ? selectedDate === day.date
+                              ? 'font-bold'
+                              : day.isToday
                                 ? 'font-bold'
-                                : day.isToday
-                                  ? 'font-bold'
-                                  : ''
-                              : ''
-                            }
+                                : ''
+                            : ''
+                          }
                           `}
-                        >
-                          {day.date}
-                        </div>
-
-                        {/* Show appointment count badge */}
-                        {day.appointments.length > 0 && day.isCurrentMonth && (
-                          <div className="-mt-0.5">
-                            <div
-                              className={`appointment-badge inline-flex items-center justify-center text-[8px] sm:text-[10px] font-medium rounded-full px-0.5 sm:px-1 neumorphic-inset bg-primary/10 border border-primary/20`}
-                            >
-                              {day.appointments.length}
-                            </div>
-                          </div>
-                        )}
+                      >
+                        {day.date}
                       </div>
-                    ))}
-                  </div>
+
+                      {/* Show appointment count badge */}
+                      {day.appointments.length > 0 && day.isCurrentMonth && (
+                        <div className="-mt-0.5">
+                          <div
+                            className={`appointment-badge inline-flex items-center justify-center text-[8px] sm:text-[10px] font-medium rounded-full px-0.5 sm:px-1 neumorphic-inset bg-primary/10 border border-primary/20`}
+                          >
+                            {day.appointments.length}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

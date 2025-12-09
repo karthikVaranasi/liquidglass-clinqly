@@ -3,6 +3,7 @@ import { IconUserCircle } from "@tabler/icons-react"
 import { AuthStorage } from "@/api/auth"
 import { DoctorRequestsAPI } from "@/api/doctor"
 import { useCounts } from "@/contexts/counts-context"
+import { getErrorMessage } from "@/lib/errors"
 
 export function FrontDeskPage() {
   const [requests, setRequests] = useState<any[]>([])
@@ -30,7 +31,7 @@ export function FrontDeskPage() {
         setFrontDeskCount(result.count)
       } catch (err) {
         console.error('Failed to fetch front desk requests:', err)
-        setError(err instanceof Error ? err.message : 'Failed to load front desk requests')
+        setError(getErrorMessage(err))
         setRequests([])
         setFrontDeskCount(null)
       } finally {
@@ -50,15 +51,15 @@ export function FrontDeskPage() {
         return dateString
       }
       // Format date and time: MM/DD/YYYY, HH:MM AM/PM
-      const datePart = date.toLocaleDateString('en-US', { 
-        month: '2-digit', 
-        day: '2-digit', 
-        year: 'numeric' 
+      const datePart = date.toLocaleDateString('en-US', {
+        month: '2-digit',
+        day: '2-digit',
+        year: 'numeric'
       })
-      const timePart = date.toLocaleTimeString('en-US', { 
-        hour: '2-digit', 
+      const timePart = date.toLocaleTimeString('en-US', {
+        hour: '2-digit',
         minute: '2-digit',
-        hour12: true 
+        hour12: true
       })
       return `${datePart}, ${timePart}`
     } catch {

@@ -1,4 +1,5 @@
 import { AuthStorage } from "../auth"
+import { createFriendlyError } from "../../lib/errors"
 
 export class BaseAPI {
   protected static getAuthHeaders(): HeadersInit {
@@ -15,8 +16,8 @@ export class BaseAPI {
 
   protected static async handleResponse<T>(response: Response): Promise<T> {
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Unknown error' }))
-      throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`)
+      const errorData = await response.json().catch(() => ({ message: undefined }))
+      throw createFriendlyError(response.status, errorData.message, 'data')
     }
     return response.json()
   }

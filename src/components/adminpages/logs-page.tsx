@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { AdminLogsAPI, AdminClinicsAPI } from "@/api/admin"
 import type { Clinic } from "@/api/admin/clinics"
 import type { CallLog, TranscriptTurn } from "@/api/shared/types"
+import { getErrorMessage } from "@/lib/errors"
 
 // Sentiment Analysis Component
 const SentimentRating = ({ rating }: { rating: number }) => {
@@ -29,8 +30,8 @@ const SentimentRating = ({ rating }: { rating: number }) => {
         <IconStar
           key={star}
           className={`w-4 h-4 ${star <= roundedRating
-              ? "fill-current"
-              : ""
+            ? "fill-current"
+            : ""
             }`}
           style={{ color: getSentimentColor(roundedRating) }}
         />
@@ -96,7 +97,7 @@ export function LogsPage() {
       setAllLogs(logsData)
     } catch (err) {
       console.error('Failed to fetch data:', err)
-      setError(err instanceof Error ? err.message : 'Failed to load data')
+      setError(getErrorMessage(err))
     } finally {
       setLoading(false)
     }
@@ -288,13 +289,13 @@ export function LogsPage() {
 
         {/* Search Input */}
         <div className="px-4 lg:px-6">
-            <input
-              type="text"
-              placeholder="Search clinics by name or phone..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-            />
+          <input
+            type="text"
+            placeholder="Search clinics by name or phone..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+          />
         </div>
 
         {/* Clinics Table */}
@@ -708,8 +709,8 @@ export function LogsPage() {
                       <div className="flex flex-col items-center mt-0.5">
                         <span
                           className={`w-6 h-6 flex items-center justify-center rounded-full text-xs font-semibold ${turn.speaker === "A"
-                              ? "bg-primary/10"
-                              : "bg-muted"
+                            ? "bg-primary/10"
+                            : "bg-muted"
                             }`}
                         >
                           {turn.speaker}

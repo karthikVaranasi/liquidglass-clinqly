@@ -3,6 +3,7 @@ import { PieChart, Pie, Cell, Bar, BarChart, XAxis, Tooltip } from "recharts"
 import { useState, useEffect } from "react"
 import { AuthStorage } from "@/api/auth"
 import { DoctorAnalyticsAPI, type DashboardStats, type AgeDistributionItem, type AppointmentTrendItem } from "@/api/doctor"
+import { getErrorMessage } from "@/lib/errors"
 
 // Helper function to get icon component by name
 const getIcon = (iconName: string) => {
@@ -105,7 +106,7 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
         setAppointmentData(trendsData)
       } catch (err) {
         console.error('Failed to fetch analytics data:', err)
-        setError(err instanceof Error ? err.message : 'Failed to load analytics data')
+        setError(getErrorMessage(err))
       } finally {
         setLoading(false)
       }

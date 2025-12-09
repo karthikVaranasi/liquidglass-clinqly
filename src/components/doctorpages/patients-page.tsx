@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { DatePicker } from "@/components/ui/date-picker"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { formatDateUS, formatDateUSShort } from "@/lib/date"
+import { getErrorMessage } from "@/lib/errors"
 import { AuthStorage } from "@/api/auth"
 import { DoctorPatientsAPI, DoctorAppointmentsAPI } from "@/api/doctor"
 import { AdminClinicsAPI } from "@/api/admin"
@@ -73,7 +74,7 @@ export function PatientsPage() {
   })
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
-  
+
   // API state
   const [allPatients, setAllPatients] = useState<Patient[]>([])
   const [filteredPatients, setFilteredPatients] = useState<Patient[]>([])
@@ -85,11 +86,11 @@ export function PatientsPage() {
   // Clinics state
   const [clinics, setClinics] = useState<Clinic[]>([])
   const [selectedClinicId, setSelectedClinicId] = useState<string>('all')
-  
+
   // Document loading states
   const [downloadingDoc, setDownloadingDoc] = useState<number | null>(null)
   const [viewingDoc, setViewingDoc] = useState<number | null>(null)
-  
+
   // Schedule/Reschedule modal states
   const [showScheduleModal, setShowScheduleModal] = useState(false)
   const [showRescheduleModal, setShowRescheduleModal] = useState(false)
@@ -99,12 +100,12 @@ export function PatientsPage() {
   const [loadingSlots, setLoadingSlots] = useState(false)
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('')
   const [scheduling, setScheduling] = useState(false)
-  
+
   // Cancel confirmation modal state
   const [showCancelConfirm, setShowCancelConfirm] = useState(false)
   const [cancelAppointmentId, setCancelAppointmentId] = useState<number | null>(null)
   const [cancelling, setCancelling] = useState(false)
-  
+
   // Toast notification state
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null)
 
@@ -167,34 +168,34 @@ export function PatientsPage() {
       let appointmentDate: Date
       let formattedTime: string
       let dateStr: string
-      
+
       if (appt.appointment_time && appt.appointment_time.includes('T')) {
         // Full datetime format: "2026-12-09T10:00:00"
         const dateTime = new Date(appt.appointment_time)
         appointmentDate = new Date(dateTime)
         appointmentDate.setHours(0, 0, 0, 0)
-        
-        formattedTime = dateTime.toLocaleTimeString('en-US', { 
-          hour: 'numeric', 
+
+        formattedTime = dateTime.toLocaleTimeString('en-US', {
+          hour: 'numeric',
           minute: '2-digit',
-          hour12: true 
+          hour12: true
         })
-        
+
         dateStr = dateTime.toISOString().split('T')[0]
       } else if (appt.appointment_date) {
         // Separate date and time format
         appointmentDate = new Date(appt.appointment_date)
         appointmentDate.setHours(0, 0, 0, 0)
-        
+
         const timeStr = appt.appointment_time || ''
-        formattedTime = timeStr.includes(':') 
-          ? new Date(`2000-01-01T${timeStr}`).toLocaleTimeString('en-US', { 
-              hour: 'numeric', 
-              minute: '2-digit',
-              hour12: true 
-            })
+        formattedTime = timeStr.includes(':')
+          ? new Date(`2000-01-01T${timeStr}`).toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+          })
           : timeStr
-        
+
         dateStr = appt.appointment_date
       } else {
         return // Skip invalid appointments
@@ -304,12 +305,12 @@ export function PatientsPage() {
       }
 
       await DoctorPatientsAPI.createPatient(patientData)
-      
+
       // Refresh patients list
       const patientsData = await DoctorPatientsAPI.getAllPatients(clinicId)
       setAllPatients(patientsData)
       // filteredPatients will be updated automatically by the useEffect
-      
+
       // Reset form and close modal
       setFormData({
         firstName: '',
@@ -428,15 +429,15 @@ export function PatientsPage() {
   const convertTo24Hour = (time12h: string): string => {
     const [time, modifier] = time12h.split(' ')
     let [hours, minutes] = time.split(':')
-    
+
     if (hours === '12') {
       hours = '00'
     }
-    
+
     if (modifier === 'PM') {
       hours = (parseInt(hours, 10) + 12).toString()
     }
-    
+
     return `${hours.padStart(2, '0')}:${minutes || '00'}`
   }
 
@@ -472,13 +473,13 @@ export function PatientsPage() {
 
       // Refresh patient profile
       await handleViewProfile(selectedPatient)
-      
+
       // Close modal
       setShowScheduleModal(false)
       setSelectedDate('')
       setAvailableSlots([])
       setSelectedTimeSlot('')
-      
+
       showToast('Appointment scheduled successfully', 'success')
     } catch (err) {
       console.error('Failed to schedule appointment:', err)
@@ -521,14 +522,14 @@ export function PatientsPage() {
 
       // Refresh patient profile
       await handleViewProfile(selectedPatient)
-      
+
       // Close modal
       setShowRescheduleModal(false)
       setRescheduleAppointmentId(null)
       setSelectedDate('')
       setAvailableSlots([])
       setSelectedTimeSlot('')
-      
+
       showToast('Appointment rescheduled successfully', 'success')
     } catch (err) {
       console.error('Failed to reschedule appointment:', err)
@@ -602,7 +603,7 @@ export function PatientsPage() {
 
       // Refresh patient profile to update appointments
       await handleViewProfile(selectedPatient)
-      
+
       setShowCancelConfirm(false)
       setCancelAppointmentId(null)
       showToast('Appointment cancelled successfully', 'success')
@@ -759,11 +760,10 @@ export function PatientsPage() {
                           key={slot}
                           type="button"
                           onClick={() => setSelectedTimeSlot(slot)}
-                          className={`text-sm font-medium neumorphic-pressed text-black rounded-lg cursor-pointer transition-all duration-200 px-2 py-2 border ${
-                            selectedTimeSlot === slot
+                          className={`text-sm font-medium neumorphic-pressed text-black rounded-lg cursor-pointer transition-all duration-200 px-2 py-2 border ${selectedTimeSlot === slot
                               ? 'border-2 border-primary'
                               : ''
-                          }`}
+                            }`}
                           disabled={scheduling}
                         >
                           {slot}
@@ -888,18 +888,17 @@ export function PatientsPage() {
                     <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto">
                       {availableSlots.map((slot) => (
                         <Button
-                        key={slot}
-                        type="button"
-                        onClick={() => setSelectedTimeSlot(slot)}
-                        className={`text-sm font-medium neumorphic-pressed text-black rounded-lg cursor-pointer transition-all duration-200 px-2 py-2 border ${
-                          selectedTimeSlot === slot
-                            ? 'border-2 border-primary'
-                            : ''
-                        }`}
-                        disabled={scheduling}
-                      >
-                        {slot}
-                      </Button>
+                          key={slot}
+                          type="button"
+                          onClick={() => setSelectedTimeSlot(slot)}
+                          className={`text-sm font-medium neumorphic-pressed text-black rounded-lg cursor-pointer transition-all duration-200 px-2 py-2 border ${selectedTimeSlot === slot
+                              ? 'border-2 border-primary'
+                              : ''
+                            }`}
+                          disabled={scheduling}
+                        >
+                          {slot}
+                        </Button>
                       ))}
                     </div>
                   </div>
@@ -1005,24 +1004,22 @@ export function PatientsPage() {
       {/* Toast Notification */}
       {toast && (
         <div
-          className={`fixed top-4 right-4 z-[10000] neumorphic-pressed rounded-lg p-4 min-w-[300px] max-w-[400px] bg-background shadow-lg animate-in slide-in-from-top-5 ${
-            toast.type === 'success'
+          className={`fixed top-4 right-4 z-[10000] neumorphic-pressed rounded-lg p-4 min-w-[300px] max-w-[400px] bg-background shadow-lg animate-in slide-in-from-top-5 ${toast.type === 'success'
               ? 'border-l-4 border-green-500'
               : toast.type === 'error'
-              ? 'border-l-4 border-destructive'
-              : 'border-l-4 border-primary'
-          }`}
+                ? 'border-l-4 border-destructive'
+                : 'border-l-4 border-primary'
+            }`}
         >
           <div className="flex items-start gap-3">
             <div className="flex-1">
               <p
-                className={`text-sm font-medium ${
-                  toast.type === 'success'
+                className={`text-sm font-medium ${toast.type === 'success'
                     ? 'text-green-700 dark:text-green-400'
                     : toast.type === 'error'
-                    ? 'text-destructive'
-                    : 'text-primary'
-                }`}
+                      ? 'text-destructive'
+                      : 'text-primary'
+                  }`}
               >
                 {toast.message}
               </p>
@@ -1073,42 +1070,42 @@ export function PatientsPage() {
 
           {/* Patient Profile Content */}
           {!profileLoading && (
-          <div className="px-4 lg:px-6">
-            <div className="max-w-4xl mx-auto neumorphic-inset p-6 rounded-lg">
-              {/* Patient Info */}
-              <div className="rounded-lg mb-6">
-                <div className="flex items-center gap-4">
+            <div className="px-4 lg:px-6">
+              <div className="max-w-4xl mx-auto neumorphic-inset p-6 rounded-lg">
+                {/* Patient Info */}
+                <div className="rounded-lg mb-6">
+                  <div className="flex items-center gap-4">
                     <div className="w-16 h-16 rounded-full flex items-center justify-center text-lg font-bold bg-primary/10">
-                    {`${selectedPatient.first_name[0]}${selectedPatient.last_name[0]}`.toUpperCase()}
-                  </div>
-                  <div className="flex-1">
-                    <h1 className="text-2xl font-bold">{`${selectedPatient.first_name} ${selectedPatient.last_name}`}</h1>
-                    <p className="text-sm">Patient ID: {selectedPatient.id}</p>
+                      {`${selectedPatient.first_name[0]}${selectedPatient.last_name[0]}`.toUpperCase()}
+                    </div>
+                    <div className="flex-1">
+                      <h1 className="text-2xl font-bold">{`${selectedPatient.first_name} ${selectedPatient.last_name}`}</h1>
+                      <p className="text-sm">Patient ID: {selectedPatient.id}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Contact Information */}
-              <div className="rounded-lg mb-6">
-                <h3 className="text-lg font-semibold mb-4">Contact Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Phone Number
-                    </label>
-                    <div className="font-medium text-foreground">
-                      {selectedPatient.phone_number}
+                {/* Contact Information */}
+                <div className="rounded-lg mb-6">
+                  <h3 className="text-lg font-semibold mb-4">Contact Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Phone Number
+                      </label>
+                      <div className="font-medium text-foreground">
+                        {selectedPatient.phone_number}
+                      </div>
                     </div>
-                  </div>
 
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Date of Birth
-                    </label>
-                    <div className="font-medium text-foreground">
-                      {calculateAge(selectedPatient.dob)} years old ({formatDate(selectedPatient.dob)})
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Date of Birth
+                      </label>
+                      <div className="font-medium text-foreground">
+                        {calculateAge(selectedPatient.dob)} years old ({formatDate(selectedPatient.dob)})
+                      </div>
                     </div>
-                  </div>
 
                     {selectedPatient.email && (
                       <div>
@@ -1120,74 +1117,74 @@ export function PatientsPage() {
                         </div>
                       </div>
                     )}
+                  </div>
                 </div>
-              </div>
 
-              {/* Guardian Information */}
-              {selectedPatient?.guardians && selectedPatient.guardians.length > 0 && (
-                <div className="rounded-lg mb-6">
-                  <h3 className="text-lg font-semibold mb-4">Guardian Information</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Guardian Name
-                      </label>
-                      <div className="font-medium text-foreground">
-                        {`${selectedPatient.guardians[0].first_name} ${selectedPatient.guardians[0].last_name}`}
+                {/* Guardian Information */}
+                {selectedPatient?.guardians && selectedPatient.guardians.length > 0 && (
+                  <div className="rounded-lg mb-6">
+                    <h3 className="text-lg font-semibold mb-4">Guardian Information</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Guardian Name
+                        </label>
+                        <div className="font-medium text-foreground">
+                          {`${selectedPatient.guardians[0].first_name} ${selectedPatient.guardians[0].last_name}`}
+                        </div>
                       </div>
-                    </div>
 
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Date of Birth
-                      </label>
-                      <div className="font-medium text-foreground">
-                        {formatDate(selectedPatient.guardians[0].dob)}
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Date of Birth
+                        </label>
+                        <div className="font-medium text-foreground">
+                          {formatDate(selectedPatient.guardians[0].dob)}
+                        </div>
                       </div>
-                    </div>
 
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Relationship to Patient
-                      </label>
-                      <div className="font-medium text-foreground">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Relationship to Patient
+                        </label>
+                        <div className="font-medium text-foreground">
                           {selectedPatient.guardians[0].relationship_to_patient || 'N/A'}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Documents */}
-              <div className="rounded-lg mb-6">
-                <h3 className="text-lg font-semibold mb-4">Documents</h3>
-                {selectedPatient?.documents && selectedPatient.documents.length > 0 ? (
-                  <div className="space-y-4">
+                {/* Documents */}
+                <div className="rounded-lg mb-6">
+                  <h3 className="text-lg font-semibold mb-4">Documents</h3>
+                  {selectedPatient?.documents && selectedPatient.documents.length > 0 ? (
+                    <div className="space-y-4">
                       {selectedPatient.documents.map((doc, index) => {
                         const docId = doc.document_id || doc.id || index
                         const isDownloading = downloadingDoc === docId
                         const isViewing = viewingDoc === docId
-                        
+
                         return (
                           <div
                             key={docId}
-                        className="flex items-center justify-between p-3 neumorphic-inset rounded-lg"
-                      >
-                        <div>
-                          <div className="font-medium text-sm">{doc.type}</div>
+                            className="flex items-center justify-between p-3 neumorphic-inset rounded-lg"
+                          >
+                            <div>
+                              <div className="font-medium text-sm">{doc.type}</div>
                               {doc.title && (
                                 <div className="text-xs text-muted-foreground">{doc.title}</div>
                               )}
                               {doc.description && (
                                 <div className="text-xs text-muted-foreground">{doc.description}</div>
-                          )}
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
+                              )}
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
                                 onClick={() => handleViewDocument(doc)}
                                 disabled={isViewing}
-                            className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
-                          >
+                                className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+                              >
                                 {isViewing ? (
                                   <>
                                     <IconLoader2 className="w-4 h-4 animate-spin mr-1" />
@@ -1196,12 +1193,12 @@ export function PatientsPage() {
                                 ) : (
                                   'View'
                                 )}
-                          </Button>
-                          <Button
+                              </Button>
+                              <Button
                                 onClick={() => handleDownloadDocument(doc)}
                                 disabled={isDownloading}
-                            className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
-                          >
+                                className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+                              >
                                 {isDownloading ? (
                                   <>
                                     <IconLoader2 className="w-4 h-4 animate-spin mr-1" />
@@ -1210,132 +1207,131 @@ export function PatientsPage() {
                                 ) : (
                                   'Download'
                                 )}
-                          </Button>
-                        </div>
-                      </div>
+                              </Button>
+                            </div>
+                          </div>
                         )
                       })}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 neumorphic-inset rounded-lg">
-                    <p className="text-sm mb-2">No documents uploaded</p>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 neumorphic-inset rounded-lg">
+                      <p className="text-sm mb-2">No documents uploaded</p>
                       <p className="text-xs">This patient has not uploaded any documents yet.</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Upcoming Appointments */}
-              <div className="rounded-lg mb-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">
-                    Upcoming Appointments{" "}
-                    {selectedPatient?.appointments?.upcoming &&
-                    selectedPatient.appointments.upcoming.length > 0
-                      ? `(${selectedPatient.appointments.upcoming.length})`
-                      : ""}
-                  </h3>
-                  <Button
-                      onClick={handleSchedule}
-                    className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
-                  >
-                    Schedule
-                  </Button>
+                    </div>
+                  )}
                 </div>
-                {selectedPatient?.appointments?.upcoming && selectedPatient.appointments.upcoming.length > 0 ? (
-                  <div className="space-y-4">
-                    {selectedPatient.appointments.upcoming.map((appointment, index) => (
-                      <div key={index} className="neumorphic-inset rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="font-semibold text-foreground">
-                            {formatDateUSShort(appointment.date)}
-                          </span>
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium neumorphic-inset">
+
+                {/* Upcoming Appointments */}
+                <div className="rounded-lg mb-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold">
+                      Upcoming Appointments{" "}
+                      {selectedPatient?.appointments?.upcoming &&
+                        selectedPatient.appointments.upcoming.length > 0
+                        ? `(${selectedPatient.appointments.upcoming.length})`
+                        : ""}
+                    </h3>
+                    <Button
+                      onClick={handleSchedule}
+                      className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                    >
+                      Schedule
+                    </Button>
+                  </div>
+                  {selectedPatient?.appointments?.upcoming && selectedPatient.appointments.upcoming.length > 0 ? (
+                    <div className="space-y-4">
+                      {selectedPatient.appointments.upcoming.map((appointment, index) => (
+                        <div key={index} className="neumorphic-inset rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="font-semibold text-foreground">
+                              {formatDateUSShort(appointment.date)}
+                            </span>
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium neumorphic-inset">
+                              {appointment.status}
+                            </span>
+                          </div>
+                          <p className="text-sm mb-4">
+                            {appointment.time}
+                          </p>
+                          <div className="flex justify-center items-center gap-3">
+                            <Button
+                              onClick={() => handleRescheduleAppointment(appointment.appointment_id)}
+                              className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                            >
+                              Reschedule
+                            </Button>
+                            <Button
+                              onClick={() => handleCancelAppointment(appointment.appointment_id)}
+                              className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 neumorphic-inset rounded-lg">
+                      <p className="text-sm mb-2">No upcoming appointments</p>
+                      <p className="text-xs">This patient has no upcoming appointments.</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Past Appointments */}
+                <div className="rounded-lg mb-6">
+                  <h3 className="text-lg font-semibold mb-4">Past Appointments</h3>
+                  {selectedPatient?.appointments?.past && selectedPatient.appointments.past.length > 0 ? (
+                    <div className="space-y-4">
+                      {selectedPatient.appointments.past.map((appointment, index) => (
+                        <div
+                          key={index}
+                          className="neumorphic-inset rounded-lg p-4 flex justify-between items-center"
+                        >
+                          <div className="flex flex-col gap-1">
+                            <span className="font-semibold text-foreground text-base">
+                              {formatDateUSShort(appointment.date)}
+                            </span>
+                            <span className="text-sm">
+                              {appointment.time}
+                            </span>
+                          </div>
+                          <span
+                            className={`
+                            inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
+                            ${appointment.status && appointment.status.toLowerCase() === "completed"
+                                ? "bg-green-100"
+                                : appointment.status && appointment.status.toLowerCase() === "cancelled"
+                                  ? "bg-destructive/20"
+                                  : "bg-primary/10"
+                              }
+                            neumorphic-inset
+                          `}
+                          >
                             {appointment.status}
                           </span>
                         </div>
-                        <p className="text-sm mb-4">
-                          {appointment.time}
-                        </p>
-                        <div className="flex justify-center items-center gap-3">
-                          <Button
-                              onClick={() => handleRescheduleAppointment(appointment.appointment_id)}
-                            className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
-                          >
-                            Reschedule
-                          </Button>
-                          <Button
-                              onClick={() => handleCancelAppointment(appointment.appointment_id)}
-                            className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
-                          >
-                            Cancel
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 neumorphic-inset rounded-lg">
-                    <p className="text-sm mb-2">No upcoming appointments</p>
-                      <p className="text-xs">This patient has no upcoming appointments.</p>
-                  </div>
-                )}
-              </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 neumorphic-inset rounded-lg">
+                      <p className="text-sm mb-2">No past appointments</p>
+                      <p className="text-xs">This patient has no appointment history.</p>
+                    </div>
+                  )}
+                </div>
 
-              {/* Past Appointments */}
-              <div className="rounded-lg mb-6">
-                <h3 className="text-lg font-semibold mb-4">Past Appointments</h3>
-                {selectedPatient?.appointments?.past && selectedPatient.appointments.past.length > 0 ? (
-                  <div className="space-y-4">
-                    {selectedPatient.appointments.past.map((appointment, index) => (
-                      <div
-                        key={index}
-                        className="neumorphic-inset rounded-lg p-4 flex justify-between items-center"
-                      >
-                        <div className="flex flex-col gap-1">
-                          <span className="font-semibold text-foreground text-base">
-                            {formatDateUSShort(appointment.date)}
-                          </span>
-                          <span className="text-sm">
-                            {appointment.time}
-                          </span>
-                        </div>
-                        <span
-                          className={`
-                            inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
-                            ${
-                              appointment.status && appointment.status.toLowerCase() === "completed"
-                                ? "bg-green-100"
-                                : appointment.status && appointment.status.toLowerCase() === "cancelled"
-                                ? "bg-destructive/20"
-                                : "bg-primary/10"
-                            }
-                            neumorphic-inset
-                          `}
-                        >
-                          {appointment.status}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 neumorphic-inset rounded-lg">
-                    <p className="text-sm mb-2">No past appointments</p>
-                    <p className="text-xs">This patient has no appointment history.</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex justify-center items-center">
-                <Button
+                {/* Action Buttons */}
+                <div className="flex justify-center items-center">
+                  <Button
                     onClick={handleDownloadProfile}
-                  className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
-                >
-                  Download Profile
-                </Button>
+                    className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                  >
+                    Download Profile
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
           )}
         </div>
         {renderModals()}
@@ -1345,419 +1341,419 @@ export function PatientsPage() {
 
   return (
     <>
-    <div className="space-y-6">
-      {/* Patients Table */}
-      <div className="px-4 lg:px-6">
-        {/* Header with title, filter and Add Patient button */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-4">
-            <h2 className="text-lg font-semibold">
-              Patients {loading ? '' : `(${filteredPatients.length})`}
-            </h2>
-            {/* Provider Filter */}
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium">Filter by Provider:</label>
-              <Select value={selectedClinicId} onValueChange={setSelectedClinicId}>
-                <SelectTrigger className="w-[200px] neumorphic-inset">
-                  <SelectValue placeholder="Select provider" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All providers</SelectItem>
-                  {clinics.map((clinic) => (
-                    <SelectItem key={clinic.id} value={clinic.id.toString()}>
-                      {clinic.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <Button
-            onClick={() => setShowAddForm(true)}
-            className="w-full text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 max-w-[160px]"
-          >
-            Add Patient
-          </Button>
-        </div>
-
-        {/* Loading State */}
-        {loading && (
-          <div className="flex items-center justify-center py-12">
-            <IconLoader2 className="w-8 h-8 animate-spin text-primary" />
-          </div>
-        )}
-
-        {/* Error State */}
-        {error && (
-          <div className="neumorphic-inset rounded-lg p-4 mb-4 bg-destructive/10">
-            <p className="text-sm text-destructive">{error}</p>
-          </div>
-        )}
-
+      <div className="space-y-6">
         {/* Patients Table */}
-        {!loading && (
-          <div className="neumorphic-inset rounded-lg p-4 border-0">
-          <div className="overflow-x-auto max-h-[78vh] overflow-y-auto bg-card rounded-lg">
-              {filteredPatients.length > 0 ? (
-            <table className="w-full text-sm">
-              <thead className="sticky top-0 z-10 bg-card">
-                <tr className="border-b-2 border-muted/90 bg-muted/10">
-                  <th className="text-left font-medium py-3 px-2">Patient ID</th>
-                  <th className="text-left font-medium py-3 px-2">Patient Name</th>
-                  <th className="text-left font-medium py-3 px-2">DOB</th>
-                  <th className="text-left font-medium py-3 px-2">Contact</th>
-                  <th className="text-left font-medium py-3 px-2">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y-2 divide-muted/90">
-                {filteredPatients.map((patient) => (
-                  <tr key={patient.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="py-3 px-2 font-medium text-sm">{patient.id}</td>
-                    <td className="py-3 px-2">
-                      <div className="flex items-center gap-1">
-                        <IconUserCircle className="w-5 h-5" />
-                        <span className="font-medium text-sm">{`${patient.first_name} ${patient.last_name}`}</span>
-                      </div>
-                    </td>
-                    <td className="py-3 px-2 text-sm">{formatDate(patient.dob)}</td>
-                    <td className="py-3 px-2 text-sm">{patient.phone_number}</td>
-                    <td className="py-3 px-2">
-                      <Button
-                        onClick={() => handleViewProfile(patient)}
-                        className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
-                      >
-                        View Profile
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-              ) : (
-                <div className="text-center py-12">
-                  <p className="text-sm text-muted-foreground">No patients found</p>
-          </div>
-              )}
-        </div>
-          </div>
-        )}
-      </div>
-
-      {/* Add Patient Modal */}
-      {showAddForm && (
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-lg flex items-center justify-center z-[9999] p-4"
-          onClick={() => {
-            if (!submitting) {
-              setShowAddForm(false)
-              setSubmitError(null)
-              setFormData({
-        firstName: '',
-        middleName: '',
-        lastName: '',
-        dob: '',
-        phoneNumber: '',
-        guardianFirstName: '',
-        guardianMiddleName: '',
-        guardianLastName: '',
-        guardianDob: '',
-        guardianRelationship: ''
-      })
-            }
-          }}
-        >
-          <div
-            className="neumorphic-pressed rounded-lg w-full max-w-xl mx-auto max-h-[90vh] bg-background"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="p-5 overflow-y-auto max-h-[85vh]">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-base font-semibold">Add New Patient</h2>
-                <Button
-                  onClick={() => {
-                    setShowAddForm(false)
-                    setSubmitError(null)
-                    setFormData({
-        firstName: '',
-        middleName: '',
-        lastName: '',
-        dob: '',
-        phoneNumber: '',
-        guardianFirstName: '',
-        guardianMiddleName: '',
-        guardianLastName: '',
-        guardianDob: '',
-        guardianRelationship: ''
-      })
-                  }}
-                  disabled={submitting}
-                  className="w-8 h-8 flex items-center justify-center text-lg font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg cursor-pointer transition-all duration-200"
-                >
-                  ×
-                </Button>
+        <div className="px-4 lg:px-6">
+          {/* Header with title, filter and Add Patient button */}
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-4">
+              <h2 className="text-lg font-semibold">
+                Patients {loading ? '' : `(${filteredPatients.length})`}
+              </h2>
+              {/* Provider Filter */}
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium">Filter by Provider:</label>
+                <Select value={selectedClinicId} onValueChange={setSelectedClinicId}>
+                  <SelectTrigger className="w-[200px] neumorphic-inset">
+                    <SelectValue placeholder="Select provider" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All providers</SelectItem>
+                    {clinics.map((clinic) => (
+                      <SelectItem key={clinic.id} value={clinic.id.toString()}>
+                        {clinic.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
+            </div>
+            <Button
+              onClick={() => setShowAddForm(true)}
+              className="w-full text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 max-w-[160px]"
+            >
+              Add Patient
+            </Button>
+          </div>
 
-              {submitError && (
-                <div className="mb-4 p-3 bg-destructive/10 rounded-lg">
-                  <p className="text-sm text-destructive">{submitError}</p>
-                </div>
-              )}
+          {/* Loading State */}
+          {loading && (
+            <div className="flex items-center justify-center py-12">
+              <IconLoader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+          )}
 
-              <form onSubmit={handleAddPatient} className="space-y-3">
-                {/* Name Fields - All in one row */}
-                <div className="grid grid-cols-3 gap-3">
-                  <div>
-                    <label className="block text-xs font-medium uppercase tracking-wide mb-2">
-                      First Name *
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Enter first name"
-                      value={formData.firstName}
-                      onChange={(e) => {
-                        const filteredValue = filterNameInput(e.target.value)
-                        setFormData({ ...formData, firstName: filteredValue })
-                      }}
-                      className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                      required
-                      disabled={submitting}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium uppercase tracking-wide mb-2">
-                      Middle Name
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Enter middle name"
-                      value={formData.middleName}
-                      onChange={(e) => {
-                        const filteredValue = filterNameInput(e.target.value)
-                        setFormData({ ...formData, middleName: filteredValue })
-                      }}
-                      className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                      disabled={submitting}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium uppercase tracking-wide mb-2">
-                      Last Name *
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Enter last name"
-                      value={formData.lastName}
-                      onChange={(e) => {
-                        const filteredValue = filterNameInput(e.target.value)
-                        setFormData({ ...formData, lastName: filteredValue })
-                      }}
-                      className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                      required
-                      disabled={submitting}
-                    />
-                  </div>
-                </div>
+          {/* Error State */}
+          {error && (
+            <div className="neumorphic-inset rounded-lg p-4 mb-4 bg-destructive/10">
+              <p className="text-sm text-destructive">{error}</p>
+            </div>
+          )}
 
-                {/* DOB and Phone Number - In one row */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-medium uppercase tracking-wide mb-2">
-                      Date of Birth *
-                    </label>
-                    <DatePicker
-                      value={formData.dob}
-                      onChange={(value) => setFormData({ ...formData, dob: value })}
-                      placeholder="MM/DD/YYYY"
-                      disabled={submitting}
-                      required
-                      maxDate={new Date()} // Prevent future dates
-                      className="w-full"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium uppercase tracking-wide mb-2">
-                      Phone Number *
-                    </label>
-                    <div className="flex gap-2">
-                      <span className="inline-flex items-center px-3 py-2 text-sm neumorphic-inset rounded-l-md bg-muted/50 border-r border-border">
-                        +1
-                      </span>
-                      <input
-                        type="tel"
-                        placeholder="(XXX) XXX-XXXX"
-                        value={formData.phoneNumber}
-                        onChange={(e) => {
-                          let value = e.target.value.replace(/\D/g, '') // Remove non-digits
-                          if (value.length > 10) value = value.slice(0, 10) // Limit to 10 digits
-
-                          // Format as (XXX) XXX-XXXX
-                          if (value.length >= 6) {
-                            value = `(${value.slice(0, 3)}) ${value.slice(3, 6)}-${value.slice(6)}`
-                          } else if (value.length >= 3) {
-                            value = `(${value.slice(0, 3)}) ${value.slice(3)}`
-                          } else if (value.length > 0) {
-                            value = `(${value}`
-                          }
-
-                          setFormData({ ...formData, phoneNumber: value })
-                        }}
-                        className="flex-1 px-3 py-2 text-sm neumorphic-inset rounded-r-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                        required
-                        disabled={submitting}
-                        maxLength={14} // (XXX) XXX-XXXX = 14 characters
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Guardian Information - shown when patient is under 18 */}
-                {isPatientMinor(formData.dob) && (
-                  <div className="space-y-2 pt-3 border-t border-border">
-                      <h2 className="mb-2 text-base font-semibold">Guardian Information* (Patient is a minor)</h2>
-
-                    {/* Guardian Name Fields - All in one row */}
-                    <div className="grid grid-cols-3 gap-2">
-                      <div>
-                        <label className="block text-xs font-medium uppercase tracking-wide mb-1">
-                          Guardian First Name *
-                        </label>
-                        <input
-                          type="text"
-                          placeholder="Enter guardian first name"
-                          value={formData.guardianFirstName}
-                          onChange={(e) => {
-                            const filteredValue = filterNameInput(e.target.value)
-                            setFormData({ ...formData, guardianFirstName: filteredValue })
-                          }}
-                          className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                          required={isPatientMinor(formData.dob)}
-                          disabled={submitting}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-medium uppercase tracking-wide mb-1">
-                          Guardian Middle Name
-                        </label>
-                        <input
-                          type="text"
-                          placeholder="Enter guardian middle name"
-                          value={formData.guardianMiddleName}
-                          onChange={(e) => {
-                            const filteredValue = filterNameInput(e.target.value)
-                            setFormData({ ...formData, guardianMiddleName: filteredValue })
-                          }}
-                          className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                          disabled={submitting}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-medium uppercase tracking-wide mb-1">
-                          Guardian Last Name *
-                        </label>
-                        <input
-                          type="text"
-                          placeholder="Enter guardian last name"
-                          value={formData.guardianLastName}
-                          onChange={(e) => {
-                            const filteredValue = filterNameInput(e.target.value)
-                            setFormData({ ...formData, guardianLastName: filteredValue })
-                          }}
-                          className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                          required={isPatientMinor(formData.dob)}
-                          disabled={submitting}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Guardian DOB and Relationship - In one row */}
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <label className="block text-xs font-medium uppercase tracking-wide mb-1">
-                          Guardian Date of Birth *
-                        </label>
-                        <DatePicker
-                          value={formData.guardianDob}
-                          onChange={(value) => setFormData({ ...formData, guardianDob: value })}
-                          placeholder="MM/DD/YYYY"
-                          required={isPatientMinor(formData.dob)}
-                          disabled={submitting}
-                          maxDate={new Date()} // Prevent future dates
-                          className="w-full"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-medium uppercase tracking-wide mb-1">
-                          Relationship to Patient *
-                        </label>
-                        <select
-                          value={formData.guardianRelationship}
-                          onChange={(e) => setFormData({ ...formData, guardianRelationship: e.target.value })}
-                          className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                          required={isPatientMinor(formData.dob)}
-                          disabled={submitting}
-                        >
-                          <option value="">Select relationship</option>
-                          <option value="Parent">Parent</option>
-                          <option value="Spouse">Spouse (Husband/Wife)</option>
-                          <option value="Guardian">Legal Guardian</option>
-                          <option value="Grandparent">Grandparent</option>
-                          <option value="Sibling">Sibling</option>
-                          <option value="Aunt">Aunt</option>
-                          <option value="Uncle">Uncle</option>
-                          <option value="Cousin">Cousin</option>
-                          <option value="Other">Other</option>
-                        </select>
-                      </div>
-                    </div>
+          {/* Patients Table */}
+          {!loading && (
+            <div className="neumorphic-inset rounded-lg p-4 border-0">
+              <div className="overflow-x-auto max-h-[78vh] overflow-y-auto bg-card rounded-lg">
+                {filteredPatients.length > 0 ? (
+                  <table className="w-full text-sm">
+                    <thead className="sticky top-0 z-10 bg-card">
+                      <tr className="border-b-2 border-muted/90 bg-muted/10">
+                        <th className="text-left font-medium py-3 px-2">Patient ID</th>
+                        <th className="text-left font-medium py-3 px-2">Patient Name</th>
+                        <th className="text-left font-medium py-3 px-2">DOB</th>
+                        <th className="text-left font-medium py-3 px-2">Contact</th>
+                        <th className="text-left font-medium py-3 px-2">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y-2 divide-muted/90">
+                      {filteredPatients.map((patient) => (
+                        <tr key={patient.id} className="hover:bg-muted/30 transition-colors">
+                          <td className="py-3 px-2 font-medium text-sm">{patient.id}</td>
+                          <td className="py-3 px-2">
+                            <div className="flex items-center gap-1">
+                              <IconUserCircle className="w-5 h-5" />
+                              <span className="font-medium text-sm">{`${patient.first_name} ${patient.last_name}`}</span>
+                            </div>
+                          </td>
+                          <td className="py-3 px-2 text-sm">{formatDate(patient.dob)}</td>
+                          <td className="py-3 px-2 text-sm">{patient.phone_number}</td>
+                          <td className="py-3 px-2">
+                            <Button
+                              onClick={() => handleViewProfile(patient)}
+                              className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+                            >
+                              View Profile
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div className="text-center py-12">
+                    <p className="text-sm text-muted-foreground">No patients found</p>
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+        </div>
 
-                <div className="flex gap-3 pt-3">
+        {/* Add Patient Modal */}
+        {showAddForm && (
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-lg flex items-center justify-center z-[9999] p-4"
+            onClick={() => {
+              if (!submitting) {
+                setShowAddForm(false)
+                setSubmitError(null)
+                setFormData({
+                  firstName: '',
+                  middleName: '',
+                  lastName: '',
+                  dob: '',
+                  phoneNumber: '',
+                  guardianFirstName: '',
+                  guardianMiddleName: '',
+                  guardianLastName: '',
+                  guardianDob: '',
+                  guardianRelationship: ''
+                })
+              }
+            }}
+          >
+            <div
+              className="neumorphic-pressed rounded-lg w-full max-w-xl mx-auto max-h-[90vh] bg-background"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-5 overflow-y-auto max-h-[85vh]">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-base font-semibold">Add New Patient</h2>
                   <Button
-                    type="button"
                     onClick={() => {
                       setShowAddForm(false)
                       setSubmitError(null)
                       setFormData({
-        firstName: '',
-        middleName: '',
-        lastName: '',
-        dob: '',
-        phoneNumber: '',
-        guardianFirstName: '',
-        guardianMiddleName: '',
-        guardianLastName: '',
-        guardianDob: '',
-        guardianRelationship: ''
-      })
+                        firstName: '',
+                        middleName: '',
+                        lastName: '',
+                        dob: '',
+                        phoneNumber: '',
+                        guardianFirstName: '',
+                        guardianMiddleName: '',
+                        guardianLastName: '',
+                        guardianDob: '',
+                        guardianRelationship: ''
+                      })
                     }}
                     disabled={submitting}
-                    className="flex-1 text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg cursor-pointer transition-all duration-200 px-3 py-2"
+                    className="w-8 h-8 flex items-center justify-center text-lg font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg cursor-pointer transition-all duration-200"
                   >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    disabled={submitting}
-                    className="flex-1 text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg cursor-pointer transition-all duration-200 px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {submitting ? (
-                      <span className="flex items-center justify-center">
-                        <IconLoader2 className="w-4 h-4 animate-spin mr-1" />
-                        Adding...
-                      </span>
-                    ) : (
-                      'Add Patient'
-                    )}
+                    ×
                   </Button>
                 </div>
-              </form>
+
+                {submitError && (
+                  <div className="mb-4 p-3 bg-destructive/10 rounded-lg">
+                    <p className="text-sm text-destructive">{submitError}</p>
+                  </div>
+                )}
+
+                <form onSubmit={handleAddPatient} className="space-y-3">
+                  {/* Name Fields - All in one row */}
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium uppercase tracking-wide mb-2">
+                        First Name *
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Enter first name"
+                        value={formData.firstName}
+                        onChange={(e) => {
+                          const filteredValue = filterNameInput(e.target.value)
+                          setFormData({ ...formData, firstName: filteredValue })
+                        }}
+                        className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                        required
+                        disabled={submitting}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium uppercase tracking-wide mb-2">
+                        Middle Name
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Enter middle name"
+                        value={formData.middleName}
+                        onChange={(e) => {
+                          const filteredValue = filterNameInput(e.target.value)
+                          setFormData({ ...formData, middleName: filteredValue })
+                        }}
+                        className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                        disabled={submitting}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium uppercase tracking-wide mb-2">
+                        Last Name *
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Enter last name"
+                        value={formData.lastName}
+                        onChange={(e) => {
+                          const filteredValue = filterNameInput(e.target.value)
+                          setFormData({ ...formData, lastName: filteredValue })
+                        }}
+                        className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                        required
+                        disabled={submitting}
+                      />
+                    </div>
+                  </div>
+
+                  {/* DOB and Phone Number - In one row */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium uppercase tracking-wide mb-2">
+                        Date of Birth *
+                      </label>
+                      <DatePicker
+                        value={formData.dob}
+                        onChange={(value) => setFormData({ ...formData, dob: value })}
+                        placeholder="MM/DD/YYYY"
+                        disabled={submitting}
+                        required
+                        maxDate={new Date()} // Prevent future dates
+                        className="w-full"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium uppercase tracking-wide mb-2">
+                        Phone Number *
+                      </label>
+                      <div className="flex gap-2">
+                        <span className="inline-flex items-center px-3 py-2 text-sm neumorphic-inset rounded-l-md bg-muted/50 border-r border-border">
+                          +1
+                        </span>
+                        <input
+                          type="tel"
+                          placeholder="(XXX) XXX-XXXX"
+                          value={formData.phoneNumber}
+                          onChange={(e) => {
+                            let value = e.target.value.replace(/\D/g, '') // Remove non-digits
+                            if (value.length > 10) value = value.slice(0, 10) // Limit to 10 digits
+
+                            // Format as (XXX) XXX-XXXX
+                            if (value.length >= 6) {
+                              value = `(${value.slice(0, 3)}) ${value.slice(3, 6)}-${value.slice(6)}`
+                            } else if (value.length >= 3) {
+                              value = `(${value.slice(0, 3)}) ${value.slice(3)}`
+                            } else if (value.length > 0) {
+                              value = `(${value}`
+                            }
+
+                            setFormData({ ...formData, phoneNumber: value })
+                          }}
+                          className="flex-1 px-3 py-2 text-sm neumorphic-inset rounded-r-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                          required
+                          disabled={submitting}
+                          maxLength={14} // (XXX) XXX-XXXX = 14 characters
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Guardian Information - shown when patient is under 18 */}
+                  {isPatientMinor(formData.dob) && (
+                    <div className="space-y-2 pt-3 border-t border-border">
+                      <h2 className="mb-2 text-base font-semibold">Guardian Information* (Patient is a minor)</h2>
+
+                      {/* Guardian Name Fields - All in one row */}
+                      <div className="grid grid-cols-3 gap-2">
+                        <div>
+                          <label className="block text-xs font-medium uppercase tracking-wide mb-1">
+                            Guardian First Name *
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="Enter guardian first name"
+                            value={formData.guardianFirstName}
+                            onChange={(e) => {
+                              const filteredValue = filterNameInput(e.target.value)
+                              setFormData({ ...formData, guardianFirstName: filteredValue })
+                            }}
+                            className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                            required={isPatientMinor(formData.dob)}
+                            disabled={submitting}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium uppercase tracking-wide mb-1">
+                            Guardian Middle Name
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="Enter guardian middle name"
+                            value={formData.guardianMiddleName}
+                            onChange={(e) => {
+                              const filteredValue = filterNameInput(e.target.value)
+                              setFormData({ ...formData, guardianMiddleName: filteredValue })
+                            }}
+                            className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                            disabled={submitting}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium uppercase tracking-wide mb-1">
+                            Guardian Last Name *
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="Enter guardian last name"
+                            value={formData.guardianLastName}
+                            onChange={(e) => {
+                              const filteredValue = filterNameInput(e.target.value)
+                              setFormData({ ...formData, guardianLastName: filteredValue })
+                            }}
+                            className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                            required={isPatientMinor(formData.dob)}
+                            disabled={submitting}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Guardian DOB and Relationship - In one row */}
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-xs font-medium uppercase tracking-wide mb-1">
+                            Guardian Date of Birth *
+                          </label>
+                          <DatePicker
+                            value={formData.guardianDob}
+                            onChange={(value) => setFormData({ ...formData, guardianDob: value })}
+                            placeholder="MM/DD/YYYY"
+                            required={isPatientMinor(formData.dob)}
+                            disabled={submitting}
+                            maxDate={new Date()} // Prevent future dates
+                            className="w-full"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium uppercase tracking-wide mb-1">
+                            Relationship to Patient *
+                          </label>
+                          <select
+                            value={formData.guardianRelationship}
+                            onChange={(e) => setFormData({ ...formData, guardianRelationship: e.target.value })}
+                            className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                            required={isPatientMinor(formData.dob)}
+                            disabled={submitting}
+                          >
+                            <option value="">Select relationship</option>
+                            <option value="Parent">Parent</option>
+                            <option value="Spouse">Spouse (Husband/Wife)</option>
+                            <option value="Guardian">Legal Guardian</option>
+                            <option value="Grandparent">Grandparent</option>
+                            <option value="Sibling">Sibling</option>
+                            <option value="Aunt">Aunt</option>
+                            <option value="Uncle">Uncle</option>
+                            <option value="Cousin">Cousin</option>
+                            <option value="Other">Other</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex gap-3 pt-3">
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        setShowAddForm(false)
+                        setSubmitError(null)
+                        setFormData({
+                          firstName: '',
+                          middleName: '',
+                          lastName: '',
+                          dob: '',
+                          phoneNumber: '',
+                          guardianFirstName: '',
+                          guardianMiddleName: '',
+                          guardianLastName: '',
+                          guardianDob: '',
+                          guardianRelationship: ''
+                        })
+                      }}
+                      disabled={submitting}
+                      className="flex-1 text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg cursor-pointer transition-all duration-200 px-3 py-2"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={submitting}
+                      className="flex-1 text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg cursor-pointer transition-all duration-200 px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {submitting ? (
+                        <span className="flex items-center justify-center">
+                          <IconLoader2 className="w-4 h-4 animate-spin mr-1" />
+                          Adding...
+                        </span>
+                      ) : (
+                        'Add Patient'
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
-    {renderModals()}
+        )}
+      </div>
+      {renderModals()}
     </>
   )
 }

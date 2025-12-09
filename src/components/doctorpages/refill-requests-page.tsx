@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { AuthStorage } from "@/api/auth"
 import { DoctorRequestsAPI } from "@/api/doctor"
 import { useCounts } from "@/contexts/counts-context"
+import { getErrorMessage } from "@/lib/errors"
 
 export function RefillRequestsPage() {
   const [requests, setRequests] = useState<any[]>([])
@@ -29,7 +30,7 @@ export function RefillRequestsPage() {
         setRefillRequestsCount(result.count)
       } catch (err) {
         console.error('Failed to fetch refill requests:', err)
-        setError(err instanceof Error ? err.message : 'Failed to load refill requests')
+        setError(getErrorMessage(err))
         setRequests([])
         setRefillRequestsCount(null)
       } finally {
@@ -76,9 +77,9 @@ export function RefillRequestsPage() {
 
   const getCreatedAt = (request: any) => {
     // Check multiple possible date field names (top level)
-    let dateValue = request.created_at 
-      || request.createdAt 
-      || request.date 
+    let dateValue = request.created_at
+      || request.createdAt
+      || request.date
       || request.timestamp
       || request.created_date
       || request.created_date_time
@@ -88,23 +89,23 @@ export function RefillRequestsPage() {
       || request.inserted_at
       || request.updated_at
       || null
-    
+
     // If not found at top level, check nested objects
     if (!dateValue) {
       // Check in patient object
       if (request.patient) {
-        dateValue = request.patient.created_at 
+        dateValue = request.patient.created_at
           || request.patient.createdAt
           || request.patient.date_created
           || null
       }
-      
+
       // Check if there's a metadata or extra field
       if (!dateValue && request.metadata) {
         dateValue = request.metadata.created_at || request.metadata.date_created || null
       }
     }
-    
+
     return dateValue
   }
 

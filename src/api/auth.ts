@@ -1,3 +1,5 @@
+import { createFriendlyError } from "@/lib/errors"
+
 const getApiBaseUrl = (): string => {
   return import.meta.env.VITE_API_BASE_URL
 }
@@ -53,8 +55,8 @@ export class AuthAPI {
     })
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Network error' }))
-      throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`)
+      const errorData = await response.json().catch(() => ({ message: undefined }))
+      throw createFriendlyError(response.status, errorData.message, 'login')
     }
 
     return response.json()
@@ -71,8 +73,8 @@ export class AuthAPI {
     })
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Network error' }))
-      throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`)
+      const errorData = await response.json().catch(() => ({ message: undefined }))
+      throw createFriendlyError(response.status, errorData.message, 'data')
     }
 
     return response.json()

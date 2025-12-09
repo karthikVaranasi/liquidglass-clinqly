@@ -6,6 +6,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Eye, EyeOff, AlertCircle } from "lucide-react"
 import { IconShield, IconStethoscope } from "@tabler/icons-react"
 import { AuthAPI, AuthStorage } from "@/api/auth"
+import { getLoginErrorMessage } from "@/lib/errors"
 
 interface LoginPageProps {
   onLogin: (userType: 'admin' | 'doctor', userData?: any) => void
@@ -67,7 +68,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         onLogin('doctor', response.doctor)
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Login failed. Please try again.'
+      const errorMessage = getLoginErrorMessage(err)
       setError(errorMessage)
       setShowMfa(false) // Reset MFA on error
       setMfaCode('')

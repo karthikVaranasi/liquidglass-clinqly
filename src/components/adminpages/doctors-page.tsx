@@ -6,6 +6,7 @@ import { AdminDoctorsAPI } from "@/api/admin/doctors"
 import { AdminAppointmentsAPI } from "@/api/admin/appointments"
 import { AuthAPI, AuthStorage } from "@/api/auth"
 import { useCounts } from "@/contexts/counts-context"
+import { getErrorMessage } from "@/lib/errors"
 
 // Doctor Appointments Modal Component
 function DoctorAppointmentsModal({ doctor, onClose }: { doctor: any, onClose: () => void }) {
@@ -55,7 +56,7 @@ function DoctorAppointmentsModal({ doctor, onClose }: { doctor: any, onClose: ()
         setAppointments(appointmentsArray)
       } catch (err) {
         console.error('Failed to fetch doctor appointments:', err)
-        setError(err instanceof Error ? err.message : 'Failed to load appointments')
+        setError(getErrorMessage(err))
         setAppointments([])
       } finally {
         setLoading(false)
@@ -389,7 +390,7 @@ export function DoctorsPage({ pageParams }: DoctorsPageProps) {
         setDoctorsCount(doctorsResponse.length)
       } catch (err) {
         console.error('Error fetching doctors data:', err)
-        setError('Failed to load doctors data')
+        setError(getErrorMessage(err))
       } finally {
         setLoading(false)
       }
@@ -483,11 +484,10 @@ export function DoctorsPage({ pageParams }: DoctorsPageProps) {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Status</p>
-                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                    selectedDoctor.status === 'Active'
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-gray-100 text-gray-800'
-                  }`}>
+                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${selectedDoctor.status === 'Active'
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-gray-100 text-gray-800'
+                    }`}>
                     {selectedDoctor.status}
                   </span>
                 </div>
@@ -529,14 +529,14 @@ export function DoctorsPage({ pageParams }: DoctorsPageProps) {
     <div className="space-y-4 px-4 lg:px-6">
       {/* Department Filter */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-        
+
 
 
 
         {/* Department Filter */}
         <div className="flex items-center gap-2">
-        <IconFilter className="w-4 h-4" />
-        <span className="text-sm font-medium">Filter by:</span>
+          <IconFilter className="w-4 h-4" />
+          <span className="text-sm font-medium">Filter by:</span>
           <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
             <SelectTrigger className="w-48 neumorphic-inset">
               <SelectValue placeholder="Select department" />

@@ -7,6 +7,7 @@ import { DatePicker } from "@/components/ui/date-picker"
 import { AuthStorage } from "@/api/auth"
 import { AdminAppointmentsAPI } from "@/api/admin"
 import { formatDateUS } from "@/lib/date"
+import { getErrorMessage } from "@/lib/errors"
 import type { AppointmentFilters } from "@/api/shared/types"
 
 
@@ -81,7 +82,7 @@ export function AppointmentPage() {
         console.log('✅ Loaded appointments:', appointmentsData.length)
       } catch (err) {
         console.error('Failed to fetch data:', err)
-        setError(err instanceof Error ? err.message : 'Failed to load data')
+        setError(getErrorMessage(err))
         setAppointments([])
       } finally {
         setLoading(false)

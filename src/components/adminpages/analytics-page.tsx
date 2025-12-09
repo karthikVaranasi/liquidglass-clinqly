@@ -1,6 +1,7 @@
 import { IconCalendar, IconMedicalCross, IconUsers, IconBone, IconBrain, IconFlask, IconUser, IconHeart, IconHeartbeat, IconArrowRight } from "@tabler/icons-react"
 import { PieChart, Pie, Cell, Bar, BarChart, XAxis, Tooltip } from "recharts"
 import { useState, useEffect } from "react"
+import { getErrorMessage } from "@/lib/errors"
 
 import {
   ChartContainer,
@@ -107,7 +108,7 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
 
       } catch (err) {
         console.error('Failed to fetch analytics data:', err)
-        setError(err instanceof Error ? err.message : 'Failed to load analytics data')
+        setError(getErrorMessage(err))
       } finally {
         setLoading(false)
       }
@@ -191,11 +192,11 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
     <div className="space-y-4 sm:space-y-6">
       {/* Welcome Banner */}
       <div className="px-4 lg:px-6">
-         <span className="text-base sm:text-lg font-regular text-gray-800">
-            Welcome Back,{" "}
-            <span className="text-black-600 font-bold">Admin</span>
-          </span>
-        </div>
+        <span className="text-base sm:text-lg font-regular text-gray-800">
+          Welcome Back,{" "}
+          <span className="text-black-600 font-bold">Admin</span>
+        </span>
+      </div>
 
       {/* Statistics Cards Section */}
       <div className="px-4 lg:px-6">

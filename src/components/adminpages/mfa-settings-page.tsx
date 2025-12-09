@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { IconArrowLeft, IconShield, IconCopy, IconCheck } from "@tabler/icons-react"
 import { AdminMFAAPI } from "@/api/admin"
 import { Button } from "@/components/ui/button"
+import { getErrorMessage } from "@/lib/errors"
 
 interface MFASettingsPageProps {
     onPageChange?: (page: string) => void
@@ -30,7 +31,7 @@ export function MFASettingsPage({ onPageChange }: MFASettingsPageProps) {
             setMfaState(response.mfa_enabled ? "enabled" : "disabled")
         } catch (err) {
             console.error("Failed to fetch MFA status:", err)
-            setError(err instanceof Error ? err.message : "Failed to load MFA status")
+            setError(getErrorMessage(err))
             setMfaState("disabled")
         }
     }
@@ -45,7 +46,7 @@ export function MFASettingsPage({ onPageChange }: MFASettingsPageProps) {
             setMfaState("setup")
         } catch (err) {
             console.error("Failed to setup MFA:", err)
-            setError(err instanceof Error ? err.message : "Failed to setup MFA")
+            setError(getErrorMessage(err))
         } finally {
             setLoading(false)
         }
@@ -72,7 +73,7 @@ export function MFASettingsPage({ onPageChange }: MFASettingsPageProps) {
             }
         } catch (err) {
             console.error("Failed to verify MFA:", err)
-            setError(err instanceof Error ? err.message : "Verification failed")
+            setError(getErrorMessage(err))
         } finally {
             setLoading(false)
         }
@@ -90,7 +91,7 @@ export function MFASettingsPage({ onPageChange }: MFASettingsPageProps) {
             setMfaState("disabled")
         } catch (err) {
             console.error("Failed to disable MFA:", err)
-            setError(err instanceof Error ? err.message : "Failed to disable MFA")
+            setError(getErrorMessage(err))
         } finally {
             setLoading(false)
         }
@@ -157,8 +158,8 @@ export function MFASettingsPage({ onPageChange }: MFASettingsPageProps) {
                             <span className="text-sm font-medium text-gray-700">MFA Status</span>
                             <span
                                 className={`px-4 py-1 rounded-full text-sm font-medium ${mfaState === "enabled"
-                                        ? "bg-green-100 text-green-800"
-                                        : "bg-gray-100 text-gray-800"
+                                    ? "bg-green-100 text-green-800"
+                                    : "bg-gray-100 text-gray-800"
                                     }`}
                             >
                                 {mfaState === "enabled" ? "Enabled" : "Disabled"}

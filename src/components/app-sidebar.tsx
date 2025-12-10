@@ -87,7 +87,7 @@ const adminNavItems = [
     title: "Analytics",
     url: "#",
     icon: "IconDashboard",
-    page: "analytics"
+    page: "dashboard"
   },
   {
     title: "Appointments",

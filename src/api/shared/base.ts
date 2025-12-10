@@ -16,6 +16,11 @@ export class BaseAPI {
 
   protected static async handleResponse<T>(response: Response): Promise<T> {
     if (!response.ok) {
+      // Check for session expiration (401 Unauthorized)
+      if (response.status === 401) {
+        // console.log('🔒 API returned 401 - dispatching session-expired event')
+        window.dispatchEvent(new CustomEvent('session-expired'))
+      }
       const errorData = await response.json().catch(() => ({ message: undefined }))
       throw createFriendlyError(response.status, errorData.message, 'data')
     }

@@ -28,15 +28,15 @@ export class DoctorLogsAPI extends BaseAPI {
         const clinicData = AuthStorage.getClinicData()
         const clinicPhone = clinicData?.phone_number
 
-        console.log('🔍 Filtering logs by clinic phone:', clinicPhone)
+        // console.log('🔍 Filtering logs by clinic phone:', clinicPhone)
 
         if (clinicPhone) {
             const filtered = logs.filter(log => log.to_phone === clinicPhone)
-            console.log(`📊 Filtered ${filtered.length} logs out of ${logs.length}`)
+            // console.log(`📊 Filtered ${filtered.length} logs out of ${logs.length}`)
             return filtered
         }
 
-        console.log('⚠️ No clinic phone number found, returning all logs')
+        // console.log('⚠️ No clinic phone number found, returning all logs')
         return logs
     }
 

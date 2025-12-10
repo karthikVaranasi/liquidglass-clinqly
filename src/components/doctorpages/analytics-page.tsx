@@ -84,6 +84,9 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
   // Fetch analytics data from API
   useEffect(() => {
     const fetchAnalyticsData = async () => {
+      // Add a delay to allow authentication validation to complete
+      await new Promise(resolve => setTimeout(resolve, 500))
+
       try {
         setLoading(true)
         setError(null)

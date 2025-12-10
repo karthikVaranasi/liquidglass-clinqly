@@ -49,22 +49,22 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         }
 
         if (response.access_token) {
-          console.log('💾 Storing admin auth data...')
+          // console.log('💾 Storing admin auth data...')
           AuthStorage.setToken(response.access_token)
           AuthStorage.setUserType('admin')
           AuthStorage.setUserData(response.admin)
-          console.log('✅ Admin login successful, token stored')
+          // console.log('✅ Admin login successful, token stored')
           onLogin('admin', response.admin)
         } else {
           setError('Login successful but no access token received. Please try again.')
         }
       } else {
         response = await AuthAPI.doctorLogin(loginData)
-        console.log('💾 Storing doctor auth data...')
+        // console.log('💾 Storing doctor auth data...')
         AuthStorage.setToken(response.access_token)
         AuthStorage.setUserType('doctor')
         AuthStorage.setUserData(response.doctor)
-        console.log('✅ Doctor login successful, token stored')
+        // console.log('✅ Doctor login successful, token stored')
         onLogin('doctor', response.doctor)
       }
     } catch (err) {

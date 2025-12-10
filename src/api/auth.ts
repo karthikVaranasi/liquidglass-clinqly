@@ -110,7 +110,7 @@ export class AuthAPI {
 
       // If we get a 401 or 403, token is invalid (unauthorized/forbidden)
       if (response.status === 401 || response.status === 403) {
-        console.log('🔐 Token validation: unauthorized/forbidden')
+        // console.log('🔐 Token validation: unauthorized/forbidden')
         return false
       }
 
@@ -118,7 +118,7 @@ export class AuthAPI {
       // For other status codes (like 422 validation errors), we consider the token valid
       // since the error is not auth-related
       const isValid = response.ok || response.status === 422
-      console.log(`🔐 Token validation result: ${isValid} (status: ${response.status})`)
+      // console.log(`🔐 Token validation result: ${isValid} (status: ${response.status})`)
       return isValid
 
     } catch (error) {

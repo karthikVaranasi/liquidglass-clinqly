@@ -201,7 +201,7 @@ export function RefillRequestsPage() {
                           const dateValue = getCreatedAt(request)
                           // Debug: Show raw value temporarily to help identify the field
                           if (!dateValue) {
-                            console.log(`Request ID ${request.id}: No date found. All fields:`, Object.keys(request))
+                            // console.log(`Request ID ${request.id}: No date found. All fields:`, Object.keys(request))
                           }
                           return formatDate(dateValue)
                         })()}

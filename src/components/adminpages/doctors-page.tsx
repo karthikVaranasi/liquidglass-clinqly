@@ -19,6 +19,9 @@ function DoctorAppointmentsModal({ doctor, onClose }: { doctor: any, onClose: ()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // Track page load time to avoid premature logout on 401 errors
+  const pageLoadStartTime = Date.now()
+
   const months = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
@@ -42,7 +45,7 @@ function DoctorAppointmentsModal({ doctor, onClose }: { doctor: any, onClose: ()
         setError(null)
 
         const response = await AdminAppointmentsAPI.getAllAppointments({ doctor_id: doctor.id })
-        console.log('Doctor appointments:', response)
+        // console.log('Doctor appointments:', response)
 
         // Handle API response structure
         let appointmentsArray: any[] = []
@@ -60,8 +63,10 @@ function DoctorAppointmentsModal({ doctor, onClose }: { doctor: any, onClose: ()
         console.error('Failed to fetch doctor appointments:', err)
 
         // Check if it's a 401 (token expired) error and handle logout
-        if (err && typeof err === 'object' && 'status' in err && err.status === 401) {
-          console.log('🔐 Token expired, logging out user...')
+        // But don't logout immediately on page load to avoid issues with auth validation timing
+        const pageLoadTime = Date.now() - pageLoadStartTime
+        if (err && typeof err === 'object' && 'status' in err && err.status === 401 && pageLoadTime > 2000) {
+          // console.log('🔐 Token expired, logging out user...')
           AuthStorage.clearAll()
           return // Don't show error, logout will redirect to login
         }
@@ -366,6 +371,9 @@ interface DoctorsPageProps {
 }
 
 export function DoctorsPage({ pageParams }: DoctorsPageProps) {
+  // Track page load time to avoid premature logout on 401 errors
+  const pageLoadStartTime = Date.now()
+
   const { setDoctorsCount } = useCounts()
   const [selectedDoctor, setSelectedDoctor] = useState<any | null>(null)
   const [viewMode, setViewMode] = useState<'table' | 'profile'>('table')
@@ -402,8 +410,10 @@ export function DoctorsPage({ pageParams }: DoctorsPageProps) {
         console.error('Error fetching doctors data:', err)
 
         // Check if it's a 401 (token expired) error and handle logout
-        if (err && typeof err === 'object' && 'status' in err && err.status === 401) {
-          console.log('🔐 Token expired, logging out user...')
+        // But don't logout immediately on page load to avoid issues with auth validation timing
+        const pageLoadTime = Date.now() - pageLoadStartTime
+        if (err && typeof err === 'object' && 'status' in err && err.status === 401 && pageLoadTime > 2000) {
+          // console.log('🔐 Token expired, logging out user...')
           AuthStorage.clearAll()
           return // Don't show error, logout will redirect to login
         }

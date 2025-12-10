@@ -27,6 +27,9 @@ export function AppointmentPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // Track page load time to avoid premature logout on 401 errors
+  const pageLoadStartTime = Date.now()
+
   const months = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
@@ -117,6 +120,9 @@ export function AppointmentPage() {
   // Fetch appointments from API
   useEffect(() => {
     const fetchAppointments = async () => {
+      // Add a delay to allow authentication validation to complete
+      await new Promise(resolve => setTimeout(resolve, 500))
+
       try {
         setLoading(true)
         setError(null)
@@ -125,18 +131,18 @@ export function AppointmentPage() {
         const userData = AuthStorage.getUserData()
         const userType = AuthStorage.getUserType()
 
-        console.log('👤 User type:', userType, 'User data:', userData)
+        // console.log('👤 User type:', userType, 'User data:', userData)
 
         let params = {}
         if (userType === 'doctor') {
           params = {
             doctor_id: userData?.id
           }
-          console.log('👨‍⚕️ Filtering appointments by doctor:', userData?.id)
+          // console.log('👨‍⚕️ Filtering appointments by doctor:', userData?.id)
         }
 
         const appointmentsData = await DoctorAppointmentsAPI.getAllAppointments(params)
-        console.log('📅 API response:', appointmentsData, 'Type:', typeof appointmentsData, 'Is array:', Array.isArray(appointmentsData))
+        // console.log('📅 API response:', appointmentsData, 'Type:', typeof appointmentsData, 'Is array:', Array.isArray(appointmentsData))
 
         // Handle API response structure: { appointments: [...] }
         let appointmentsArray: any[] = []
@@ -150,13 +156,15 @@ export function AppointmentPage() {
         }
 
         setAppointments(appointmentsArray)
-        console.log('✅ Set appointments to:', appointmentsArray.length, 'items')
+        // console.log('✅ Set appointments to:', appointmentsArray.length, 'items')
       } catch (err) {
         console.error('Failed to fetch appointments:', err)
 
         // Check if it's a 401 (token expired) error and handle logout
-        if (err && typeof err === 'object' && 'status' in err && err.status === 401) {
-          console.log('🔐 Token expired, logging out user...')
+        // But don't logout immediately on page load to avoid issues with auth validation timing
+        const pageLoadTime = Date.now() - pageLoadStartTime
+        if (err && typeof err === 'object' && 'status' in err && err.status === 401 && pageLoadTime > 2000) {
+          // console.log('🔐 Token expired, logging out user...')
           AuthStorage.clearAll()
           if (window.navigateToPage) {
             window.navigateToPage('login')
@@ -166,8 +174,9 @@ export function AppointmentPage() {
 
         // Also check for authentication error messages
         const errorMessage = err instanceof Error ? err.message : ''
-        if (errorMessage.includes('401') || errorMessage.includes('unauthorized') || errorMessage.includes('session has expired')) {
-          console.log('🔐 Authentication error detected, redirecting to login...')
+        const pageLoadTime2 = Date.now() - pageLoadStartTime
+        if ((errorMessage.includes('401') || errorMessage.includes('unauthorized') || errorMessage.includes('session has expired')) && pageLoadTime2 > 2000) {
+          // console.log('🔐 Authentication error detected, redirecting to login...')
           AuthStorage.clearAll()
           if (window.navigateToPage) {
             window.navigateToPage('login')

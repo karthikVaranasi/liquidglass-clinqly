@@ -185,7 +185,7 @@ export function PatientsPage() {
         // Check if this is an authentication error
         const errorMessage = err instanceof Error ? err.message : 'Failed to load patients'
         if (errorMessage.includes('401') || errorMessage.includes('unauthorized') || errorMessage.includes('session has expired')) {
-          console.log('🔐 Authentication error detected, redirecting to login...')
+          // console.log('🔐 Authentication error detected, redirecting to login...')
           if (window.navigateToPage) {
             window.navigateToPage('login')
           }
@@ -203,7 +203,7 @@ export function PatientsPage() {
 
   // Doctors see all patients from their clinic
   useEffect(() => {
-      setFilteredPatients(allPatients)
+    setFilteredPatients(allPatients)
   }, [allPatients])
 
   // Transform appointment data from API format to display format
@@ -285,7 +285,7 @@ export function PatientsPage() {
         DoctorAppointmentsAPI.getAppointmentsByPatient(patient.id).catch((err) => {
           // Check if this is an authentication error (401)
           if (err?.message?.includes('401') || err?.message?.includes('unauthorized') || err?.message?.includes('session has expired')) {
-            console.log('🔐 Authentication error detected, redirecting to login...')
+            // console.log('🔐 Authentication error detected, redirecting to login...')
             if (window.navigateToPage) {
               window.navigateToPage('login')
             }
@@ -296,7 +296,7 @@ export function PatientsPage() {
         DoctorPatientsAPI.getPatientDocuments(patient.id).catch((err) => {
           // Check if this is an authentication error (401)
           if (err?.message?.includes('401') || err?.message?.includes('unauthorized') || err?.message?.includes('session has expired')) {
-            console.log('🔐 Authentication error detected, redirecting to login...')
+            // console.log('🔐 Authentication error detected, redirecting to login...')
             if (window.navigateToPage) {
               window.navigateToPage('login')
             }
@@ -322,7 +322,7 @@ export function PatientsPage() {
       // Check if this is an authentication error
       const errorMessage = err instanceof Error ? err.message : 'Failed to load patient profile'
       if (errorMessage.includes('401') || errorMessage.includes('unauthorized') || errorMessage.includes('session has expired')) {
-        console.log('🔐 Authentication error detected in main catch, redirecting to login...')
+        // console.log('🔐 Authentication error detected in main catch, redirecting to login...')
         if (window.navigateToPage) {
           window.navigateToPage('login')
         }
@@ -843,8 +843,8 @@ export function PatientsPage() {
                           type="button"
                           onClick={() => setSelectedTimeSlot(slot)}
                           className={`text-sm font-medium neumorphic-pressed text-black rounded-lg cursor-pointer transition-all duration-200 px-2 py-2 border ${selectedTimeSlot === slot
-                              ? 'border-2 border-primary'
-                              : ''
+                            ? 'border-2 border-primary'
+                            : ''
                             }`}
                           disabled={scheduling}
                         >
@@ -974,8 +974,8 @@ export function PatientsPage() {
                           type="button"
                           onClick={() => setSelectedTimeSlot(slot)}
                           className={`text-sm font-medium neumorphic-pressed text-black rounded-lg cursor-pointer transition-all duration-200 px-2 py-2 border ${selectedTimeSlot === slot
-                              ? 'border-2 border-primary'
-                              : ''
+                            ? 'border-2 border-primary'
+                            : ''
                             }`}
                           disabled={scheduling}
                         >
@@ -1087,20 +1087,20 @@ export function PatientsPage() {
       {toast && (
         <div
           className={`fixed top-4 right-4 z-[10000] neumorphic-pressed rounded-lg p-4 min-w-[300px] max-w-[400px] bg-background shadow-lg animate-in slide-in-from-top-5 ${toast.type === 'success'
-              ? 'border-l-4 border-green-500'
-              : toast.type === 'error'
-                ? 'border-l-4 border-destructive'
-                : 'border-l-4 border-primary'
+            ? 'border-l-4 border-green-500'
+            : toast.type === 'error'
+              ? 'border-l-4 border-destructive'
+              : 'border-l-4 border-primary'
             }`}
         >
           <div className="flex items-start gap-3">
             <div className="flex-1">
               <p
                 className={`text-sm font-medium ${toast.type === 'success'
-                    ? 'text-green-700 dark:text-green-400'
-                    : toast.type === 'error'
-                      ? 'text-destructive'
-                      : 'text-foreground'
+                  ? 'text-green-700 dark:text-green-400'
+                  : toast.type === 'error'
+                    ? 'text-destructive'
+                    : 'text-foreground'
                   }`}
               >
                 {toast.message}
@@ -1428,9 +1428,9 @@ export function PatientsPage() {
         <div className="px-4 lg:px-6">
           {/* Header with title, filter and Add Patient button */}
           <div className="flex items-center justify-between mb-3">
-              <h2 className="text-lg font-semibold">
-                Patients {loading ? '' : `(${filteredPatients.length})`}
-              </h2>
+            <h2 className="text-lg font-semibold">
+              Patients {loading ? '' : `(${filteredPatients.length})`}
+            </h2>
             <Button
               onClick={() => setShowAddForm(true)}
               className="w-full text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 max-w-[160px]"

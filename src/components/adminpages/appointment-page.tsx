@@ -23,6 +23,9 @@ export function AppointmentPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // Track page load time to avoid premature logout on 401 errors
+  const pageLoadStartTime = Date.now()
+
   // Get unique doctors from appointments data
   const uniqueDoctors = Array.from(
     new Map(
@@ -73,19 +76,24 @@ export function AppointmentPage() {
   // Fetch appointments on component mount
   useEffect(() => {
     const fetchData = async () => {
+      // Add a delay to allow authentication validation to complete
+      await new Promise(resolve => setTimeout(resolve, 500))
+
       try {
         setLoading(true)
         setError(null)
 
         const appointmentsData = await AdminAppointmentsAPI.getAllAppointments()
         setAppointments(appointmentsData)
-        console.log('✅ Loaded appointments:', appointmentsData.length)
+        // console.log('✅ Loaded appointments:', appointmentsData.length)
       } catch (err) {
         console.error('Failed to fetch data:', err)
 
         // Check if it's a 401 (token expired) error and handle logout
-        if (err && typeof err === 'object' && 'status' in err && err.status === 401) {
-          console.log('🔐 Token expired, logging out user...')
+        // But don't logout immediately on page load to avoid issues with auth validation timing
+        const pageLoadTime = Date.now() - pageLoadStartTime
+        if (err && typeof err === 'object' && 'status' in err && err.status === 401 && pageLoadTime > 2000) {
+          // console.log('🔐 Token expired, logging out user...')
           AuthStorage.clearAll()
           return // Don't show error, logout will redirect to login
         }

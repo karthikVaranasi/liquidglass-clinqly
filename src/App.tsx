@@ -5,6 +5,8 @@ import {
 } from "@/components/ui/sidebar"
 import { AuthStorage, AuthAPI } from "@/api/auth"
 import { CountsProvider, useCounts } from "@/contexts/counts-context"
+import { SessionProvider } from "@/contexts/session-context"
+import { SessionExpiredModal } from "@/components/session-expired-modal"
 
 // Dynamic imports for shared components
 const AppSidebar = lazy(() => import("@/components/app-sidebar").then(module => ({ default: module.AppSidebar })))
@@ -89,21 +91,16 @@ const AdminMFASettingsPage = lazy(() => import("@/components/adminpages/mfa-sett
 const LoginPage = lazy(() => import("@/components/login-page").then(module => ({ default: module.LoginPage })))
 const NotFoundPage = lazy(() => import("@/components/not-found-page").then(module => ({ default: module.NotFoundPage })))
 
-// Synchronous authentication check before component renders
-const getInitialAuthState = () => {
-  const token = AuthStorage.getToken()
-  const userType = AuthStorage.getUserType()
-  const storedUserData = AuthStorage.getUserData()
-  return !!(token && userType && storedUserData)
-}
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState("dashboard")
   const [pageParams, setPageParams] = useState<any>(null)
-  const [isAuthenticated, setIsAuthenticated] = useState(() => getInitialAuthState()) // Synchronous initial state
+  const [isAuthenticated, setIsAuthenticated] = useState(false) // Start as false, validate later
+  const [isValidatingAuth, setIsValidatingAuth] = useState(true) // Show loading while validating
   const [isLoading, setIsLoading] = useState(false)
   const [userData, setUserData] = useState<any>(null)
   const [clinicData, setClinicData] = useState<any>(null)
+  const [authValidationInProgress, setAuthValidationInProgress] = useState(false) // Prevent multiple validation calls
 
   // Get user type to determine which components to use
   const userType = (AuthStorage.getUserType() || 'doctor') as 'admin' | 'doctor'
@@ -118,7 +115,7 @@ export default function App() {
       const validPages = isAdmin ? adminPages : doctorPages
 
       if (!validPages.includes(currentPage)) {
-        console.log(`⚠️ Invalid page "${currentPage}" for ${isAdmin ? 'admin' : 'doctor'} user, redirecting to dashboard`)
+        // console.log(`⚠️ Invalid page "${currentPage}" for ${isAdmin ? 'admin' : 'doctor'} user, redirecting to dashboard`)
         setCurrentPage('dashboard')
       }
     }
@@ -127,7 +124,7 @@ export default function App() {
   // Function to fetch clinic data
   const fetchClinicData = async (clinicId: number) => {
     try {
-      console.log('🏥 Fetching clinic data for clinic ID:', clinicId)
+      // console.log('🏥 Fetching clinic data for clinic ID:', clinicId)
       const response = await fetch(`${getApiBaseUrl()}/dashboard/clinics/${clinicId}`, {
         method: 'GET',
         headers: {
@@ -137,7 +134,7 @@ export default function App() {
 
       if (response.ok) {
         const clinic = await response.json()
-        console.log('✅ Clinic data fetched:', clinic)
+        // console.log('✅ Clinic data fetched:', clinic)
         setClinicData(clinic)
         AuthStorage.setClinicData(clinic) // Store clinic data in localStorage
         return clinic
@@ -154,7 +151,7 @@ export default function App() {
   // Function to fetch full doctor profile (includes phone number)
   const fetchDoctorData = async (doctorId: number, currentUserData?: any) => {
     try {
-      console.log('👨‍⚕️ Fetching doctor data for doctor ID:', doctorId)
+      // console.log('👨‍⚕️ Fetching doctor data for doctor ID:', doctorId)
       const response = await fetch(`${getApiBaseUrl()}/dashboard/doctors/${doctorId}`, {
         method: 'GET',
         headers: {
@@ -164,17 +161,17 @@ export default function App() {
 
       if (response.ok) {
         const doctor = await response.json()
-        console.log('✅ Doctor data fetched:', doctor)
-        console.log('📱 Phone fields in response:', {
-          phone: doctor.phone,
-          phone_number: doctor.phone_number,
-          mobile_phone: doctor.mobile_phone,
-          contact_number: doctor.contact_number
-        })
+        // console.log('✅ Doctor data fetched:', doctor)
+        //   console.log('📱 Phone fields in response:', {
+        //   phone: doctor.phone,
+        //     phone_number: doctor.phone_number,
+        //       mobile_phone: doctor.mobile_phone,
+        //         contact_number: doctor.contact_number
+        // })
         // Merge with existing userData to get complete profile including phone
         const baseData = currentUserData || userData || {}
         const updatedUserData = { ...baseData, ...doctor }
-        console.log('👤 Updated user data with phone:', updatedUserData)
+        // console.log('👤 Updated user data with phone:', updatedUserData)
         setUserData(updatedUserData)
         AuthStorage.setUserData(updatedUserData) // Update stored user data
         return doctor
@@ -209,18 +206,24 @@ export default function App() {
 
   // Check for stored authentication token on app load
   useEffect(() => {
-    console.log('🔍 Running async authentication validation...')
+    // Prevent multiple simultaneous validation calls
+    if (authValidationInProgress) {
+      return
+    }
 
-    // Check for SSO login URL parameters first
-    const urlParams = new URLSearchParams(window.location.search)
-    const ssoToken = urlParams.get('token')
+    const validateStoredAuth = async () => {
+      setAuthValidationInProgress(true)
+      // console.log('🔍 Running authentication validation...')
 
-    if (ssoToken && window.location.pathname === '/sso-login') {
-      console.log('🔗 SSO login detected, processing...')
-      // Handle SSO login asynchronously
-      AuthAPI.ssoLogin({ token: ssoToken })
-        .then((response) => {
-          console.log('💾 Storing SSO auth data...')
+      try {
+        // Check for SSO login URL parameters first
+        const urlParams = new URLSearchParams(window.location.search)
+        const ssoToken = urlParams.get('token')
+
+        if (ssoToken && window.location.pathname === '/sso-login') {
+          // console.log('🔗 SSO login detected, processing...')
+          const response = await AuthAPI.ssoLogin({ token: ssoToken })
+          // console.log('💾 Storing SSO auth data...')
           AuthStorage.setToken(response.access_token)
           AuthStorage.setUserType('doctor')
           AuthStorage.setUserData(response.doctor)
@@ -235,57 +238,99 @@ export default function App() {
             fetchDoctorData(response.doctor.id, response.doctor)
           }
 
-          console.log('✅ SSO login successful, redirecting to appointments')
+          // console.log('✅ SSO login successful, redirecting to appointments')
           window.history.replaceState({}, document.title, '/')
           setIsAuthenticated(true)
           setCurrentPage("appointments")
-        })
-        .catch((error) => {
-          console.error('💥 SSO login failed:', error)
-          window.history.replaceState({}, document.title, '/')
+          return
+        }
+
+        // Check for stored authentication data
+        const token = AuthStorage.getToken()
+        const userType = AuthStorage.getUserType()
+        const storedUserData = AuthStorage.getUserData()
+
+        // console.log('📦 Stored token exists:', !!token)
+        // console.log('👤 Stored user type:', userType)
+
+        if (token && userType && storedUserData) {
+          // console.log('🎉 Found stored auth data, validating token...')
+
+          try {
+            // Validate the stored token before showing any UI
+            const isTokenValid = await AuthAPI.validateToken(token)
+
+            if (isTokenValid) {
+              // console.log('✅ Token is valid, setting up user session...')
+
+              // Set user data and page only after token validation
+              setUserData(storedUserData)
+              setCurrentPage(userType === 'admin' ? 'dashboard' : 'appointments')
+              setIsAuthenticated(true)
+
+              // Fetch additional data asynchronously (don't block UI on these)
+              if (storedUserData?.clinic_id) {
+                fetchClinicData(storedUserData.clinic_id).catch(err => {
+                  console.warn('Failed to fetch clinic data on refresh:', err)
+                })
+              }
+
+              if (userType === 'doctor' && storedUserData?.id) {
+                fetchDoctorData(storedUserData.id, storedUserData).catch(err => {
+                  console.warn('Failed to fetch doctor data on refresh:', err)
+                })
+              }
+            } else {
+              // console.log('❌ Token is invalid (401/403), clearing auth data...')
+              // Only clear auth data if we got explicit 401/403 (invalid token)
+              // Don't clear on network errors to prevent logout on refresh
+              AuthStorage.clearAll()
+              setIsAuthenticated(false)
+              setUserData(null)
+              setClinicData(null)
+            }
+          } catch (error) {
+            console.error('💥 Token validation network error:', error)
+            // Don't clear auth data on network errors - assume token is still valid
+            // This prevents logout on refresh when there's a temporary network issue
+            // console.log('⚠️ Keeping existing auth data due to network error during validation')
+
+            // Still set up the user session with stored data
+            setUserData(storedUserData)
+            setCurrentPage(userType === 'admin' ? 'dashboard' : 'appointments')
+            setIsAuthenticated(true)
+
+            // Try to fetch additional data, but don't fail if network is down
+            if (storedUserData?.clinic_id) {
+              fetchClinicData(storedUserData.clinic_id).catch(err => {
+                console.warn('Failed to fetch clinic data on refresh (network issue):', err)
+              })
+            }
+
+            if (userType === 'doctor' && storedUserData?.id) {
+              fetchDoctorData(storedUserData.id, storedUserData).catch(err => {
+                console.warn('Failed to fetch doctor data on refresh (network issue):', err)
+              })
+            }
+          }
+        } else {
+          // console.log('ℹ️ No stored auth data found')
           setIsAuthenticated(false)
-        })
-      return
+          setUserData(null)
+          setClinicData(null)
+        }
+      } finally {
+        setIsValidatingAuth(false)
+        setAuthValidationInProgress(false)
+        // console.log('🏁 Authentication validation complete')
+      }
     }
 
-    const token = AuthStorage.getToken()
-    const userType = AuthStorage.getUserType()
-    const storedUserData = AuthStorage.getUserData()
-
-    console.log('📦 Stored token exists:', !!token)
-    console.log('👤 Stored user type:', userType)
-
-    if (token && userType && storedUserData) {
-      console.log('🎉 Found stored auth data, validating...')
-
-      // Set user data and page immediately (optimistic)
-      setUserData(storedUserData)
-      setCurrentPage(userType === 'admin' ? 'dashboard' : 'appointments')
-
-      // Fetch additional data asynchronously
-      if (storedUserData?.clinic_id) {
-        fetchClinicData(storedUserData.clinic_id).catch(err => {
-          console.warn('Failed to fetch clinic data on refresh:', err)
-        })
-      }
-
-      if (userType === 'doctor' && storedUserData?.id) {
-        fetchDoctorData(storedUserData.id, storedUserData).catch(err => {
-          console.warn('Failed to fetch doctor data on refresh:', err)
-        })
-      }
-    } else {
-      console.log('ℹ️ No stored auth data found')
-      setIsAuthenticated(false)
-      setUserData(null)
-      setClinicData(null)
-    }
-
-    console.log('🏁 Async authentication check complete')
-  }, [])
+    validateStoredAuth()
+  }, []) // Empty dependency array - run only once on mount
 
   const handleLogin = async (type: 'admin' | 'doctor', userData?: any) => {
-    console.log('🔑 Login successful, setting up user data...', { type, userData })
+    // console.log('🔑 Login successful, setting up user data...', { type, userData })
 
     setUserData(userData)
 
@@ -304,10 +349,12 @@ export default function App() {
   }
 
   const handleLogout = () => {
-    console.log('🚪 Logging out user, clearing stored data...')
+    // console.log('🚪 Logging out user, clearing stored data...')
     AuthStorage.clearAll()
-    console.log('✅ Auth data cleared')
+    // console.log('✅ Auth data cleared')
     setIsAuthenticated(false)
+    setIsValidatingAuth(false) // Ensure no loading state after logout
+    setAuthValidationInProgress(false) // Reset validation flag
     setUserData(null)
     setClinicData(null)
     setCurrentPage("dashboard")
@@ -367,25 +414,33 @@ export default function App() {
 
 
 
+  // Show blank screen while validating authentication
+  if (isValidatingAuth) {
+    return null
+  }
+
   // Show login page if not authenticated
   if (!isAuthenticated) {
     return (
-    <LoginPage onLogin={handleLogin} />
+      <LoginPage onLogin={handleLogin} />
     )
   }
 
   return (
-    <CountsProvider>
-      <AppContent
-        currentPage={currentPage}
-        pageParams={pageParams}
-        navigateToPage={navigateToPage}
-        handleLogout={handleLogout}
-        clinicData={clinicData}
-        userData={userData}
-        userType={userType}
-        renderContent={renderContent}
-      />
-    </CountsProvider>
+    <SessionProvider onLogout={handleLogout}>
+      <SessionExpiredModal />
+      <CountsProvider>
+        <AppContent
+          currentPage={currentPage}
+          pageParams={pageParams}
+          navigateToPage={navigateToPage}
+          handleLogout={handleLogout}
+          clinicData={clinicData}
+          userData={userData}
+          userType={userType}
+          renderContent={renderContent}
+        />
+      </CountsProvider>
+    </SessionProvider>
   )
 }

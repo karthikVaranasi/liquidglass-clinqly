@@ -45,34 +45,17 @@ function AppContent({
         } as React.CSSProperties
       }
     >
-      <Suspense fallback={
-        <div className="w-64 bg-background border-r animate-pulse">
-          <div className="h-16 border-b"></div>
-          <div className="p-4 space-y-2">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-8 bg-muted rounded"></div>
-            ))}
-          </div>
-        </div>
-      }>
-        <AppSidebar
-          variant="floating"
-          onPageChange={navigateToPage}
-          currentPage={currentPage}
-          onLogout={handleLogout}
-          clinicData={clinicData}
-          userData={userData}
-          userType={userType as 'admin' | 'doctor'}
-        />
-      </Suspense>
+      <AppSidebar
+        variant="floating"
+        onPageChange={navigateToPage}
+        currentPage={currentPage}
+        onLogout={handleLogout}
+        clinicData={clinicData}
+        userData={userData}
+        userType={userType as 'admin' | 'doctor'}
+      />
       <main className="flex-1">
-        <Suspense fallback={
-          <div className="h-16 bg-background border-b animate-pulse flex items-center px-4">
-            <div className="h-8 w-32 bg-muted rounded"></div>
-          </div>
-        }>
-          <AppHeader currentPage={currentPage} userType={userType as 'admin' | 'doctor'} doctorsCount={doctorsCount ?? undefined} userData={userData} />
-        </Suspense>
+        <AppHeader currentPage={currentPage} userType={userType as 'admin' | 'doctor'} doctorsCount={doctorsCount ?? undefined} userData={userData} />
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col my-2">
             <div className="flex flex-col">
@@ -104,12 +87,21 @@ const AdminLogsPage = lazy(() => import("@/components/adminpages/logs-page").the
 const AdminMFASettingsPage = lazy(() => import("@/components/adminpages/mfa-settings-page").then(module => ({ default: module.MFASettingsPage })))
 
 const LoginPage = lazy(() => import("@/components/login-page").then(module => ({ default: module.LoginPage })))
+const NotFoundPage = lazy(() => import("@/components/not-found-page").then(module => ({ default: module.NotFoundPage })))
+
+// Synchronous authentication check before component renders
+const getInitialAuthState = () => {
+  const token = AuthStorage.getToken()
+  const userType = AuthStorage.getUserType()
+  const storedUserData = AuthStorage.getUserData()
+  return !!(token && userType && storedUserData)
+}
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState("dashboard")
   const [pageParams, setPageParams] = useState<any>(null)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
+  const [isAuthenticated, setIsAuthenticated] = useState(() => getInitialAuthState()) // Synchronous initial state
+  const [isLoading, setIsLoading] = useState(false)
   const [userData, setUserData] = useState<any>(null)
   const [clinicData, setClinicData] = useState<any>(null)
 
@@ -217,104 +209,79 @@ export default function App() {
 
   // Check for stored authentication token on app load
   useEffect(() => {
-    const checkStoredAuth = async () => {
-      console.log('🔍 Checking stored authentication...')
+    console.log('🔍 Running async authentication validation...')
 
-      // Check for SSO login URL parameters first
-      const urlParams = new URLSearchParams(window.location.search)
-      const ssoToken = urlParams.get('token')
+    // Check for SSO login URL parameters first
+    const urlParams = new URLSearchParams(window.location.search)
+    const ssoToken = urlParams.get('token')
 
-      if (ssoToken && window.location.pathname === '/sso-login') {
-        console.log('🔗 SSO login detected, processing...')
-        try {
-          const response = await AuthAPI.ssoLogin({ token: ssoToken })
+    if (ssoToken && window.location.pathname === '/sso-login') {
+      console.log('🔗 SSO login detected, processing...')
+      // Handle SSO login asynchronously
+      AuthAPI.ssoLogin({ token: ssoToken })
+        .then((response) => {
           console.log('💾 Storing SSO auth data...')
           AuthStorage.setToken(response.access_token)
-          AuthStorage.setUserType('doctor') // SSO typically returns doctor user
+          AuthStorage.setUserType('doctor')
           AuthStorage.setUserData(response.doctor)
 
           setUserData(response.doctor)
 
-          // Fetch clinic and full doctor data
+          // Fetch additional data asynchronously
           if (response.doctor?.clinic_id) {
-            await fetchClinicData(response.doctor.clinic_id)
+            fetchClinicData(response.doctor.clinic_id)
           }
-          // Fetch full doctor profile (includes phone number)
           if (response.doctor?.id) {
-            await fetchDoctorData(response.doctor.id, response.doctor)
+            fetchDoctorData(response.doctor.id, response.doctor)
           }
 
           console.log('✅ SSO login successful, redirecting to appointments')
-
-          // Clear URL parameters and redirect
           window.history.replaceState({}, document.title, '/')
           setIsAuthenticated(true)
-          setCurrentPage("appointments") // SSO login is typically for doctors
-          setIsLoading(false)
-          return
-        } catch (error) {
+          setCurrentPage("appointments")
+        })
+        .catch((error) => {
           console.error('💥 SSO login failed:', error)
-          // Clear URL parameters and continue with normal flow
           window.history.replaceState({}, document.title, '/')
-          setIsLoading(false)
-          return
-        }
-      }
-
-      const token = AuthStorage.getToken()
-      const userType = AuthStorage.getUserType()
-      const storedUserData = AuthStorage.getUserData()
-
-      console.log('📦 Stored token exists:', !!token)
-      console.log('👤 Stored user type:', userType)
-
-      if (token && userType && storedUserData) {
-        console.log('🔐 Validating stored token...')
-        try {
-          // Validate the stored token
-          const isValid = await AuthAPI.validateToken(token)
-          console.log('✅ Token validation result:', isValid)
-
-          if (isValid) {
-            console.log('🎉 Token valid, auto-logging in user')
-            setUserData(storedUserData)
-
-            // Fetch clinic data if user has clinic_id
-            if (storedUserData?.clinic_id) {
-              await fetchClinicData(storedUserData.clinic_id)
-            }
-            // Fetch full doctor profile (includes phone number) on refresh
-            if (userType === 'doctor' && storedUserData?.id) {
-              await fetchDoctorData(storedUserData.id, storedUserData)
-            }
-            // Note: For admin users, we don't fetch clinic/doctor data since they should see app branding
-
-            setIsAuthenticated(true)
-            setCurrentPage(userType === 'admin' ? 'dashboard' : 'appointments')
-          } else {
-            console.log('❌ Token invalid, clearing stored data')
-            // Token is invalid, clear stored data
-            AuthStorage.clearAll()
-            setUserData(null)
-            setClinicData(null)
-          }
-        } catch (error) {
-          console.error('💥 Token validation error:', error)
-          AuthStorage.clearAll()
-          setUserData(null)
-          setClinicData(null)
-        }
-      } else {
-        console.log('ℹ️ No stored token or user type found')
-        setUserData(null)
-        setClinicData(null)
-      }
-
-      console.log('🏁 Setting loading to false')
-      setIsLoading(false)
+          setIsAuthenticated(false)
+        })
+      return
     }
 
-    checkStoredAuth()
+    const token = AuthStorage.getToken()
+    const userType = AuthStorage.getUserType()
+    const storedUserData = AuthStorage.getUserData()
+
+    console.log('📦 Stored token exists:', !!token)
+    console.log('👤 Stored user type:', userType)
+
+    if (token && userType && storedUserData) {
+      console.log('🎉 Found stored auth data, validating...')
+
+      // Set user data and page immediately (optimistic)
+      setUserData(storedUserData)
+      setCurrentPage(userType === 'admin' ? 'dashboard' : 'appointments')
+
+      // Fetch additional data asynchronously
+      if (storedUserData?.clinic_id) {
+        fetchClinicData(storedUserData.clinic_id).catch(err => {
+          console.warn('Failed to fetch clinic data on refresh:', err)
+        })
+      }
+
+      if (userType === 'doctor' && storedUserData?.id) {
+        fetchDoctorData(storedUserData.id, storedUserData).catch(err => {
+          console.warn('Failed to fetch doctor data on refresh:', err)
+        })
+      }
+    } else {
+      console.log('ℹ️ No stored auth data found')
+      setIsAuthenticated(false)
+      setUserData(null)
+      setClinicData(null)
+    }
+
+    console.log('🏁 Async authentication check complete')
   }, [])
 
   const handleLogin = async (type: 'admin' | 'doctor', userData?: any) => {
@@ -330,7 +297,7 @@ export default function App() {
     if (type === 'doctor' && userData?.id) {
       await fetchDoctorData(userData.id, userData)
     }
-    // Note: Admin users will see "EZ MedTech" branding, no clinic/doctor data needed
+    // Note: Admin users will see "EzMedTech" branding, no clinic/doctor data needed
 
     setIsAuthenticated(true)
     setCurrentPage(type === 'admin' ? 'dashboard' : 'appointments')
@@ -348,105 +315,62 @@ export default function App() {
 
 
   const renderContent = () => {
-    const LoadingFallback = () => (
-      <div className="flex items-center justify-center h-full min-h-[400px]">
-        <div className="">Loading...</div>
-      </div>
-    )
 
 
     switch (currentPage) {
       case "dashboard":
         return (
-          <Suspense fallback={<LoadingFallback />}>
-            {isAdmin ? <AdminAnalyticsPage onPageChange={navigateToPage} /> : <DoctorAnalyticsPage onPageChange={navigateToPage} />}
-          </Suspense>
+          isAdmin ? <AdminAnalyticsPage onPageChange={navigateToPage} /> : <DoctorAnalyticsPage onPageChange={navigateToPage} />
         )
       case "patients":
         return (
-          <Suspense fallback={<LoadingFallback />}>
-            {isAdmin ? <AdminPatientsPage /> : <DoctorPatientsPage />}
-          </Suspense>
+          isAdmin ? <AdminPatientsPage /> : <DoctorPatientsPage />
         )
       case "appointments":
         return (
-          <Suspense fallback={<LoadingFallback />}>
-            {isAdmin ? <AdminAppointmentPage /> : <DoctorAppointmentPage />}
-          </Suspense>
+          isAdmin ? <AdminAppointmentPage /> : <DoctorAppointmentPage />
         )
       case "logs":
         return (
-          <Suspense fallback={<LoadingFallback />}>
-            {isAdmin ? <AdminLogsPage /> : <DoctorLogsPage />}
-          </Suspense>
+          isAdmin ? <AdminLogsPage /> : <DoctorLogsPage />
         )
       case "doctors":
         return (
-          <Suspense fallback={<LoadingFallback />}>
-            {isAdmin ? <AdminDoctorsPage pageParams={pageParams} /> : <DoctorPatientsPage />}
-          </Suspense>
+          isAdmin ? <AdminDoctorsPage pageParams={pageParams} /> : <DoctorPatientsPage />
         )
       case "front-desk":
         return (
-          <Suspense fallback={<LoadingFallback />}>
-            <DoctorFrontDeskPage />
-          </Suspense>
+          <DoctorFrontDeskPage />
         )
       case "refill-requests":
         return (
-          <Suspense fallback={<LoadingFallback />}>
-            <DoctorRefillRequestsPage />
-          </Suspense>
+          <DoctorRefillRequestsPage />
         )
       case "settings":
         return (
-          <Suspense fallback={<LoadingFallback />}>
-            <DoctorSettingsPage />
-          </Suspense>
+          <DoctorSettingsPage />
         )
       case "calendar-integrations":
         return (
-          <Suspense fallback={<LoadingFallback />}>
-            <DoctorCalendarIntegrations />
-          </Suspense>
+          <DoctorCalendarIntegrations />
         )
       case "mfa-settings":
         return (
-          <Suspense fallback={<LoadingFallback />}>
-            {isAdmin ? <AdminMFASettingsPage onPageChange={navigateToPage} /> : <DoctorAppointmentPage />}
-          </Suspense>
+          isAdmin ? <AdminMFASettingsPage onPageChange={navigateToPage} /> : <DoctorAppointmentPage />
         )
       default:
         return (
-          <Suspense fallback={<LoadingFallback />}>
-            {isAdmin ? <AdminAppointmentPage /> : <DoctorAppointmentPage />}
-          </Suspense>
+          <NotFoundPage onPageChange={navigateToPage} userType={userType as 'admin' | 'doctor'} />
         )
     }
   }
 
-  // Show loading while checking authentication
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <div className="text-lg">Loading...</div>
-        </div>
-      </div>
-    )
-  }
+
 
   // Show login page if not authenticated
   if (!isAuthenticated) {
     return (
-      <Suspense fallback={
-        <div className="flex items-center justify-center h-screen">
-          <div className="">Loading...</div>
-        </div>
-      }>
-        <LoginPage onLogin={handleLogin} />
-      </Suspense>
+    <LoginPage onLogin={handleLogin} />
     )
   }
 

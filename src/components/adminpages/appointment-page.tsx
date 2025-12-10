@@ -82,6 +82,14 @@ export function AppointmentPage() {
         console.log('✅ Loaded appointments:', appointmentsData.length)
       } catch (err) {
         console.error('Failed to fetch data:', err)
+
+        // Check if it's a 401 (token expired) error and handle logout
+        if (err && typeof err === 'object' && 'status' in err && err.status === 401) {
+          console.log('🔐 Token expired, logging out user...')
+          AuthStorage.clearAll()
+          return // Don't show error, logout will redirect to login
+        }
+
         setError(getErrorMessage(err))
         setAppointments([])
       } finally {
@@ -184,7 +192,7 @@ export function AppointmentPage() {
           <table className="w-full text-sm">
             <thead className="sticky top-0 z-10 bg-card">
               <tr className="border-b-2 border-muted/90 bg-muted/10">
-                <th className="text-left font-medium py-3 px-4">Date & Time</th>
+                <th className="text-left font-medium py-3 px-4">Date</th>
                 <th className="text-left font-medium py-3 px-4">Patient</th>
                 <th className="text-left font-medium py-3 px-4">Doctor</th>
                 <th className="text-left font-medium py-3 px-4">Department</th>
@@ -214,12 +222,12 @@ export function AppointmentPage() {
                         <div className="font-medium text-sm">
                           {formatDateUS(new Date(appointment.appointment_time))}
                         </div>
-                        <div className="text-xs text-muted-foreground">
+                        {/* <div className="text-xs text-muted-foreground">
                           {new Date(appointment.appointment_time).toLocaleTimeString([], {
                             hour: '2-digit',
                             minute: '2-digit'
                           })}
-                        </div>
+                        </div> */}
                       </div>
                     </td>
                     <td className="py-3 px-4">
@@ -227,7 +235,7 @@ export function AppointmentPage() {
                         <IconUserCircle className="w-5 h-5 text-muted-foreground" />
                         <div>
                           <div className="font-medium text-sm">{appointment.patient_name}</div>
-                          <div className="text-xs text-muted-foreground">ID: {appointment.patient_id}</div>
+                          {/* <div className="text-xs text-muted-foreground">ID: {appointment.patient_id}</div> */}
                         </div>
                       </div>
                     </td>

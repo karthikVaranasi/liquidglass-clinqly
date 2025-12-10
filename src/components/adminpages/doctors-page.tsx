@@ -7,6 +7,7 @@ import { AdminAppointmentsAPI } from "@/api/admin/appointments"
 import { AuthAPI, AuthStorage } from "@/api/auth"
 import { useCounts } from "@/contexts/counts-context"
 import { getErrorMessage } from "@/lib/errors"
+import { getCurrentDateInLocal } from "@/lib/date"
 
 // Doctor Appointments Modal Component
 function DoctorAppointmentsModal({ doctor, onClose }: { doctor: any, onClose: () => void }) {
@@ -26,7 +27,7 @@ function DoctorAppointmentsModal({ doctor, onClose }: { doctor: any, onClose: ()
 
   // Set current date as default on component mount
   useEffect(() => {
-    const today = new Date()
+    const today = getCurrentDateInLocal()
     setSelectedDate(today.getDate())
     setCurrentMonth(today.getMonth() + 1)
     setCurrentYear(today.getFullYear())
@@ -56,6 +57,14 @@ function DoctorAppointmentsModal({ doctor, onClose }: { doctor: any, onClose: ()
         setAppointments(appointmentsArray)
       } catch (err) {
         console.error('Failed to fetch doctor appointments:', err)
+
+        // Check if it's a 401 (token expired) error and handle logout
+        if (err && typeof err === 'object' && 'status' in err && err.status === 401) {
+          console.log('🔐 Token expired, logging out user...')
+          AuthStorage.clearAll()
+          return // Don't show error, logout will redirect to login
+        }
+
         setError(getErrorMessage(err))
         setAppointments([])
       } finally {
@@ -86,7 +95,7 @@ function DoctorAppointmentsModal({ doctor, onClose }: { doctor: any, onClose: ()
     }
 
     // Current month days
-    const today = new Date()
+    const today = getCurrentDateInLocal()
     const isCurrentMonth = month === today.getMonth() + 1 && year === today.getFullYear()
 
     for (let date = 1; date <= daysInMonth; date++) {
@@ -390,6 +399,14 @@ export function DoctorsPage({ pageParams }: DoctorsPageProps) {
         setDoctorsCount(doctorsResponse.length)
       } catch (err) {
         console.error('Error fetching doctors data:', err)
+
+        // Check if it's a 401 (token expired) error and handle logout
+        if (err && typeof err === 'object' && 'status' in err && err.status === 401) {
+          console.log('🔐 Token expired, logging out user...')
+          AuthStorage.clearAll()
+          return // Don't show error, logout will redirect to login
+        }
+
         setError(getErrorMessage(err))
       } finally {
         setLoading(false)

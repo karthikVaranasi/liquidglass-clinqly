@@ -3,7 +3,7 @@ import { IconArrowLeft, IconUserCircle, IconFilter } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { DatePicker } from "@/components/ui/date-picker"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { formatDateUS, formatDateUSShort } from "@/lib/date"
+import { formatDateUS, formatDateUSShort, getCurrentDateInLocal } from "@/lib/date"
 import { AdminPatientsAPI, AdminClinicsAPI } from "@/api/admin"
 import type { Patient, Guardian } from "@/api/shared/types"
 
@@ -88,9 +88,51 @@ export function PatientsPage() {
     }
   }, [selectedClinicId, allPatients])
 
-  // Helper function to filter name input - only allow letters, spaces, hyphens, and apostrophes
-  const filterNameInput = (value: string): string => {
-    return value.replace(/[^a-zA-Z\s'-]/g, '')
+  // Helper function to validate name input with user-friendly error messages
+  const validateNameInput = (value: string): { value: string; error: string } => {
+    let error = ''
+    let filtered = value
+
+    // Check for invalid characters first
+    const originalLength = value.length
+    filtered = value.replace(/[^a-zA-Z\s'-]/g, '')
+    const hasInvalidChars = filtered.length < originalLength
+
+    if (hasInvalidChars && value.length > 0) {
+      error = 'Only letters, spaces, hyphens, and apostrophes are allowed'
+    }
+
+    // Limit total length to 15 characters (reasonable for names)
+    if (filtered.length > 15) {
+      filtered = filtered.substring(0, 15)
+      error = error || 'Name must be 15 characters or less'
+    }
+
+    // Check for excessive repeating characters before limiting them
+    const hasExcessiveRepeats = /(.)\1{3,}/.test(filtered)
+    if (hasExcessiveRepeats) {
+      error = error || 'Please avoid repeating the same letter more than 3 times'
+    }
+
+    // Prevent excessive repeating of the same character (more than 3 in a row)
+    filtered = filtered.replace(/(.)\1{3,}/g, '$1$1$1')
+
+    // Remove leading/trailing spaces and multiple consecutive spaces
+    filtered = filtered.trim().replace(/\s+/g, ' ')
+
+    // Ensure at least one letter and not just special characters
+    if (filtered.length > 0 && !/[a-zA-Z]/.test(filtered)) {
+      error = 'Name must contain at least one letter'
+      filtered = ''
+    }
+
+    // Prevent names that are just single repeated letters (like "aaaaa")
+    if (filtered.length >= 3 && /^(.)\1+$/.test(filtered.replace(/\s/g, ''))) {
+      error = error || 'Please enter a proper name, not repeated letters'
+      filtered = ''
+    }
+
+    return { value: filtered, error }
   }
   
   // Form state for adding patient
@@ -102,9 +144,18 @@ export function PatientsPage() {
     phoneNumber: ''
   })
 
+  // Form validation errors
+  const [formErrors, setFormErrors] = useState({
+    firstName: '',
+    middleName: '',
+    lastName: '',
+    dob: '',
+    phoneNumber: ''
+  })
+
   const calculateAge = (dob: string) => {
     const birthDate = new Date(dob)
-    const today = new Date()
+    const today = getCurrentDateInLocal()
     let age = today.getFullYear() - birthDate.getFullYear()
     const monthDiff = today.getMonth() - birthDate.getMonth()
 
@@ -431,13 +482,13 @@ export function PatientsPage() {
 
           {!error && (
             <div className="overflow-x-auto max-h-[78vh] overflow-y-auto bg-card rounded-lg">
-              <table className="w-full text-sm">
+              <table className="w-full text-sm table-fixed">
                 <thead className="sticky top-0 z-10 bg-card">
                   <tr className="border-b-2 border-muted/90 bg-muted/10">
-                    <th className="text-left font-medium py-3 px-2">Patient Name</th>
-                    <th className="text-left font-medium py-3 px-2">Date of Birth</th>
-                    <th className="text-left font-medium py-3 px-2">Phone Number</th>
-                    <th className="text-left font-medium py-3 px-2">Actions</th>
+                    <th className="text-left font-medium py-3 px-4 w-1/4">Patient Name</th>
+                    <th className="text-left font-medium py-3 px-4 w-1/4">Date of Birth</th>
+                    <th className="text-left font-medium py-3 px-4 w-1/4">Phone Number</th>
+                    <th className="text-left font-medium py-3 px-4 w-1/4">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y-2 divide-muted/90">
@@ -456,15 +507,15 @@ export function PatientsPage() {
                   ) : (
                     filteredPatients.map((patient) => (
                       <tr key={patient.id} className="hover:bg-muted/30 transition-colors">
-                        <td className="py-3 px-2">
-                          <div className="flex items-center gap-1">
-                            <IconUserCircle className="w-5 h-5" />
-                            <span className="font-medium text-sm">{`${patient.first_name} ${patient.last_name}`}</span>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-2">
+                            <IconUserCircle className="w-5 h-5 flex-shrink-0" />
+                            <span className="font-medium text-sm truncate">{`${patient.first_name} ${patient.last_name}`}</span>
                           </div>
                         </td>
-                        <td className="py-3 px-2 text-sm">{formatDate(patient.dob)}</td>
-                        <td className="py-3 px-2 text-sm">{patient.phone_number}</td>
-                        <td className="py-3 px-2">
+                        <td className="py-3 px-4 text-sm">{formatDate(patient.dob)}</td>
+                        <td className="py-3 px-4 text-sm">{patient.phone_number}</td>
+                        <td className="py-3 px-4">
                           <Button
                             onClick={() => handleViewProfile(patient)}
                             className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
@@ -495,6 +546,13 @@ export function PatientsPage() {
               dob: '',
               phoneNumber: ''
             })
+            setFormErrors({
+              firstName: '',
+              middleName: '',
+              lastName: '',
+              dob: '',
+              phoneNumber: ''
+            })
           }}
         >
           <div
@@ -508,6 +566,13 @@ export function PatientsPage() {
                   onClick={() => {
                     setShowAddForm(false)
                     setFormData({
+                      firstName: '',
+                      middleName: '',
+                      lastName: '',
+                      dob: '',
+                      phoneNumber: ''
+                    })
+                    setFormErrors({
                       firstName: '',
                       middleName: '',
                       lastName: '',
@@ -533,12 +598,16 @@ export function PatientsPage() {
                       placeholder="Enter first name"
                       value={formData.firstName}
                       onChange={(e) => {
-                        const filteredValue = filterNameInput(e.target.value)
-                        setFormData({ ...formData, firstName: filteredValue })
+                        const { value, error } = validateNameInput(e.target.value)
+                        setFormData({ ...formData, firstName: value })
+                        setFormErrors({ ...formErrors, firstName: error })
                       }}
-                      className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                      className={`w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent ${formErrors.firstName ? 'ring-2 ring-red-500' : ''}`}
                       required
                     />
+                    {formErrors.firstName && (
+                      <p className="text-red-500 text-xs mt-1">{formErrors.firstName}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-xs font-medium uppercase tracking-wide mb-2">
@@ -549,11 +618,15 @@ export function PatientsPage() {
                       placeholder="Enter middle name"
                       value={formData.middleName}
                       onChange={(e) => {
-                        const filteredValue = filterNameInput(e.target.value)
-                        setFormData({ ...formData, middleName: filteredValue })
+                        const { value, error } = validateNameInput(e.target.value)
+                        setFormData({ ...formData, middleName: value })
+                        setFormErrors({ ...formErrors, middleName: error })
                       }}
-                      className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                      className={`w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent ${formErrors.middleName ? 'ring-2 ring-red-500' : ''}`}
                     />
+                    {formErrors.middleName && (
+                      <p className="text-red-500 text-xs mt-1">{formErrors.middleName}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-xs font-medium uppercase tracking-wide mb-2">
@@ -564,12 +637,16 @@ export function PatientsPage() {
                       placeholder="Enter last name"
                       value={formData.lastName}
                       onChange={(e) => {
-                        const filteredValue = filterNameInput(e.target.value)
-                        setFormData({ ...formData, lastName: filteredValue })
+                        const { value, error } = validateNameInput(e.target.value)
+                        setFormData({ ...formData, lastName: value })
+                        setFormErrors({ ...formErrors, lastName: error })
                       }}
-                      className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                      className={`w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent ${formErrors.lastName ? 'ring-2 ring-red-500' : ''}`}
                       required
                     />
+                    {formErrors.lastName && (
+                      <p className="text-red-500 text-xs mt-1">{formErrors.lastName}</p>
+                    )}
                   </div>
                 </div>
 

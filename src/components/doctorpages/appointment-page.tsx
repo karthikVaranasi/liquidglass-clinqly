@@ -4,7 +4,7 @@ import { IconChevronLeft, IconChevronRight, IconCalendar, IconUserCircle } from 
 import { Button } from "@/components/ui/button"
 import { AuthStorage } from "@/api/auth"
 import { DoctorAppointmentsAPI } from "@/api/doctor"
-import { formatDateUS } from "@/lib/date"
+import { formatDateUS, getCurrentDateInNY, getCurrentDateStringInNY } from "@/lib/date"
 import { getErrorMessage } from "@/lib/errors"
 
 
@@ -54,7 +54,7 @@ export function AppointmentPage() {
     }
 
     // Current month days
-    const today = new Date()
+    const today = getCurrentDateInNY()
     const isCurrentMonth = month === today.getMonth() + 1 && year === today.getFullYear()
 
     for (let date = 1; date <= daysInMonth; date++) {
@@ -108,7 +108,7 @@ export function AppointmentPage() {
 
   // Set today's date as default on component mount
   useEffect(() => {
-    const today = new Date()
+    const today = getCurrentDateInNY()
     setSelectedDate(today.getDate())
     setCurrentMonth(today.getMonth() + 1)
     setCurrentYear(today.getFullYear())
@@ -153,6 +153,14 @@ export function AppointmentPage() {
         console.log('✅ Set appointments to:', appointmentsArray.length, 'items')
       } catch (err) {
         console.error('Failed to fetch appointments:', err)
+
+        // Check if it's a 401 (token expired) error and handle logout
+        if (err && typeof err === 'object' && 'status' in err && err.status === 401) {
+          console.log('🔐 Token expired, logging out user...')
+          AuthStorage.clearAll()
+          return // Don't show error, logout will redirect to login
+        }
+
         setError(getErrorMessage(err))
         setAppointments([]) // Ensure we set an empty array on error
       } finally {
@@ -190,8 +198,7 @@ export function AppointmentPage() {
   }
 
   const getTodaysAppointments = () => {
-    const today = new Date()
-    const todayStr = today.toISOString().split('T')[0] // YYYY-MM-DD format
+    const todayStr = getCurrentDateStringInNY() // YYYY-MM-DD format in NY timezone
     const todays = Array.isArray(appointments) ? appointments.filter(apt => {
       const aptDate = new Date(apt.appointment_time).toISOString().split('T')[0]
       return aptDate === todayStr
@@ -211,7 +218,7 @@ export function AppointmentPage() {
 
   const isSelectedDatePast = () => {
     if (!selectedDate) return false
-    const today = new Date()
+    const today = getCurrentDateInNY()
     today.setHours(0, 0, 0, 0)
     const selectedDateObj = new Date(currentYear, currentMonth - 1, selectedDate)
     selectedDateObj.setHours(0, 0, 0, 0)
@@ -261,28 +268,27 @@ export function AppointmentPage() {
     <div
       className="space-y-6 px-4 lg:px-6 relative"
     >
-      {/* Welcome Message */}
-      <div
-        className="text-left py-2"
-      >
-        <h1
-          className="text-2xl md:text-3xl font-bold text-foreground mb-1"
-        >
-          Welcome, {(() => {
-            const userData = AuthStorage.getUserData()
-            if (userData) {
-              const name = userData.name || `${userData.first_name || ''} ${userData.last_name || ''}`.trim()
-              const title = userData.department ? `Dr. ${name}` : name
-              return title || 'User'
-            }
-            return 'User'
-          })()}
-        </h1>
+      {/* Welcome Banner */}
+      <div className="">
+        <span className="text-base sm:text-lg font-regular text-gray-800">
+          Welcome,{" "}
+          <span className="text-black-600 font-bold">
+            {(() => {
+              const userData = AuthStorage.getUserData()
+              if (userData) {
+                const name = userData.name || `${userData.first_name || ''} ${userData.last_name || ''}`.trim()
+                const title = userData.department ? `Dr. ${name}` : name
+                return title || 'User'
+              }
+              return 'User'
+            })()}
+          </span>
+        </span>
       </div>
 
       {/* Today's Appointments Section */}
       <div
-        className="-mt-2 space-y-4"
+        className="-mt-1 space-y-4"
       >
         <div className="flex items-center gap-2">
           <div

@@ -171,7 +171,7 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
       <div className="flex items-center justify-center h-full min-h-[400px]">
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <div className="text-lg">Loading dashboard...</div>
+          <div className="text-lg">Loading analytics...</div>
         </div>
       </div>
     )
@@ -181,7 +181,7 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
     return (
       <div className="flex items-center justify-center h-full min-h-[400px]">
         <div className="text-center">
-          <div className="text-red-500 mb-4">Error loading dashboard</div>
+          <div className="text-red-500 mb-4">Error loading analytics</div>
           <div className="text-sm text-gray-600">{error}</div>
         </div>
       </div>

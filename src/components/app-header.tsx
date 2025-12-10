@@ -45,7 +45,7 @@ export function AppHeader({ currentPage, userType = 'doctor', doctorsCount, user
   // Map page keys to display names with counts
   const getPageTitle = (page: string) => {
     const navItem = navItems.find(item => item.page === page)
-    if (!navItem) return userType === 'admin' ? "EZ MedTech" : app.name
+    if (!navItem) return userType === 'admin' ? "EzMedTech" : app.name
 
     let title = navItem.title
 
@@ -88,7 +88,7 @@ export function AppHeader({ currentPage, userType = 'doctor', doctorsCount, user
         <div className="flex items-center gap-2">
           <SidebarTrigger className="-ml-1" />
           <span className="text-lg font-semibold">
-            {currentPage ? getPageTitle(currentPage) : (userType === 'admin' ? "EZ MedTech" : app.name)}
+            {currentPage ? getPageTitle(currentPage) : (userType === 'admin' ? "EzMedTech" : app.name)}
           </span>
         </div>
         <div className="flex items-center gap-4">
@@ -96,7 +96,7 @@ export function AppHeader({ currentPage, userType = 'doctor', doctorsCount, user
           <div className="flex items-center gap-2">
             <img
               src="/logo.svg"
-              alt={userType === 'admin' ? "EZ MedTech Logo" : "EzMedTech Logo"}
+              alt={userType === 'admin' ? "EzMedTech Logo" : "EzMedTech Logo"}
               className="w-6 h-6 object-contain"
             />
             <div className="flex flex-col">
@@ -104,7 +104,7 @@ export function AppHeader({ currentPage, userType = 'doctor', doctorsCount, user
                 Powered by
               </span>
               <span className="text-sm font-semibold text-foreground leading-tight">
-                {userType === 'admin' ? 'EZ MedTech' : 'EzMedTech'}
+                {userType === 'admin' ? 'EzMedTech' : 'EzMedTech'}
               </span>
             </div>
           </div>

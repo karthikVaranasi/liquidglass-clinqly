@@ -86,7 +86,7 @@ export function NavUser({
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{user.name}</span>
-                  <span className="truncate text-xs flex items-center gap-1">
+                  <span className="truncate text-xs flex items-center gap-1" style={{ textTransform: 'none' }}>
                     <IconMail className="w-3 h-3" />
                     {user.email}
                   </span>

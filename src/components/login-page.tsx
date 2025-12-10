@@ -77,10 +77,6 @@ export function LoginPage({ onLogin }: LoginPageProps) {
     }
   }
 
-  const handleForgotPassword = () => {
-    // Handle forgot password logic
-    console.log('Forgot password clicked')
-  }
 
 
   return (
@@ -227,13 +223,9 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                     Remember me
                   </Label>
                 </div>
-                <Button
-                  variant="link"
-                  className="p-0 h-auto text-sm cursor-pointer"
-                  onClick={handleForgotPassword}
-                >
+                <span className="text-sm text-muted-foreground cursor-pointer">
                   Forgot password?
-                </Button>
+                </span>
               </div>
 
               {/* Login Button */}

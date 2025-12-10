@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { IconArrowLeft, IconUserCircle, IconLoader2 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { DatePicker } from "@/components/ui/date-picker"
-import { formatDateUS, formatDateUSShort } from "@/lib/date"
+import { formatDateUS, formatDateUSShort, getCurrentDateInLocal, getCurrentDateStringInLocal } from "@/lib/date"
 import { getErrorMessage } from "@/lib/errors"
 import { AuthStorage } from "@/api/auth"
 import { DoctorPatientsAPI, DoctorAppointmentsAPI } from "@/api/doctor"
@@ -51,8 +51,50 @@ export function PatientsPage() {
   const [viewMode, setViewMode] = useState<'table' | 'profile'>('table')
 
   // Helper function to filter name input - only allow letters, spaces, hyphens, and apostrophes
-  const filterNameInput = (value: string): string => {
-    return value.replace(/[^a-zA-Z\s'-]/g, '')
+  const validateNameInput = (value: string): { value: string; error: string } => {
+    let error = ''
+    let filtered = value
+
+    // Check for invalid characters first
+    const originalLength = value.length
+    filtered = value.replace(/[^a-zA-Z\s'-]/g, '')
+    const hasInvalidChars = filtered.length < originalLength
+
+    if (hasInvalidChars && value.length > 0) {
+      error = 'Only letters, spaces, hyphens, and apostrophes are allowed'
+    }
+
+    // Limit total length to 15 characters (reasonable for names)
+    if (filtered.length > 15) {
+      filtered = filtered.substring(0, 15)
+      error = error || 'Name must be 15 characters or less'
+    }
+
+    // Check for excessive repeating characters before limiting them
+    const hasExcessiveRepeats = /(.)\1{3,}/.test(filtered)
+    if (hasExcessiveRepeats) {
+      error = error || 'Please avoid repeating the same letter more than 3 times'
+    }
+
+    // Prevent excessive repeating of the same character (more than 3 in a row)
+    filtered = filtered.replace(/(.)\1{3,}/g, '$1$1$1')
+
+    // Remove leading/trailing spaces and multiple consecutive spaces
+    filtered = filtered.trim().replace(/\s+/g, ' ')
+
+    // Ensure at least one letter and not just special characters
+    if (filtered.length > 0 && !/[a-zA-Z]/.test(filtered)) {
+      error = 'Name must contain at least one letter'
+      filtered = ''
+    }
+
+    // Prevent names that are just single repeated letters (like "aaaaa")
+    if (filtered.length >= 3 && /^(.)\1+$/.test(filtered.replace(/\s/g, ''))) {
+      error = error || 'Please enter a proper name, not repeated letters'
+      filtered = ''
+    }
+
+    return { value: filtered, error }
   }
 
   // Form state for adding patient
@@ -69,6 +111,21 @@ export function PatientsPage() {
     guardianDob: '',
     guardianRelationship: ''
   })
+
+  // Form validation errors
+  const [formErrors, setFormErrors] = useState({
+    firstName: '',
+    middleName: '',
+    lastName: '',
+    dob: '',
+    phoneNumber: '',
+    guardianFirstName: '',
+    guardianMiddleName: '',
+    guardianLastName: '',
+    guardianDob: '',
+    guardianRelationship: ''
+  })
+
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
@@ -135,12 +192,12 @@ export function PatientsPage() {
 
   // Doctors see all patients from their clinic
   useEffect(() => {
-    setFilteredPatients(allPatients)
+      setFilteredPatients(allPatients)
   }, [allPatients])
 
   // Transform appointment data from API format to display format
   const transformAppointments = (appointments: any[]): { upcoming: any[], past: any[] } => {
-    const today = new Date()
+    const today = getCurrentDateInLocal()
     today.setHours(0, 0, 0, 0)
 
     const upcoming: any[] = []
@@ -369,9 +426,9 @@ export function PatientsPage() {
           let slots = [...morningSlots, ...afternoonSlots]
 
           // If selected date is today, only show future time slots
-          const todayStr = new Date().toISOString().split('T')[0]
+          const todayStr = getCurrentDateStringInLocal()
           if (date === todayStr) {
-            const now = new Date()
+            const now = getCurrentDateInLocal()
             const nowMinutes = now.getHours() * 60 + now.getMinutes()
             const parseSlotToMinutes = (slot: string) => {
               const timeParts = slot.trim().split(' ')
@@ -645,7 +702,7 @@ export function PatientsPage() {
 
   const calculateAge = (dob: string) => {
     const birthDate = new Date(dob)
-    const today = new Date()
+    const today = getCurrentDateInLocal()
     let age = today.getFullYear() - birthDate.getFullYear()
     const monthDiff = today.getMonth() - birthDate.getMonth()
 
@@ -1329,9 +1386,9 @@ export function PatientsPage() {
         <div className="px-4 lg:px-6">
           {/* Header with title, filter and Add Patient button */}
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold">
-              Patients {loading ? '' : `(${filteredPatients.length})`}
-            </h2>
+              <h2 className="text-lg font-semibold">
+                Patients {loading ? '' : `(${filteredPatients.length})`}
+              </h2>
             <Button
               onClick={() => setShowAddForm(true)}
               className="w-full text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 max-w-[160px]"
@@ -1359,29 +1416,29 @@ export function PatientsPage() {
             <div className="neumorphic-inset rounded-lg p-4 border-0">
               <div className="overflow-x-auto max-h-[78vh] overflow-y-auto bg-card rounded-lg">
                 {filteredPatients.length > 0 ? (
-                  <table className="w-full text-sm">
+                  <table className="w-full text-sm table-fixed">
                     <thead className="sticky top-0 z-10 bg-card">
                       <tr className="border-b-2 border-muted/90 bg-muted/10">
-                        <th className="text-left font-medium py-3 px-2">Patient ID</th>
-                        <th className="text-left font-medium py-3 px-2">Patient Name</th>
-                        <th className="text-left font-medium py-3 px-2">DOB</th>
-                        <th className="text-left font-medium py-3 px-2">Contact</th>
-                        <th className="text-left font-medium py-3 px-2">Actions</th>
+                        {/* <th className="text-left font-medium py-3 px-4 w-1/5">Patient ID</th> */}
+                        <th className="text-left font-medium py-3 px-4 w-1/5">Patient Name</th>
+                        <th className="text-left font-medium py-3 px-4 w-1/5">DOB</th>
+                        <th className="text-left font-medium py-3 px-4 w-1/5">Contact</th>
+                        <th className="text-left font-medium py-3 px-4 w-1/5">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y-2 divide-muted/90">
                       {filteredPatients.map((patient) => (
                         <tr key={patient.id} className="hover:bg-muted/30 transition-colors">
-                          <td className="py-3 px-2 font-medium text-sm">{patient.id}</td>
-                          <td className="py-3 px-2">
-                            <div className="flex items-center gap-1">
-                              <IconUserCircle className="w-5 h-5" />
-                              <span className="font-medium text-sm">{`${patient.first_name} ${patient.last_name}`}</span>
+                          {/* <td className="py-3 px-4 font-medium text-sm">{patient.id}</td> */}
+                          <td className="py-3 px-4">
+                            <div className="flex items-center gap-2">
+                              <IconUserCircle className="w-5 h-5 flex-shrink-0" />
+                              <span className="font-medium text-sm truncate">{`${patient.first_name} ${patient.last_name}`}</span>
                             </div>
                           </td>
-                          <td className="py-3 px-2 text-sm">{formatDate(patient.dob)}</td>
-                          <td className="py-3 px-2 text-sm">{patient.phone_number}</td>
-                          <td className="py-3 px-2">
+                          <td className="py-3 px-4 text-sm">{formatDate(patient.dob)}</td>
+                          <td className="py-3 px-4 text-sm">{patient.phone_number}</td>
+                          <td className="py-3 px-4">
                             <Button
                               onClick={() => handleViewProfile(patient)}
                               className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
@@ -1423,6 +1480,18 @@ export function PatientsPage() {
                   guardianDob: '',
                   guardianRelationship: ''
                 })
+                setFormErrors({
+                  firstName: '',
+                  middleName: '',
+                  lastName: '',
+                  dob: '',
+                  phoneNumber: '',
+                  guardianFirstName: '',
+                  guardianMiddleName: '',
+                  guardianLastName: '',
+                  guardianDob: '',
+                  guardianRelationship: ''
+                })
               }
             }}
           >
@@ -1438,6 +1507,18 @@ export function PatientsPage() {
                       setShowAddForm(false)
                       setSubmitError(null)
                       setFormData({
+                        firstName: '',
+                        middleName: '',
+                        lastName: '',
+                        dob: '',
+                        phoneNumber: '',
+                        guardianFirstName: '',
+                        guardianMiddleName: '',
+                        guardianLastName: '',
+                        guardianDob: '',
+                        guardianRelationship: ''
+                      })
+                      setFormErrors({
                         firstName: '',
                         middleName: '',
                         lastName: '',
@@ -1475,13 +1556,17 @@ export function PatientsPage() {
                         placeholder="Enter first name"
                         value={formData.firstName}
                         onChange={(e) => {
-                          const filteredValue = filterNameInput(e.target.value)
-                          setFormData({ ...formData, firstName: filteredValue })
+                          const { value, error } = validateNameInput(e.target.value)
+                          setFormData({ ...formData, firstName: value })
+                          setFormErrors({ ...formErrors, firstName: error })
                         }}
-                        className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                        className={`w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent ${formErrors.firstName ? 'ring-2 ring-red-500' : ''}`}
                         required
                         disabled={submitting}
                       />
+                      {formErrors.firstName && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.firstName}</p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-xs font-medium uppercase tracking-wide mb-2">
@@ -1492,12 +1577,16 @@ export function PatientsPage() {
                         placeholder="Enter middle name"
                         value={formData.middleName}
                         onChange={(e) => {
-                          const filteredValue = filterNameInput(e.target.value)
-                          setFormData({ ...formData, middleName: filteredValue })
+                          const { value, error } = validateNameInput(e.target.value)
+                          setFormData({ ...formData, middleName: value })
+                          setFormErrors({ ...formErrors, middleName: error })
                         }}
-                        className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                        className={`w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent ${formErrors.middleName ? 'ring-2 ring-red-500' : ''}`}
                         disabled={submitting}
                       />
+                      {formErrors.middleName && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.middleName}</p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-xs font-medium uppercase tracking-wide mb-2">
@@ -1508,13 +1597,17 @@ export function PatientsPage() {
                         placeholder="Enter last name"
                         value={formData.lastName}
                         onChange={(e) => {
-                          const filteredValue = filterNameInput(e.target.value)
-                          setFormData({ ...formData, lastName: filteredValue })
+                          const { value, error } = validateNameInput(e.target.value)
+                          setFormData({ ...formData, lastName: value })
+                          setFormErrors({ ...formErrors, lastName: error })
                         }}
-                        className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                        className={`w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent ${formErrors.lastName ? 'ring-2 ring-red-500' : ''}`}
                         required
                         disabled={submitting}
                       />
+                      {formErrors.lastName && (
+                        <p className="text-red-500 text-xs mt-1">{formErrors.lastName}</p>
+                      )}
                     </div>
                   </div>
 
@@ -1586,13 +1679,17 @@ export function PatientsPage() {
                             placeholder="Enter guardian first name"
                             value={formData.guardianFirstName}
                             onChange={(e) => {
-                              const filteredValue = filterNameInput(e.target.value)
-                              setFormData({ ...formData, guardianFirstName: filteredValue })
+                              const { value, error } = validateNameInput(e.target.value)
+                              setFormData({ ...formData, guardianFirstName: value })
+                              setFormErrors({ ...formErrors, guardianFirstName: error })
                             }}
-                            className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                            className={`w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent ${formErrors.guardianFirstName ? 'ring-2 ring-red-500' : ''}`}
                             required={isPatientMinor(formData.dob)}
                             disabled={submitting}
                           />
+                          {formErrors.guardianFirstName && (
+                            <p className="text-red-500 text-xs mt-1">{formErrors.guardianFirstName}</p>
+                          )}
                         </div>
                         <div>
                           <label className="block text-xs font-medium uppercase tracking-wide mb-1">
@@ -1603,12 +1700,16 @@ export function PatientsPage() {
                             placeholder="Enter guardian middle name"
                             value={formData.guardianMiddleName}
                             onChange={(e) => {
-                              const filteredValue = filterNameInput(e.target.value)
-                              setFormData({ ...formData, guardianMiddleName: filteredValue })
+                              const { value, error } = validateNameInput(e.target.value)
+                              setFormData({ ...formData, guardianMiddleName: value })
+                              setFormErrors({ ...formErrors, guardianMiddleName: error })
                             }}
-                            className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                            className={`w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent ${formErrors.guardianMiddleName ? 'ring-2 ring-red-500' : ''}`}
                             disabled={submitting}
                           />
+                          {formErrors.guardianMiddleName && (
+                            <p className="text-red-500 text-xs mt-1">{formErrors.guardianMiddleName}</p>
+                          )}
                         </div>
                         <div>
                           <label className="block text-xs font-medium uppercase tracking-wide mb-1">
@@ -1619,13 +1720,17 @@ export function PatientsPage() {
                             placeholder="Enter guardian last name"
                             value={formData.guardianLastName}
                             onChange={(e) => {
-                              const filteredValue = filterNameInput(e.target.value)
-                              setFormData({ ...formData, guardianLastName: filteredValue })
+                              const { value, error } = validateNameInput(e.target.value)
+                              setFormData({ ...formData, guardianLastName: value })
+                              setFormErrors({ ...formErrors, guardianLastName: error })
                             }}
-                            className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                            className={`w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent ${formErrors.guardianLastName ? 'ring-2 ring-red-500' : ''}`}
                             required={isPatientMinor(formData.dob)}
                             disabled={submitting}
                           />
+                          {formErrors.guardianLastName && (
+                            <p className="text-red-500 text-xs mt-1">{formErrors.guardianLastName}</p>
+                          )}
                         </div>
                       </div>
 
@@ -1679,6 +1784,18 @@ export function PatientsPage() {
                         setShowAddForm(false)
                         setSubmitError(null)
                         setFormData({
+                          firstName: '',
+                          middleName: '',
+                          lastName: '',
+                          dob: '',
+                          phoneNumber: '',
+                          guardianFirstName: '',
+                          guardianMiddleName: '',
+                          guardianLastName: '',
+                          guardianDob: '',
+                          guardianRelationship: ''
+                        })
+                        setFormErrors({
                           firstName: '',
                           middleName: '',
                           lastName: '',

@@ -293,9 +293,9 @@ export function AppointmentPage() {
     >
       {/* Welcome Banner */}
       <div className="">
-        <span className="text-base sm:text-lg font-regular text-gray-800">
+        <span className="text-base sm:text-lg font-regular">
           Welcome,{" "}
-          <span className="text-black-600 font-bold">
+          <span className="font-bold">
             {(() => {
               const userData = AuthStorage.getUserData()
               if (userData) {
@@ -341,7 +341,7 @@ export function AppointmentPage() {
                     <div className="w-px h-6 bg-muted/50" />
                     <div className="flex-1">
                       <span className="font-medium text-sm">{apt.patient_name}</span>
-                      <p className="text-xs font-medium">Patient ID: {apt.patient_id}</p>
+                      {/* <p className="text-xs font-medium">Patient ID: {apt.patient_id}</p> */}
                       <p className="text-xs font-medium">{apt.doctor_name}</p>
                     </div>
                   </div>

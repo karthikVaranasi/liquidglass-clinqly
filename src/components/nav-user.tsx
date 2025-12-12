@@ -62,9 +62,9 @@ export function NavUser({
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
+                <span className="truncate font-medium">{userType === 'doctor' ? `Dr. ${user.name}` : user.name}</span>
                 <span className="truncate text-xs">
-                  {user.role || user.email}
+                  {user.role?.replace(/^Dr\.\s*/i, '') || user.email}
                 </span>
               </div>
               <IconDotsVertical className="ml-auto size-4" />
@@ -85,7 +85,7 @@ export function NavUser({
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
+                  <span className="truncate font-medium">{userType === 'doctor' ? `Dr. ${user.name}` : user.name}</span>
                   <span className="truncate text-xs flex items-center gap-1" style={{ textTransform: 'none' }}>
                     <IconMail className="w-3 h-3" />
                     {user.email}
@@ -93,7 +93,7 @@ export function NavUser({
                   {user.role && (
                     <span className="truncate text-xs flex items-center gap-1">
                       <IconStethoscope className="w-3 h-3" />
-                      {user.role}
+                      {user.role.replace(/^Dr\.\s*/i, '')}
                     </span>
                   )}
                   {user.phone && (

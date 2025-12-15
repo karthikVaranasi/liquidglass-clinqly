@@ -29,3 +29,4 @@ sampleapi/
 samplecode/
 
 .env
+.env.example

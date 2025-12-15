@@ -293,7 +293,7 @@ export function AppointmentPage() {
     >
       {/* Welcome Banner */}
       <div className="">
-        <span className="text-base sm:text-lg font-regular">
+        <span className="text-base sm:text-lg font-bold">
           Welcome,{" "}
           <span className="font-bold">
             {(() => {

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import { IconArrowLeft, IconChevronRight, IconUserCircle, IconStethoscope, IconX, IconFilter } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
@@ -373,6 +374,7 @@ interface DoctorsPageProps {
 export function DoctorsPage({ pageParams }: DoctorsPageProps) {
   // Track page load time to avoid premature logout on 401 errors
   const pageLoadStartTime = Date.now()
+  const navigate = useNavigate()
 
   const { setDoctorsCount } = useCounts()
   const [selectedDoctor, setSelectedDoctor] = useState<any | null>(null)
@@ -453,15 +455,19 @@ export function DoctorsPage({ pageParams }: DoctorsPageProps) {
 
       const response = await AuthAPI.adminLoginAsDoctor({ doctor_id: doctorId })
 
-      // Update auth state
+      // Update auth state for doctor session
       AuthStorage.setToken(response.access_token)
       AuthStorage.setUserType('doctor')
       AuthStorage.setUserData(response.doctor)
-      AuthStorage.setClinicData(response.doctor.clinic)
+      if (response.doctor?.clinic) {
+        AuthStorage.setClinicData(response.doctor.clinic)
+      } else {
+        AuthStorage.setClinicData(null)
+      }
       AuthStorage.setAdminImpersonating(true)
 
-      // Redirect to doctor dashboard (refresh the page to update the app state)
-      window.location.reload()
+      // Navigate directly to doctor dashboard without a full reload
+      navigate('/doctor/appointments', { replace: true })
     } catch (error) {
       console.error('Failed to login as doctor:', error)
       const errorMessage = getToastErrorMessage(error, 'data', 'Failed to login as doctor. Please try again.')
@@ -605,7 +611,7 @@ export function DoctorsPage({ pageParams }: DoctorsPageProps) {
                     </div>
                   </td>
                   <td className="py-3 px-2">{doctor.department}</td>
-                  <td className="py-3 px-2">{doctor.email}</td>
+                  <td className="py-3 px-2" style={{ textTransform: 'none' }}>{doctor.email}</td>
                   <td className="py-3 px-2 font-medium">{getPatientCount(doctor.id)}</td>
                   <td className="py-3 px-2">
                     <div className="flex gap-2">

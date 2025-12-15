@@ -6,6 +6,7 @@ import { getToastErrorMessage } from "@/lib/errors"
 import { AuthStorage } from "@/api/auth"
 import { CalendarAPI } from "@/api/doctor"
 import type { CalendarAccount, CalendarAccountsResponse } from "@/api/doctor"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 // Google Calendar SVG Icon Component
 const GoogleCalendarIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
@@ -45,8 +46,8 @@ export function CalendarIntegrations() {
   const [isLoading, setIsLoading] = useState(true)
   const [isConnecting, setIsConnecting] = useState(false)
   const [accountsData, setAccountsData] = useState<CalendarAccountsResponse | null>(null)
-  // NOTE: settingPrimaryId is for handleSetPrimary which is commented out for now
-  // const [settingPrimaryId, setSettingPrimaryId] = useState<number | null>(null)
+  const [settingPrimaryId, setSettingPrimaryId] = useState<number | null>(null)
+  const [disconnectingId, setDisconnectingId] = useState<number | null>(null)
 
   // Get doctor ID from storage
   const userData = AuthStorage.getUserData()
@@ -95,11 +96,7 @@ export function CalendarIntegrations() {
     CalendarAPI.connectMicrosoft(doctorId)
     // Page will redirect, so no need to set isConnecting back to false
   }
-
-
-  // NOTE: handleSetPrimary function preserved for future use but commented out
-  // to prevent unused variable build errors
-  /*
+  // Set primary calendar account
   const handleSetPrimary = async (accountId: number, provider: 'google' | 'microsoft') => {
     if (!doctorId) return
 
@@ -108,16 +105,16 @@ export function CalendarIntegrations() {
     try {
       await CalendarAPI.setPrimaryAccount(doctorId, accountId, provider)
 
-      // Update local state
+      // Update local state to reflect new primary
       if (accountsData) {
-        const updatedData = { ...accountsData }
-        if (provider === 'google') {
-          updatedData.google_accounts = updatedData.google_accounts.map(a => ({
+        const updatedData: CalendarAccountsResponse = { ...accountsData }
+        if (provider === "google") {
+          updatedData.google_accounts = updatedData.google_accounts.map((a) => ({
             ...a,
             is_primary: a.id === accountId,
           }))
         } else {
-          updatedData.microsoft_accounts = updatedData.microsoft_accounts.map(a => ({
+          updatedData.microsoft_accounts = updatedData.microsoft_accounts.map((a) => ({
             ...a,
             is_primary: a.id === accountId,
           }))
@@ -128,15 +125,49 @@ export function CalendarIntegrations() {
       toast.success("Primary calendar updated")
     } catch (error) {
       console.error("Failed to set primary:", error)
-      toast.error(getToastErrorMessage(error, 'data', 'Failed to set primary calendar'))
+      toast.error(getToastErrorMessage(error, "data", "Failed to set primary calendar"))
     } finally {
       setSettingPrimaryId(null)
     }
   }
-  */
+
+  // Disconnect a calendar account
+  const handleDisconnect = async (accountId: number, provider: 'google' | 'microsoft') => {
+    if (!doctorId) return
+
+    setDisconnectingId(accountId)
+
+    try {
+      await CalendarAPI.disconnectAccount(doctorId, accountId, provider)
+
+      if (accountsData) {
+        const updatedData: CalendarAccountsResponse = { ...accountsData }
+
+        if (provider === "google") {
+          updatedData.google_accounts = updatedData.google_accounts.filter(
+            (a) => a.id !== accountId,
+          )
+        } else {
+          updatedData.microsoft_accounts = updatedData.microsoft_accounts.filter(
+            (a) => a.id !== accountId,
+          )
+        }
+
+        updatedData.total_accounts = updatedData.total_accounts - 1
+        setAccountsData(updatedData)
+      }
+
+      toast.success("Calendar account disconnected")
+    } catch (error) {
+      console.error("Failed to disconnect calendar account:", error)
+      toast.error(getToastErrorMessage(error, "data", "Failed to disconnect calendar account"))
+    } finally {
+      setDisconnectingId(null)
+    }
+  }
 
   // Render account card
-  const renderAccountCard = (account: CalendarAccount) => (
+  const renderAccountCard = (account: CalendarAccount, provider: 'google' | 'microsoft') => (
     <div key={account.id} className="flex items-center justify-between my-4 p-3 neumorphic-inset rounded-lg">
       <div className="flex items-center gap-3">
         <div>
@@ -147,12 +178,68 @@ export function CalendarIntegrations() {
         </div>
       </div>
       <div className="flex items-center gap-2">
+        {/* Primary toggle */}
+        <Button
+          size="sm"
+          disabled={settingPrimaryId === account.id}
+          onClick={() => {
+            if (!account.is_primary) {
+              handleSetPrimary(account.id, provider)
+            }
+          }}
+          className={`text-xs px-3 py-1 rounded-full neumorphic-pressed ${
+            account.is_primary ? "text-foreground" : "text-foreground"
+          }`}
+        >
+          {settingPrimaryId === account.id ? (
+            <>
+              <IconLoader2 className="w-3 h-3 mr-1 animate-spin" />
+              Updating...
+            </>
+          ) : account.is_primary ? (
+            "Primary"
+          ) : (
+            "Set primary"
+          )}
+        </Button>
 
-        {/* Status badge */}
-        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium neumorphic-inset ${account.is_valid ? 'text-green-600' : 'text-red-600'
-          }`}>
-          {account.is_valid ? 'Connected' : 'Expired'}
-        </span>
+        {/* Disconnect button */}
+        {account.is_primary ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  disabled
+                  className="text-xs px-3 py-1 rounded-full text-destructive neumorphic-pressed"
+                >
+                  Disconnect
+                </Button>
+              </span>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              Primary account cannot be disconnected
+            </TooltipContent>
+          </Tooltip>
+        ) : (
+          <Button
+            size="sm"
+            variant="ghost"
+            disabled={disconnectingId === account.id}
+            onClick={() => handleDisconnect(account.id, provider)}
+            className="text-xs px-3 py-1 rounded-full text-destructive neumorphic-pressed"
+          >
+            {disconnectingId === account.id ? (
+              <>
+                <IconLoader2 className="w-3 h-3 mr-1 animate-spin" />
+                Disconnecting...
+              </>
+            ) : (
+              "Disconnect"
+            )}
+          </Button>
+        )}
       </div>
     </div>
   )
@@ -197,7 +284,7 @@ export function CalendarIntegrations() {
 
             {/* Connected Google Calendars */}
             {googleAccounts.length > 0 ? (
-              googleAccounts.map((account) => renderAccountCard(account))
+              googleAccounts.map((account) => renderAccountCard(account, "google"))
             ) : (
               <div className="p-4 text-center mt-4 neumorphic-inset rounded-lg">
                 <p className="text-sm">No Google calendars connected</p>
@@ -227,7 +314,7 @@ export function CalendarIntegrations() {
 
             {/* Connected Microsoft Calendars */}
             {microsoftAccounts.length > 0 ? (
-              microsoftAccounts.map((account) => renderAccountCard(account))
+              microsoftAccounts.map((account) => renderAccountCard(account, "microsoft"))
             ) : (
               <div className="p-4 text-center neumorphic-inset rounded-lg">
                 <p className="text-sm">No Microsoft calendars connected</p>

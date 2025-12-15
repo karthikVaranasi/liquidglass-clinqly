@@ -1,78 +1,25 @@
 import "./App.css"
 import { useState, Suspense, lazy, useEffect } from "react"
-import {
-  SidebarProvider,
-} from "@/components/ui/sidebar"
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom"
 import { AuthStorage, AuthAPI } from "@/api/auth"
-import { CountsProvider, useCounts } from "@/contexts/counts-context"
 import { SessionProvider } from "@/contexts/session-context"
 import { SessionExpiredModal } from "@/components/session-expired-modal"
+import { ProtectedRoute } from "@/routes/ProtectedRoute"
+import { DashboardLayout } from "@/components/layouts/DashboardLayout"
 
 // Dynamic imports for shared components
-const AppSidebar = lazy(() => import("@/components/app-sidebar").then(module => ({ default: module.AppSidebar })))
-const AppHeader = lazy(() => import("@/components/app-header").then(module => ({ default: module.AppHeader })))
+const LoginPage = lazy(() => import("@/components/login-page").then(module => ({ default: module.LoginPage })))
 
-const getApiBaseUrl = (): string => {
-  return import.meta.env.VITE_API_BASE_URL
-}
-
-// Inner component to access counts context
-function AppContent({
-  currentPage,
-  pageParams,
-  navigateToPage,
-  handleLogout,
-  clinicData,
-  userData,
-  userType,
-  renderContent
-}: {
-  currentPage: string
-  pageParams: any
-  navigateToPage: (pageOrObject: string | { page: string; params?: any }) => void
-  handleLogout: () => void
-  clinicData: any
-  userData: any
-  userType: string
-  renderContent: () => React.ReactNode
-}) {
-  const { doctorsCount } = useCounts()
-
-  return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 64)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as React.CSSProperties
-      }
-    >
-      <AppSidebar
-        variant="floating"
-        onPageChange={navigateToPage}
-        currentPage={currentPage}
-        onLogout={handleLogout}
-        clinicData={clinicData}
-        userData={userData}
-        userType={userType as 'admin' | 'doctor'}
-      />
-      <main className="flex-1">
-        <AppHeader currentPage={currentPage} userType={userType as 'admin' | 'doctor'} doctorsCount={doctorsCount ?? undefined} userData={userData} />
-        <div className="flex flex-1 flex-col">
-          <div className="@container/main flex flex-1 flex-col my-2">
-            <div className="flex flex-col">
-              {renderContent()}
-
-            </div>
-          </div>
-        </div>
-      </main>
-    </SidebarProvider>
-  )
-}
+// Import page wrappers for pages that need onPageChange
+import {
+  AdminAnalyticsPageWrapper,
+  AdminMFASettingsPageWrapper,
+  DoctorAnalyticsPageWrapper,
+  NotFoundPageWrapper,
+} from "@/components/routes/PageWrappers"
+import { AuthRedirect } from "@/components/routes/AuthRedirect"
 
 // Lazy load page components for code splitting
-const DoctorAnalyticsPage = lazy(() => import("@/components/doctorpages/analytics-page").then(module => ({ default: module.AnalyticsPage })))
 const DoctorAppointmentPage = lazy(() => import("@/components/doctorpages/appointment-page").then(module => ({ default: module.AppointmentPage })))
 const DoctorPatientsPage = lazy(() => import("@/components/doctorpages/patients-page").then(module => ({ default: module.PatientsPage })))
 const DoctorLogsPage = lazy(() => import("@/components/doctorpages/logs-page").then(module => ({ default: module.LogsPage })))
@@ -81,50 +28,98 @@ const DoctorRefillRequestsPage = lazy(() => import("@/components/doctorpages/ref
 const DoctorSettingsPage = lazy(() => import("@/components/doctorpages/settings-page").then(module => ({ default: module.SettingsPage })))
 const DoctorCalendarIntegrations = lazy(() => import("@/components/doctorpages/calendar-integrations").then(module => ({ default: module.CalendarIntegrations })))
 
-const AdminAnalyticsPage = lazy(() => import("@/components/adminpages/analytics-page").then(module => ({ default: module.AnalyticsPage })))
 const AdminAppointmentPage = lazy(() => import("@/components/adminpages/appointment-page").then(module => ({ default: module.AppointmentPage })))
 const AdminDoctorsPage = lazy(() => import("@/components/adminpages/doctors-page").then(module => ({ default: module.DoctorsPage })))
 const AdminPatientsPage = lazy(() => import("@/components/adminpages/patients-page").then(module => ({ default: module.PatientsPage })))
 const AdminLogsPage = lazy(() => import("@/components/adminpages/logs-page").then(module => ({ default: module.LogsPage })))
-const AdminMFASettingsPage = lazy(() => import("@/components/adminpages/mfa-settings-page").then(module => ({ default: module.MFASettingsPage })))
 
-const LoginPage = lazy(() => import("@/components/login-page").then(module => ({ default: module.LoginPage })))
-const NotFoundPage = lazy(() => import("@/components/not-found-page").then(module => ({ default: module.NotFoundPage })))
+const getApiBaseUrl = (): string => {
+  return import.meta.env.VITE_API_BASE_URL
+}
 
+// SSO Login handler component
+function SSOLoginHandler() {
+  const navigate = useNavigate()
+  const [isProcessing, setIsProcessing] = useState(true)
 
-export default function App() {
-  const [currentPage, setCurrentPage] = useState("dashboard")
-  const [pageParams, setPageParams] = useState<any>(null)
-  const [isAuthenticated, setIsAuthenticated] = useState(false) // Start as false, validate later
-  const [isValidatingAuth, setIsValidatingAuth] = useState(true) // Show loading while validating
-  const [isLoading, setIsLoading] = useState(false)
-  const [userData, setUserData] = useState<any>(null)
-  const [clinicData, setClinicData] = useState<any>(null)
-  const [authValidationInProgress, setAuthValidationInProgress] = useState(false) // Prevent multiple validation calls
-
-  // Get user type to determine which components to use
-  const userType = (AuthStorage.getUserType() || 'doctor') as 'admin' | 'doctor'
-  const isAdmin = userType === 'admin'
-
-  // Validate current page based on user type
   useEffect(() => {
-    if (isAuthenticated) {
-      const adminPages = ['dashboard', 'appointments', 'doctors', 'patients', 'logs', 'mfa-settings']
-      const doctorPages = ['dashboard', 'appointments', 'patients', 'logs', 'front-desk', 'refill-requests', 'settings', 'calendar-integrations']
+    const processSSO = async () => {
+      try {
+        const urlParams = new URLSearchParams(window.location.search)
+        const ssoToken = urlParams.get('token')
 
-      const validPages = isAdmin ? adminPages : doctorPages
+        if (ssoToken) {
+          const response = await AuthAPI.ssoLogin({ token: ssoToken })
+          AuthStorage.setToken(response.access_token)
+          AuthStorage.setUserType('doctor')
+          AuthStorage.setUserData(response.doctor)
 
-      if (!validPages.includes(currentPage)) {
-        // console.log(`⚠️ Invalid page "${currentPage}" for ${isAdmin ? 'admin' : 'doctor'} user, redirecting to dashboard`)
-        setCurrentPage('dashboard')
+          // Fetch additional data asynchronously
+          if (response.doctor?.clinic_id) {
+            fetch(`${getApiBaseUrl()}/dashboard/clinics/${response.doctor.clinic_id}`, {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${response.access_token}`,
+              },
+            })
+              .then(res => res.ok ? res.json() : null)
+              .then(clinic => {
+                if (clinic) AuthStorage.setClinicData(clinic)
+              })
+              .catch(err => console.warn('Failed to fetch clinic data:', err))
+          }
+
+          if (response.doctor?.id) {
+            fetch(`${getApiBaseUrl()}/dashboard/doctors/${response.doctor.id}`, {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${response.access_token}`,
+              },
+            })
+              .then(res => res.ok ? res.json() : null)
+              .then(doctor => {
+                if (doctor) {
+                  const updatedUserData = { ...response.doctor, ...doctor }
+                  AuthStorage.setUserData(updatedUserData)
+                }
+              })
+              .catch(err => console.warn('Failed to fetch doctor data:', err))
+          }
+
+          navigate('/doctor/appointments', { replace: true })
+        } else {
+          navigate('/login', { replace: true })
+        }
+      } catch (error) {
+        console.error('SSO login error:', error)
+        navigate('/login', { replace: true })
+      } finally {
+        setIsProcessing(false)
       }
     }
-  }, [currentPage, isAuthenticated, isAdmin])
+
+    processSSO()
+  }, [navigate])
+
+  if (isProcessing) {
+    return null
+  }
+
+  return null
+}
+
+// Main App Router Component
+function AppRouter() {
+  const [isValidatingAuth, setIsValidatingAuth] = useState(true)
+  const [userData, setUserData] = useState<any>(null)
+  const [clinicData, setClinicData] = useState<any>(null)
+  const [authValidationInProgress, setAuthValidationInProgress] = useState(false)
+
+  const userType = (AuthStorage.getUserType() || 'doctor') as 'admin' | 'doctor'
 
   // Function to fetch clinic data
   const fetchClinicData = async (clinicId: number) => {
     try {
-      // console.log('🏥 Fetching clinic data for clinic ID:', clinicId)
       const response = await fetch(`${getApiBaseUrl()}/dashboard/clinics/${clinicId}`, {
         method: 'GET',
         headers: {
@@ -134,9 +129,8 @@ export default function App() {
 
       if (response.ok) {
         const clinic = await response.json()
-        // console.log('✅ Clinic data fetched:', clinic)
         setClinicData(clinic)
-        AuthStorage.setClinicData(clinic) // Store clinic data in localStorage
+        AuthStorage.setClinicData(clinic)
         return clinic
       } else {
         console.warn('⚠️ Failed to fetch clinic data:', response.status)
@@ -151,7 +145,6 @@ export default function App() {
   // Function to fetch full doctor profile (includes phone number)
   const fetchDoctorData = async (doctorId: number, currentUserData?: any) => {
     try {
-      // console.log('👨‍⚕️ Fetching doctor data for doctor ID:', doctorId)
       const response = await fetch(`${getApiBaseUrl()}/dashboard/doctors/${doctorId}`, {
         method: 'GET',
         headers: {
@@ -161,19 +154,10 @@ export default function App() {
 
       if (response.ok) {
         const doctor = await response.json()
-        // console.log('✅ Doctor data fetched:', doctor)
-        //   console.log('📱 Phone fields in response:', {
-        //   phone: doctor.phone,
-        //     phone_number: doctor.phone_number,
-        //       mobile_phone: doctor.mobile_phone,
-        //         contact_number: doctor.contact_number
-        // })
-        // Merge with existing userData to get complete profile including phone
         const baseData = currentUserData || userData || {}
         const updatedUserData = { ...baseData, ...doctor }
-        // console.log('👤 Updated user data with phone:', updatedUserData)
         setUserData(updatedUserData)
-        AuthStorage.setUserData(updatedUserData) // Update stored user data
+        AuthStorage.setUserData(updatedUserData)
         return doctor
       } else {
         console.warn('⚠️ Failed to fetch doctor data:', response.status)
@@ -185,262 +169,188 @@ export default function App() {
     }
   }
 
-  // Enhanced page navigation function that handles page and optional parameters
-  const navigateToPage = (pageOrObject: string | { page: string; params?: any }) => {
-    if (typeof pageOrObject === 'string') {
-      setCurrentPage(pageOrObject)
-      setPageParams(null)
-    } else {
-      setCurrentPage(pageOrObject.page)
-      setPageParams(pageOrObject.params || null)
-    }
-  }
-
-  // Expose navigation function globally for use in page components
-  useEffect(() => {
-    window.navigateToPage = navigateToPage
-    return () => {
-      delete window.navigateToPage
-    }
-  }, [])
-
   // Check for stored authentication token on app load
   useEffect(() => {
-    // Prevent multiple simultaneous validation calls
     if (authValidationInProgress) {
       return
     }
 
     const validateStoredAuth = async () => {
       setAuthValidationInProgress(true)
-      // console.log('🔍 Running authentication validation...')
 
       try {
-        // Check for SSO login URL parameters first
-        const urlParams = new URLSearchParams(window.location.search)
-        const ssoToken = urlParams.get('token')
-
-        if (ssoToken && window.location.pathname === '/sso-login') {
-          // console.log('🔗 SSO login detected, processing...')
-          const response = await AuthAPI.ssoLogin({ token: ssoToken })
-          // console.log('💾 Storing SSO auth data...')
-          AuthStorage.setToken(response.access_token)
-          AuthStorage.setUserType('doctor')
-          AuthStorage.setUserData(response.doctor)
-
-          setUserData(response.doctor)
-
-          // Fetch additional data asynchronously
-          if (response.doctor?.clinic_id) {
-            fetchClinicData(response.doctor.clinic_id)
-          }
-          if (response.doctor?.id) {
-            fetchDoctorData(response.doctor.id, response.doctor)
-          }
-
-          // console.log('✅ SSO login successful, redirecting to appointments')
-          window.history.replaceState({}, document.title, '/')
-          setIsAuthenticated(true)
-          setCurrentPage("appointments")
-          return
-        }
-
         // Check for stored authentication data
         const token = AuthStorage.getToken()
-        const userType = AuthStorage.getUserType()
+        const storedUserType = AuthStorage.getUserType()
         const storedUserData = AuthStorage.getUserData()
+        const storedClinicData = AuthStorage.getClinicData()
 
-        // console.log('📦 Stored token exists:', !!token)
-        // console.log('👤 Stored user type:', userType)
+        if (storedClinicData) {
+          setClinicData(storedClinicData)
+        }
 
-        if (token && userType && storedUserData) {
-          // console.log('🎉 Found stored auth data, validating token...')
-
+        if (token && storedUserType && storedUserData) {
           try {
             // Validate the stored token before showing any UI
             const isTokenValid = await AuthAPI.validateToken(token)
 
             if (isTokenValid) {
-              // console.log('✅ Token is valid, setting up user session...')
-
-              // Set user data and page only after token validation
+              // Set user data after token validation
               setUserData(storedUserData)
-              setCurrentPage(userType === 'admin' ? 'dashboard' : 'appointments')
-              setIsAuthenticated(true)
 
               // Fetch additional data asynchronously (don't block UI on these)
-              if (storedUserData?.clinic_id) {
+              if (storedUserData?.clinic_id && !storedClinicData) {
                 fetchClinicData(storedUserData.clinic_id).catch(err => {
                   console.warn('Failed to fetch clinic data on refresh:', err)
                 })
               }
 
-              if (userType === 'doctor' && storedUserData?.id) {
+              if (storedUserType === 'doctor' && storedUserData?.id) {
                 fetchDoctorData(storedUserData.id, storedUserData).catch(err => {
                   console.warn('Failed to fetch doctor data on refresh:', err)
                 })
               }
             } else {
-              // console.log('❌ Token is invalid (401/403), clearing auth data...')
-              // Only clear auth data if we got explicit 401/403 (invalid token)
-              // Don't clear on network errors to prevent logout on refresh
+              // Token is invalid, clear auth data
               AuthStorage.clearAll()
-              setIsAuthenticated(false)
               setUserData(null)
               setClinicData(null)
             }
           } catch (error) {
             console.error('💥 Token validation network error:', error)
             // Don't clear auth data on network errors - assume token is still valid
-            // This prevents logout on refresh when there's a temporary network issue
-            // console.log('⚠️ Keeping existing auth data due to network error during validation')
-
             // Still set up the user session with stored data
             setUserData(storedUserData)
-            setCurrentPage(userType === 'admin' ? 'dashboard' : 'appointments')
-            setIsAuthenticated(true)
 
             // Try to fetch additional data, but don't fail if network is down
-            if (storedUserData?.clinic_id) {
+            if (storedUserData?.clinic_id && !storedClinicData) {
               fetchClinicData(storedUserData.clinic_id).catch(err => {
                 console.warn('Failed to fetch clinic data on refresh (network issue):', err)
               })
             }
 
-            if (userType === 'doctor' && storedUserData?.id) {
+            if (storedUserType === 'doctor' && storedUserData?.id) {
               fetchDoctorData(storedUserData.id, storedUserData).catch(err => {
                 console.warn('Failed to fetch doctor data on refresh (network issue):', err)
               })
             }
           }
         } else {
-          // console.log('ℹ️ No stored auth data found')
-          setIsAuthenticated(false)
           setUserData(null)
           setClinicData(null)
         }
       } finally {
         setIsValidatingAuth(false)
         setAuthValidationInProgress(false)
-        // console.log('🏁 Authentication validation complete')
       }
     }
 
     validateStoredAuth()
   }, []) // Empty dependency array - run only once on mount
 
-  const handleLogin = async (type: 'admin' | 'doctor', userData?: any) => {
-    // console.log('🔑 Login successful, setting up user data...', { type, userData })
-
-    setUserData(userData)
+  const handleLogin = async (type: 'admin' | 'doctor', loginUserData?: any) => {
+    setUserData(loginUserData)
 
     // Fetch clinic data only for doctors (admins see app branding)
-    if (type === 'doctor' && userData?.clinic_id) {
-      await fetchClinicData(userData.clinic_id)
+    if (type === 'doctor' && loginUserData?.clinic_id) {
+      await fetchClinicData(loginUserData.clinic_id)
     }
     // Fetch full doctor profile (includes phone number)
-    if (type === 'doctor' && userData?.id) {
-      await fetchDoctorData(userData.id, userData)
+    if (type === 'doctor' && loginUserData?.id) {
+      await fetchDoctorData(loginUserData.id, loginUserData)
     }
-    // Note: Admin users will see "EzMedTech" branding, no clinic/doctor data needed
-
-    setIsAuthenticated(true)
-    setCurrentPage(type === 'admin' ? 'dashboard' : 'appointments')
+    
+    // Navigation will be handled by ProtectedRoute redirecting to default page
   }
 
   const handleLogout = () => {
-    // console.log('🚪 Logging out user, clearing stored data...')
     AuthStorage.clearAll()
-    // console.log('✅ Auth data cleared')
-    setIsAuthenticated(false)
-    setIsValidatingAuth(false) // Ensure no loading state after logout
-    setAuthValidationInProgress(false) // Reset validation flag
     setUserData(null)
     setClinicData(null)
-    setCurrentPage("dashboard")
   }
-
-
-  const renderContent = () => {
-
-
-    switch (currentPage) {
-      case "dashboard":
-        return (
-          isAdmin ? <AdminAnalyticsPage onPageChange={navigateToPage} /> : <DoctorAnalyticsPage onPageChange={navigateToPage} />
-        )
-      case "patients":
-        return (
-          isAdmin ? <AdminPatientsPage /> : <DoctorPatientsPage />
-        )
-      case "appointments":
-        return (
-          isAdmin ? <AdminAppointmentPage /> : <DoctorAppointmentPage />
-        )
-      case "logs":
-        return (
-          isAdmin ? <AdminLogsPage /> : <DoctorLogsPage />
-        )
-      case "doctors":
-        return (
-          isAdmin ? <AdminDoctorsPage pageParams={pageParams} /> : <DoctorPatientsPage />
-        )
-      case "front-desk":
-        return (
-          <DoctorFrontDeskPage />
-        )
-      case "refill-requests":
-        return (
-          <DoctorRefillRequestsPage />
-        )
-      case "settings":
-        return (
-          <DoctorSettingsPage />
-        )
-      case "calendar-integrations":
-        return (
-          <DoctorCalendarIntegrations />
-        )
-      case "mfa-settings":
-        return (
-          isAdmin ? <AdminMFASettingsPage onPageChange={navigateToPage} /> : <DoctorAppointmentPage />
-        )
-      default:
-        return (
-          <NotFoundPage onPageChange={navigateToPage} userType={userType as 'admin' | 'doctor'} />
-        )
-    }
-  }
-
-
 
   // Show blank screen while validating authentication
   if (isValidatingAuth) {
-    return null
-  }
-
-  // Show login page if not authenticated
-  if (!isAuthenticated) {
-    return (
-      <LoginPage onLogin={handleLogin} />
-    )
+    // Avoid white flash on refresh by matching app background
+    return <div className="min-h-screen bg-background" />
   }
 
   return (
     <SessionProvider onLogout={handleLogout}>
       <SessionExpiredModal />
-      <CountsProvider>
-        <AppContent
-          currentPage={currentPage}
-          pageParams={pageParams}
-          navigateToPage={navigateToPage}
-          handleLogout={handleLogout}
-          clinicData={clinicData}
-          userData={userData}
-          userType={userType}
-          renderContent={renderContent}
-        />
-      </CountsProvider>
+      <Routes>
+        {/* Public routes */}
+        <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
+        <Route path="/sso-login" element={<SSOLoginHandler />} />
+
+        {/* Protected Doctor routes */}
+        <Route element={<ProtectedRoute allowedRoles={['doctor']} />}>
+          <Route
+            path="/doctor/*"
+            element={
+              <DashboardLayout
+                handleLogout={handleLogout}
+                clinicData={clinicData}
+                userData={userData}
+                userType="doctor"
+              />
+            }
+          >
+            <Route path="analytics" element={<DoctorAnalyticsPageWrapper />} />
+            <Route path="appointments" element={<DoctorAppointmentPage />} />
+            <Route path="patients" element={<DoctorPatientsPage />} />
+            <Route path="logs" element={<DoctorLogsPage />} />
+            <Route path="front-desk" element={<DoctorFrontDeskPage />} />
+            <Route path="refill-requests" element={<DoctorRefillRequestsPage />} />
+            <Route path="settings" element={<DoctorSettingsPage />} />
+            <Route path="calendar-integrations" element={<DoctorCalendarIntegrations />} />
+            {/* Route back out to global NotFound so it shows full-screen (no layout) */}
+            <Route path="*" element={<Navigate to="/not-found" replace />} />
+          </Route>
+        </Route>
+
+        {/* Protected Admin routes */}
+        <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+          <Route
+            path="/admin/*"
+            element={
+              <DashboardLayout
+                handleLogout={handleLogout}
+                clinicData={clinicData}
+                userData={userData}
+                userType="admin"
+              />
+            }
+          >
+            <Route path="analytics" element={<AdminAnalyticsPageWrapper />} />
+            <Route path="appointments" element={<AdminAppointmentPage />} />
+            <Route path="doctors" element={<AdminDoctorsPage />} />
+            <Route path="patients" element={<AdminPatientsPage />} />
+            <Route path="logs" element={<AdminLogsPage />} />
+            <Route path="mfa-settings" element={<AdminMFASettingsPageWrapper />} />
+            {/* Route back out to global NotFound so it shows full-screen (no layout) */}
+            <Route path="*" element={<Navigate to="/not-found" replace />} />
+          </Route>
+        </Route>
+
+        {/* Not found route - needs to be outside protected routes to work */}
+        <Route path="/not-found" element={<NotFoundPageWrapper />} />
+
+        {/* Default redirects */}
+        <Route path="/" element={<AuthRedirect />} />
+        <Route path="*" element={<Navigate to="/not-found" replace />} />
+      </Routes>
     </SessionProvider>
+  )
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      {/* Avoid white flash on refresh by using a neutral, background-matched fallback */}
+      <Suspense fallback={<div className="min-h-screen bg-background" />}>
+        <AppRouter />
+      </Suspense>
+    </BrowserRouter>
   )
 }

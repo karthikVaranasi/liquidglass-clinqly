@@ -1,4 +1,5 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -13,7 +14,18 @@ interface LoginPageProps {
 }
 
 export function LoginPage({ onLogin }: LoginPageProps) {
-
+  const navigate = useNavigate()
+  
+  // Redirect if already authenticated
+  useEffect(() => {
+    const token = AuthStorage.getToken()
+    const userType = AuthStorage.getUserType() as 'admin' | 'doctor' | null
+    
+    if (token && userType) {
+      const defaultRoute = userType === 'admin' ? '/admin/analytics' : '/doctor/appointments'
+      navigate(defaultRoute, { replace: true })
+    }
+  }, [navigate])
   const [userType, setUserType] = useState<'admin' | 'doctor'>('admin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -55,6 +67,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
           AuthStorage.setUserData(response.admin)
           // console.log('✅ Admin login successful, token stored')
           onLogin('admin', response.admin)
+          navigate('/admin/analytics', { replace: true })
         } else {
           setError('Login successful but no access token received. Please try again.')
         }
@@ -66,6 +79,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         AuthStorage.setUserData(response.doctor)
         // console.log('✅ Doctor login successful, token stored')
         onLogin('doctor', response.doctor)
+        navigate('/doctor/appointments', { replace: true })
       }
     } catch (err) {
       const errorMessage = getLoginErrorMessage(err)

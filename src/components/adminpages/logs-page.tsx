@@ -468,7 +468,7 @@ export function LogsPage() {
                         <td className="py-3 px-4">
                           <div>
                             <span className="text-sm font-medium">All Calls</span>
-                            <div className="text-xs text-muted-foreground">View all call logs across all clinics</div>
+                            <div className="text-xs text-foreground">View all call logs across all clinics</div>
                           </div>
                         </td>
                         <td className="py-3 px-4">
@@ -500,7 +500,7 @@ export function LogsPage() {
                         <td className="py-3 px-4">
                           <div>
                             <span className="text-sm font-medium">Ezmedtech Bot</span>
-                            <div className="text-xs text-muted-foreground">Chatbot interactions from ezmedtech.ai</div>
+                            <div className="text-xs text-foreground">Chatbot interactions from ezmedtech.ai</div>
                           </div>
                         </td>
                         <td className="py-3 px-4">
@@ -597,7 +597,7 @@ export function LogsPage() {
                 </div>
                 <div>
                   <h2 className="text-xl font-bold">All Calls</h2>
-                  <p className="text-sm text-muted-foreground">View all call logs across all clinics</p>
+                  <p className="text-sm text-foreground">View all call logs across all clinics</p>
                 </div>
               </>
             ) : viewMode === 'bot-logs' ? (
@@ -607,7 +607,7 @@ export function LogsPage() {
                 </div>
                 <div>
                   <h2 className="text-xl font-bold">Ezmedtech Bot</h2>
-                  <p className="text-sm text-muted-foreground">Chatbot interactions from ezmedtech.ai</p>
+                  <p className="text-sm text-foreground">Chatbot interactions from ezmedtech.ai</p>
                 </div>
               </>
             ) : (
@@ -625,7 +625,7 @@ export function LogsPage() {
                 )}
                 <div>
                   <h2 className="text-xl font-bold">{selectedClinic?.name}</h2>
-                  <p className="text-sm text-muted-foreground">{selectedClinic?.phone_number}</p>
+                  <p className="text-sm text-foreground">{selectedClinic?.phone_number}</p>
                 </div>
               </>
             )}
@@ -730,7 +730,7 @@ export function LogsPage() {
               <tbody className="divide-y-2 divide-muted/90">
                 {filteredLogs.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="py-8 text-center text-muted-foreground">
+                    <td colSpan={5} className="py-8 text-center text-foreground">
                       No logs found.
                     </td>
                   </tr>
@@ -875,7 +875,7 @@ export function LogsPage() {
                       }}
                       className="w-full audio-slider"
                     />
-                    <span className="text-[11px] text-muted-foreground w-16 text-right">
+                    <span className="text-[11px] text-foreground w-16 text-right">
                       {Math.floor(audioPosition)}s / {Math.max(1, Math.floor(audioDuration))}s
                     </span>
                   </div>

@@ -148,8 +148,8 @@ export function RefillRequestsPage() {
             {requests.length === 0 ? (
               <div className="flex items-center justify-center h-64">
                 <div className="text-center">
-                  <div className="text-muted-foreground mb-2">No refill requests found</div>
-                  <div className="text-sm text-muted-foreground">Prescription refill requests will appear here.</div>
+                  <div className="text-foreground mb-2">No refill requests found</div>
+                  <div className="text-sm text-foreground">Prescription refill requests will appear here.</div>
                 </div>
               </div>
             ) : (

@@ -203,9 +203,9 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
     <div className="space-y-4 sm:space-y-6">
       {/* Welcome Banner */}
       <div className="px-4 lg:px-6">
-        <span className="text-base sm:text-lg font-regular text-gray-800">
+        <span className="text-base sm:text-lg font-regular text-foreground">
           Welcome Back,{" "}
-          <span className="text-black-600 font-bold">Admin</span>
+          <span className="text-foreground font-bold">Admin</span>
         </span>
       </div>
 

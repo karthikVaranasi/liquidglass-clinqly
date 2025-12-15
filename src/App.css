@@ -56,16 +56,16 @@
 
   /* Clean Medical Dashboard Base - Bright & Airy */
   --background: #f4f8fa;
-  --foreground: #1a2e35;
+  --foreground: #000000;
   --card: #f7fafc;
-  --card-foreground: #1a2e35;
+  --card-foreground: #000000;
   --popover: #ffffff;
-  --popover-foreground: #1a2e35;
+  --popover-foreground: #000000;
   /* Primary palette - Fresh Teal */
   --primary: #0EA5A3;
   --primary-foreground: #ffffff;
   --secondary: #e8f0f5;
-  --secondary-foreground: #1a2e35;
+  --secondary-foreground: #000000;
   --muted: #e2eaef;
   --muted-foreground: #4a6670;
   /* Accent & Destructive */
@@ -84,11 +84,11 @@
   --chart-5: #00A89D;
   /* Sidebar tokens - Clean medical style */
   --sidebar: #f0f5f8;
-  --sidebar-foreground: #1a2e35;
+  --sidebar-foreground: #000000;
   --sidebar-primary: #0EA5A3;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #e8f0f5;
-  --sidebar-accent-foreground: #1a2e35;
+  --sidebar-accent-foreground: #000000;
   --sidebar-border: rgba(14, 165, 163, 0.08);
   --sidebar-ring: #0EA5A3;
 }
@@ -209,7 +209,7 @@
     cursor: pointer;
     transition: all 0.25s ease;
     font-weight: 600;
-    color: #1a2e35;
+    color: #000000;
   }
 
   .neumorphic-btn:hover {
@@ -268,7 +268,7 @@
       inset -2px -2px 5px rgba(255, 255, 255, 0.9);
     transition: all 0.25s ease;
     font-size: 16px;
-    color: #1a2e35;
+    color: #000000;
   }
 
   .neumorphic-input:focus {

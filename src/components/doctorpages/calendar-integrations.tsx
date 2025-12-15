@@ -141,7 +141,7 @@ export function CalendarIntegrations() {
       <div className="flex items-center gap-3">
         <div>
           <p className="text-sm font-medium" style={{ textTransform: 'none' }}>{account.email}</p>
-          <div className="text-xs text-muted-foreground">
+          <div className="text-xs text-foreground">
             Connected: {formatDate(account.created_at)}
           </div>
         </div>
@@ -201,7 +201,7 @@ export function CalendarIntegrations() {
             ) : (
               <div className="p-4 text-center mt-4 neumorphic-inset rounded-lg">
                 <p className="text-sm">No Google calendars connected</p>
-                <p className="text-xs text-muted-foreground">Connect your Google calendar to sync appointments</p>
+                <p className="text-xs text-foreground">Connect your Google calendar to sync appointments</p>
               </div>
             )}
           </div>
@@ -231,7 +231,7 @@ export function CalendarIntegrations() {
             ) : (
               <div className="p-4 text-center neumorphic-inset rounded-lg">
                 <p className="text-sm">No Microsoft calendars connected</p>
-                <p className="text-xs text-muted-foreground">Connect your Outlook calendar to sync appointments</p>
+                <p className="text-xs text-foreground">Connect your Outlook calendar to sync appointments</p>
               </div>
             )}
           </div>

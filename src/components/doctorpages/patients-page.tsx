@@ -842,7 +842,7 @@ export function PatientsPage() {
                           key={slot}
                           type="button"
                           onClick={() => setSelectedTimeSlot(slot)}
-                          className={`text-sm font-medium neumorphic-pressed text-black rounded-lg cursor-pointer transition-all duration-200 px-2 py-2 border ${selectedTimeSlot === slot
+                          className={`text-sm font-medium neumorphic-pressed text-foreground rounded-lg cursor-pointer transition-all duration-200 px-2 py-2 border ${selectedTimeSlot === slot
                             ? 'border-2 border-primary'
                             : ''
                             }`}
@@ -856,7 +856,7 @@ export function PatientsPage() {
                 )}
 
                 {!loadingSlots && selectedDate && availableSlots.length === 0 && (
-                  <div className="text-center py-4 text-sm text-muted-foreground">
+                  <div className="text-center py-4 text-sm text-foreground">
                     No available time slots for this date.
                   </div>
                 )}
@@ -973,7 +973,7 @@ export function PatientsPage() {
                           key={slot}
                           type="button"
                           onClick={() => setSelectedTimeSlot(slot)}
-                          className={`text-sm font-medium neumorphic-pressed text-black rounded-lg cursor-pointer transition-all duration-200 px-2 py-2 border ${selectedTimeSlot === slot
+                          className={`text-sm font-medium neumorphic-pressed text-foreground rounded-lg cursor-pointer transition-all duration-200 px-2 py-2 border ${selectedTimeSlot === slot
                             ? 'border-2 border-primary'
                             : ''
                             }`}
@@ -987,7 +987,7 @@ export function PatientsPage() {
                 )}
 
                 {!loadingSlots && selectedDate && availableSlots.length === 0 && (
-                  <div className="text-center py-4 text-sm text-muted-foreground">
+                  <div className="text-center py-4 text-sm text-foreground">
                     No available time slots for this date.
                   </div>
                 )}
@@ -1046,7 +1046,7 @@ export function PatientsPage() {
             <div className="p-5">
               <div className="mb-4">
                 <h2 className="text-base font-semibold mb-2">Cancel Appointment</h2>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-foreground">
                   Are you sure you want to cancel this appointment? This action cannot be undone.
                 </p>
               </div>
@@ -1108,7 +1108,7 @@ export function PatientsPage() {
             </div>
             <Button
               onClick={() => setToast(null)}
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className="text-foreground hover:text-foreground transition-colors"
             >
               ×
             </Button>
@@ -1255,10 +1255,10 @@ export function PatientsPage() {
                             <div>
                               <div className="font-medium text-sm">{doc.type}</div>
                               {doc.title && (
-                                <div className="text-xs text-muted-foreground">{doc.title}</div>
+                                <div className="text-xs text-foreground">{doc.title}</div>
                               )}
                               {doc.description && (
-                                <div className="text-xs text-muted-foreground">{doc.description}</div>
+                                <div className="text-xs text-foreground">{doc.description}</div>
                               )}
                             </div>
                             <div className="flex gap-2">
@@ -1505,7 +1505,7 @@ export function PatientsPage() {
                   </table>
                 ) : (
                   <div className="text-center py-12">
-                    <p className="text-sm text-muted-foreground">No patients found</p>
+                    <p className="text-sm text-foreground">No patients found</p>
                   </div>
                 )}
               </div>

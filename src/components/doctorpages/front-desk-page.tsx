@@ -120,8 +120,8 @@ export function FrontDeskPage() {
             {requests.length === 0 ? (
               <div className="flex items-center justify-center h-64">
                 <div className="text-center">
-                  <div className="text-muted-foreground mb-2">No front desk requests found</div>
-                  <div className="text-sm text-muted-foreground">Requests will appear here when patients contact the front desk.</div>
+                  <div className="text-foreground mb-2">No front desk requests found</div>
+                  <div className="text-sm text-foreground">Requests will appear here when patients contact the front desk.</div>
                 </div>
               </div>
             ) : (
@@ -154,7 +154,7 @@ export function FrontDeskPage() {
                       <td className="py-3 px-2 text-sm">
                         {request.tag ? (
                           <span
-                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${tagStyles[request.tag] ?? "bg-muted text-muted-foreground"}`}
+                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${tagStyles[request.tag] ?? "bg-muted text-foreground"}`}
                           >
                             {request.tag}
                           </span>

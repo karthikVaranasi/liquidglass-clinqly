@@ -390,7 +390,7 @@ export function LogsPage() {
               <tbody className="divide-y-2 divide-muted/90">
                 {filteredLogs.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="py-8 text-center text-muted-foreground">
+                    <td colSpan={5} className="py-8 text-center text-foreground">
                       No logs found.
                     </td>
                   </tr>
@@ -535,7 +535,7 @@ export function LogsPage() {
                       }}
                       className="w-full audio-slider"
                     />
-                    <span className="text-[11px] text-muted-foreground w-16 text-right">
+                    <span className="text-[11px] text-foreground w-16 text-right">
                       {Math.floor(audioPosition)}s / {Math.max(1, Math.floor(audioDuration))}s
                     </span>
                   </div>

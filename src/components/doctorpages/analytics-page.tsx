@@ -195,7 +195,7 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
               <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <div className="text-sm text-muted-foreground">Loading analytics...</div>
+              <div className="text-sm text-foreground">Loading analytics...</div>
             </div>
           </div>
         </div>
@@ -265,7 +265,7 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
           <CardContent>
             {appointmentData.length === 0 ? (
               <div className="flex items-center justify-center h-[250px] sm:h-[280px] lg:h-[320px]">
-                <div className="text-center text-muted-foreground">
+                <div className="text-center text-foreground">
                   <p className="text-sm">No appointment trends data available</p>
                 </div>
               </div>
@@ -351,7 +351,7 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
           <div className="px-4 sm:px-6">
             {patientAgeData.length === 0 ? (
               <div className="flex items-center justify-center h-[200px]">
-                <div className="text-center text-muted-foreground">
+                <div className="text-center text-foreground">
                   <p className="text-sm">No patient age distribution data available</p>
                 </div>
               </div>

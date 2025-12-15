@@ -794,7 +794,7 @@ export function SettingsPage() {
                 <div className="space-y-1.5">
                   <Label htmlFor="offday-reason">
                     Reason{" "}
-                    <span className="text-muted-foreground text-xs font-normal">
+                    <span className="text-foreground text-xs font-normal">
                       (Optional)
                     </span>
                   </Label>

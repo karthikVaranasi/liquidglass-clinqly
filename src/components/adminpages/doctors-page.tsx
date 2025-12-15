@@ -199,7 +199,7 @@ function DoctorAppointmentsModal({ doctor, onClose }: { doctor: any, onClose: ()
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-xl font-semibold">Appointments for {doctor.name}</h2>
-              <p className="text-sm text-muted-foreground">{doctor.department} Department</p>
+              <p className="text-sm text-foreground">{doctor.department} Department</p>
             </div>
             <Button
               onClick={onClose}
@@ -214,7 +214,7 @@ function DoctorAppointmentsModal({ doctor, onClose }: { doctor: any, onClose: ()
             <div className="flex items-center justify-center h-64">
               <div className="text-center">
                 <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <p className="text-muted-foreground">Loading appointments...</p>
+                <p className="text-foreground">Loading appointments...</p>
               </div>
             </div>
           )}
@@ -314,7 +314,7 @@ function DoctorAppointmentsModal({ doctor, onClose }: { doctor: any, onClose: ()
                     <h3 className="text-lg font-semibold">
                       {selectedDate ? new Date(currentYear, currentMonth - 1, selectedDate).toLocaleDateString() : 'Select a date'}
                     </h3>
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-sm text-foreground">
                       {selectedDateAppointments.length} appointments
                     </span>
                   </div>
@@ -353,7 +353,7 @@ function DoctorAppointmentsModal({ doctor, onClose }: { doctor: any, onClose: ()
                     </div>
                   ) : (
                     <div className="text-center py-8">
-                      <p className="text-sm text-muted-foreground">No appointments scheduled for this date</p>
+                      <p className="text-sm text-foreground">No appointments scheduled for this date</p>
                     </div>
                   )}
                 </div>
@@ -496,23 +496,23 @@ export function DoctorsPage({ pageParams }: DoctorsPageProps) {
             <div className="flex-1 space-y-4">
               <div>
                 <h2 className="text-xl font-semibold">{selectedDoctor.name}</h2>
-                <p className="text-muted-foreground">{selectedDoctor.department}</p>
+                <p className="text-foreground">{selectedDoctor.department}</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">Email</p>
+                  <p className="text-sm text-foreground">Email</p>
                   <p className="font-medium">{selectedDoctor.email}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Phone</p>
+                  <p className="text-sm text-foreground">Phone</p>
                   <p className="font-medium">{selectedDoctor.phone}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Clinic ID</p>
+                  <p className="text-sm text-foreground">Clinic ID</p>
                   <p className="font-medium">{selectedDoctor.clinic_id}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Status</p>
+                  <p className="text-sm text-foreground">Status</p>
                   <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${selectedDoctor.status === 'Active'
                     ? 'bg-green-100 text-green-800'
                     : 'bg-gray-100 text-gray-800'

@@ -1,0 +1,82 @@
+name: Deploy Staging
+
+on:
+  push: 
+    branches:
+      - dev
+    
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Deploy to Staging
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USERNAME }}
+          key: ${{ secrets.STAGING_KEY }}
+          script: |
+            # Source nvm or profile to load Node.js/npm
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            [ -s "$HOME/.bashrc" ] && \. "$HOME/.bashrc"
+            [ -s "$HOME/.profile" ] && \. "$HOME/.profile"
+            
+            cd /home/${{ secrets.STAGING_USERNAME }}/medical-assistant/clinic-assistant-ui || exit 1
+            git pull origin dev
+
+            echo "Creating .env file"
+            echo "VITE_API_BASE_URL=${{ secrets.STAGING_VITE_API_URL }}" > .env
+            echo "VITE_CHAT_BOT_URL=${{ secrets.STAGING_VITE_API_URL }}" >> .env
+
+            echo "Checking Node.js and npm versions"
+            if ! command -v node &> /dev/null; then
+              echo "Error: node not found"
+              exit 1
+            fi
+            if ! command -v npm &> /dev/null; then
+              echo "Error: npm not found"
+              exit 1
+            fi
+            node --version
+            npm --version
+
+            echo "Installing dependencies"
+            npm install
+
+            echo "Building the application"
+            npm run build
+
+            echo "Deployment complete"
+      - name: Verify deployment
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USERNAME }}
+          key: ${{ secrets.STAGING_KEY }}
+          script: |
+            # Source nvm or profile to load Node.js/npm
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            [ -s "$HOME/.bashrc" ] && \. "$HOME/.bashrc"
+            [ -s "$HOME/.profile" ] && \. "$HOME/.profile"
+            
+            cd /home/${{ secrets.STAGING_USERNAME }}/medical-assistant/clinic-assistant-ui || exit 1
+            
+            echo "Verifying build output..."
+            if [ ! -d "dist" ]; then
+              echo "Error: dist directory not found"
+              exit 1
+            fi
+            
+            if [ ! -f "dist/index.html" ]; then
+              echo "Error: dist/index.html not found"
+              exit 1
+            fi
+            
+            echo "Build verification successful"
+            echo "Build directory size: $(du -sh dist | cut -f1)"
+            echo "Number of files in dist: $(find dist -type f | wc -l)"
+            

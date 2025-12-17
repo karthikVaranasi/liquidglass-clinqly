@@ -89,7 +89,7 @@ export class AdminAnalyticsAPI extends BaseAPI {
       }>
       trends?: any[]
       appointment_trends?: any[]
-    }>(response)
+    }>(url)
 
     // Transform API response to match chart format
     // API returns { week_summary: {...}, daily_breakdown: [...] }

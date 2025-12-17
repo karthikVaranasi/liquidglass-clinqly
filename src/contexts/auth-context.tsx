@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from 'react'
 import { AuthStorage, type DecodedToken } from '@/api/auth'
+import { http, setHttpTokenAccessors } from '@/api/shared/http'
 
 interface Doctor {
   id: number
@@ -45,6 +46,8 @@ interface AuthContextType {
   userId: number | null
   clinicId: number | null
   decodedToken: DecodedToken | null
+  accessToken: string | null
+  setAccessToken: (token: string | null, options?: { skipBroadcast?: boolean }) => void
 
   // User data
   doctor: Doctor | null
@@ -57,7 +60,7 @@ interface AuthContextType {
 
   // Actions
   refreshProfile: () => Promise<void>
-  clearAuth: () => void
+  clearAuth: (options?: { skipBroadcast?: boolean }) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -67,6 +70,10 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
+  const accessTokenRef = useRef<string | null>(null)
+  const broadcastChannelRef = useRef<BroadcastChannel | null>(null)
+  const bootstrapAttemptedRef = useRef<boolean>(false)
+  const [accessToken, setAccessTokenState] = useState<string | null>(null)
   const [role, setRole] = useState<'admin' | 'doctor' | null>(null)
   const [userId, setUserId] = useState<number | null>(null)
   const [clinicId, setClinicId] = useState<number | null>(null)
@@ -83,22 +90,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const fetchDoctorData = useCallback(async (doctorId: number): Promise<Doctor | null> => {
     try {
-      const token = AuthStorage.getToken()
-      if (!token) return null
-
-      const response = await fetch(`${getApiBaseUrl()}/dashboard/doctors/${doctorId}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch doctor data: ${response.status}`)
-      }
-
-      return await response.json()
+      const response = await http.get(`${getApiBaseUrl()}/dashboard/doctors/${doctorId}`)
+      return response.data
     } catch (err) {
       console.error('Error fetching doctor data:', err)
       return null
@@ -107,31 +100,47 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const fetchClinicData = useCallback(async (clinicId: number): Promise<Clinic | null> => {
     try {
-      const token = AuthStorage.getToken()
-      if (!token) return null
-
-      const response = await fetch(`${getApiBaseUrl()}/dashboard/clinics/${clinicId}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch clinic data: ${response.status}`)
-      }
-
-      return await response.json()
+      const response = await http.get(`${getApiBaseUrl()}/dashboard/clinics/${clinicId}`)
+      return response.data
     } catch (err) {
       console.error('Error fetching clinic data:', err)
       return null
     }
   }, [])
 
+  const setAccessToken = useCallback((token: string | null, options?: { skipBroadcast?: boolean }) => {
+    accessTokenRef.current = token
+    setAccessTokenState(token)
+    if (token) {
+      AuthStorage.setToken(token)
+    } else {
+      AuthStorage.removeToken()
+    }
+    if (!options?.skipBroadcast) {
+      window.dispatchEvent(new CustomEvent('auth-token-changed', { detail: { token } }))
+      if (!token) {
+        broadcastChannelRef.current?.postMessage({ type: 'logout' })
+      }
+    }
+  }, [])
+
+  const getAccessToken = useCallback(() => accessTokenRef.current, [])
+
+  // Provide token accessors to axios layer
+  useEffect(() => {
+    setHttpTokenAccessors({
+      getToken: getAccessToken,
+      setToken: (token: string | null) => setAccessToken(token),
+    })
+  }, [getAccessToken, setAccessToken])
+
   const loadProfile = useCallback(async () => {
-    const token = AuthStorage.getToken()
+    const token = getAccessToken()
     if (!token) {
+      if (!bootstrapAttemptedRef.current) {
+        // Bootstrap will try to refresh using cookie; keep loading state
+        return
+      }
       setRole(null)
       setUserId(null)
       setClinicId(null)
@@ -146,15 +155,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const decoded = AuthStorage.decodeToken(token)
     if (!decoded) {
       // Token is invalid or expired
-      AuthStorage.clearAll()
-      setRole(null)
-      setUserId(null)
-      setClinicId(null)
-      setDecodedToken(null)
-      setDoctor(null)
-      setClinic(null)
-      setAdmin(null)
-      setIsLoading(false)
+      clearAuth()
       return
     }
 
@@ -201,8 +202,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     await loadProfile()
   }, [loadProfile])
 
-  const clearAuth = useCallback(() => {
-    AuthStorage.clearAll()
+  const clearAuth = useCallback((options?: { skipBroadcast?: boolean }) => {
+    setAccessToken(null, { skipBroadcast: options?.skipBroadcast })
     setRole(null)
     setUserId(null)
     setClinicId(null)
@@ -212,31 +213,62 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setAdmin(null)
     setIsLoading(false)
     setError(null)
+    if (!options?.skipBroadcast) {
+      broadcastChannelRef.current?.postMessage({ type: 'logout' })
+    }
   }, [])
 
   // Load profile on mount and when token changes
   useEffect(() => {
     loadProfile()
+  }, [loadProfile, accessToken])
 
-    // Listen for storage changes (e.g., when token is set in another tab)
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'auth_token' || e.key === null) {
-        loadProfile()
+  // Bootstrap refresh on mount when no token is present (cookie-based)
+  useEffect(() => {
+    if (accessToken || bootstrapAttemptedRef.current) return
+    bootstrapAttemptedRef.current = true
+
+    const runBootstrapRefresh = async () => {
+      try {
+        setIsLoading(true)
+        const response = await http.post('/dashboard/auth/refresh', undefined, { skipAuthRefresh: true } as any)
+        const newToken =
+          (response.data as any)?.access_token ||
+          (response.data as any)?.token ||
+          (response.data as any)?.accessToken ||
+          null
+
+        if (newToken) {
+          setAccessToken(newToken)
+          await loadProfile()
+          return
+        }
+      } catch (err) {
+        console.warn('Bootstrap refresh failed:', err)
+      }
+
+      clearAuth()
+      setIsLoading(false)
+    }
+
+    void runBootstrapRefresh()
+  }, [accessToken, clearAuth, loadProfile, setAccessToken])
+
+  // Cross-tab communication without persisting tokens
+  useEffect(() => {
+    if (typeof BroadcastChannel === 'undefined') return
+    const channel = new BroadcastChannel('auth-events')
+    broadcastChannelRef.current = channel
+    channel.onmessage = (event) => {
+      if (event.data?.type === 'logout') {
+        clearAuth({ skipBroadcast: true })
       }
     }
-
-    // Listen for custom event (same-tab token changes)
-    const handleTokenChanged = () => {
-      loadProfile()
-    }
-
-    window.addEventListener('storage', handleStorageChange)
-    window.addEventListener('auth-token-changed', handleTokenChanged)
     return () => {
-      window.removeEventListener('storage', handleStorageChange)
-      window.removeEventListener('auth-token-changed', handleTokenChanged)
+      channel.close()
+      broadcastChannelRef.current = null
     }
-  }, [loadProfile])
+  }, [clearAuth])
 
   return (
     <AuthContext.Provider
@@ -245,6 +277,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         userId,
         clinicId,
         decodedToken,
+        accessToken,
+        setAccessToken,
         doctor,
         clinic,
         admin,

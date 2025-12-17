@@ -1,13 +1,12 @@
 import { Navigate, Outlet } from "react-router-dom"
-import { AuthStorage } from "@/api/auth"
+import { useAuth } from "@/contexts/auth-context"
 
 interface ProtectedRouteProps {
   allowedRoles: Array<'admin' | 'doctor'>
 }
 
 export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
-  const token = AuthStorage.getToken()
-  const role = AuthStorage.getUserRole()
+  const { accessToken, role } = useAuth()
 
   const getDefaultRoute = (userRole: 'admin' | 'doctor' | null) => {
     if (userRole === 'admin') return '/admin/analytics'
@@ -16,7 +15,7 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
   }
 
   // If no token or role, redirect to login
-  if (!token || !role) {
+  if (!accessToken || !role) {
     return <Navigate to="/login" replace />
   }
 

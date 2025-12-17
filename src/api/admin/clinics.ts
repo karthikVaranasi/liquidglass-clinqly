@@ -13,12 +13,7 @@ export class AdminClinicsAPI extends BaseAPI {
    * Get all clinics
    */
   static async getAllClinics(): Promise<Clinic[]> {
-    const response = await fetch(`${this.getBaseUrl()}/dashboard/clinics`, {
-      method: 'GET',
-      headers: this.getAuthHeaders(),
-    })
-
-    const data = await this.handleResponse<any>(response)
+    const data = await this.get<any>(`${this.getBaseUrl()}/dashboard/clinics`)
 
     if (data.clinics && Array.isArray(data.clinics)) {
       return data.clinics

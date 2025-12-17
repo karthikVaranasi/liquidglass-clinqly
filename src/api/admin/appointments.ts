@@ -15,12 +15,7 @@ export class AdminAppointmentsAPI extends BaseAPI {
     const queryString = this.buildQueryString(filters || {})
     const url = `${this.getBaseUrl()}/dashboard/appointments${queryString ? `?${queryString}` : ''}`
 
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: this.getAuthHeaders(),
-    })
-
-    const data = await this.handleResponse<any>(response)
+    const data = await this.get<any>(url)
     
     // Handle API response structure: { appointments: [...] } or directly an array
     if (data && typeof data === 'object' && !Array.isArray(data) && Array.isArray(data.appointments)) {
@@ -36,15 +31,7 @@ export class AdminAppointmentsAPI extends BaseAPI {
    * Get appointments for a specific patient
    */
   static async getAppointmentsByPatient(patientId: number): Promise<Appointment[]> {
-    const response = await fetch(
-      `${this.getBaseUrl()}/dashboard/appointments/patient/${patientId}`,
-      {
-        method: 'GET',
-        headers: this.getAuthHeaders(),
-      }
-    )
-
-    const data = await this.handleResponse<any>(response)
+    const data = await this.get<any>(`${this.getBaseUrl()}/dashboard/appointments/patient/${patientId}`)
     
     if (Array.isArray(data)) {
       return data
@@ -59,39 +46,21 @@ export class AdminAppointmentsAPI extends BaseAPI {
    * Book a new appointment
    */
   static async bookAppointment(appointmentData: BookAppointmentRequest): Promise<Appointment> {
-    const response = await fetch(`${this.getBaseUrl()}/dashboard/appointments/book`, {
-      method: 'POST',
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify(appointmentData),
-    })
-
-    return this.handleResponse<Appointment>(response)
+    return this.post<Appointment>(`${this.getBaseUrl()}/dashboard/appointments/book`, appointmentData)
   }
 
   /**
    * Reschedule an existing appointment
    */
   static async rescheduleAppointment(appointmentData: RescheduleAppointmentRequest): Promise<Appointment> {
-    const response = await fetch(`${this.getBaseUrl()}/dashboard/appointments/reschedule`, {
-      method: 'POST',
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify(appointmentData),
-    })
-
-    return this.handleResponse<Appointment>(response)
+    return this.post<Appointment>(`${this.getBaseUrl()}/dashboard/appointments/reschedule`, appointmentData)
   }
 
   /**
    * Cancel an appointment
    */
   static async cancelAppointment(appointmentData: CancelAppointmentRequest): Promise<any> {
-    const response = await fetch(`${this.getBaseUrl()}/dashboard/appointments/cancel`, {
-      method: 'POST',
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify(appointmentData),
-    })
-
-    return this.handleResponse<any>(response)
+    return this.post<any>(`${this.getBaseUrl()}/dashboard/appointments/cancel`, appointmentData)
   }
 }
 

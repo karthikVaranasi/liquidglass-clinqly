@@ -1,5 +1,7 @@
+import axios from "axios"
 import { BaseAPI } from "../shared/base"
 import { AuthStorage } from "../auth"
+import { createFriendlyError } from "../../lib/errors"
 import type { Patient } from "../shared/types"
 
 export class DoctorPatientsAPI extends BaseAPI {
@@ -7,15 +9,7 @@ export class DoctorPatientsAPI extends BaseAPI {
    * Get all patients for a clinic
    */
   static async getAllPatients(clinicId: number): Promise<Patient[]> {
-    const response = await fetch(
-      `${this.getBaseUrl()}/dashboard/patients?clinic_id=${clinicId}`,
-      {
-        method: 'GET',
-        headers: this.getAuthHeaders(),
-      }
-    )
-
-    const data = await this.handleResponse<any>(response)
+    const data = await this.get<any>(`${this.getBaseUrl()}/dashboard/patients?clinic_id=${clinicId}`)
 
     if (Array.isArray(data)) {
       return data
@@ -39,26 +33,14 @@ export class DoctorPatientsAPI extends BaseAPI {
    * Create a new patient
    */
   static async createPatient(patientData: Partial<Patient>): Promise<Patient> {
-    const response = await fetch(`${this.getBaseUrl()}/dashboard/patients/create`, {
-      method: 'POST',
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify(patientData),
-    })
-
-    return this.handleResponse<Patient>(response)
+    return this.post<Patient>(`${this.getBaseUrl()}/dashboard/patients/create`, patientData)
   }
 
   /**
    * Update a patient
    */
   static async updatePatient(patientId: number, patientData: Partial<Patient>): Promise<Patient> {
-    const response = await fetch(`${this.getBaseUrl()}/dashboard/patients/${patientId}`, {
-      method: 'PUT',
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify(patientData),
-    })
-
-    return this.handleResponse<Patient>(response)
+    return this.put<Patient>(`${this.getBaseUrl()}/dashboard/patients/${patientId}`, patientData)
   }
 
   /**
@@ -66,20 +48,7 @@ export class DoctorPatientsAPI extends BaseAPI {
    */
   static async getPatientDocuments(patientId: number): Promise<any[]> {
     try {
-      const response = await fetch(
-        `${this.getBaseUrl()}/dashboard/patients/documents/${patientId}`,
-        {
-          method: 'GET',
-          headers: this.getAuthHeaders(),
-        }
-      )
-
-      // Handle 404 gracefully (patient may not have documents)
-      if (response.status === 404) {
-        return []
-      }
-
-      const data = await this.handleResponse<any>(response)
+      const data = await this.get<any>(`${this.getBaseUrl()}/dashboard/patients/documents/${patientId}`)
 
       // If response body is empty or null, just return an empty list
       if (!data) {
@@ -96,6 +65,8 @@ export class DoctorPatientsAPI extends BaseAPI {
 
       return []
     } catch (error) {
+      const status = (error as any)?.statusCode
+      if (status === 404) return []
       // Return empty array if documents endpoint doesn't exist or fails
       console.warn('Failed to fetch patient documents:', error)
       // Don't throw - return empty array for graceful degradation
@@ -180,18 +151,24 @@ export class DoctorPatientsAPI extends BaseAPI {
       throw new Error('Document URL not available')
     }
 
-    // Fetch document with auth headers
-    const response = await fetch(fetchUrl, {
-      method: 'GET',
-      headers: this.getAuthHeaders(),
-    })
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch document')
+    let response
+    try {
+      response = await this.client.get(fetchUrl, {
+        responseType: 'blob',
+      })
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const status = error.response?.status ?? 500
+        const serverMessage = typeof (error.response?.data as any)?.message === 'string'
+          ? (error.response?.data as any).message
+          : undefined
+        throw createFriendlyError(status, serverMessage, 'data')
+      }
+      throw error instanceof Error ? error : new Error('Failed to fetch document')
     }
 
-    const blob = await response.blob()
-    const contentType = response.headers.get('content-type') || 'application/octet-stream'
+    const blob = response.data as Blob
+    const contentType = response.headers['content-type'] || 'application/octet-stream'
 
     // Determine file extension
     const getFileExtension = (contentType: string, url: string): string => {

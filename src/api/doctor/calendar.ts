@@ -43,42 +43,21 @@ export class CalendarAPI extends BaseAPI {
      * Get Google Calendar connection status for a doctor
      */
     static async getGoogleStatus(doctorId: number): Promise<CalendarStatus> {
-        const response = await fetch(
-            `${this.getBaseUrl()}/dashboard/calendar/status/google/${doctorId}`,
-            {
-                method: 'GET',
-                headers: this.getAuthHeaders(),
-            }
-        )
-        return this.handleResponse<CalendarStatus>(response)
+        return this.get<CalendarStatus>(`${this.getBaseUrl()}/dashboard/calendar/status/google/${doctorId}`)
     }
 
     /**
      * Get Microsoft Calendar connection status for a doctor
      */
     static async getMicrosoftStatus(doctorId: number): Promise<CalendarStatus> {
-        const response = await fetch(
-            `${this.getBaseUrl()}/dashboard/calendar/status/microsoft/${doctorId}`,
-            {
-                method: 'GET',
-                headers: this.getAuthHeaders(),
-            }
-        )
-        return this.handleResponse<CalendarStatus>(response)
+        return this.get<CalendarStatus>(`${this.getBaseUrl()}/dashboard/calendar/status/microsoft/${doctorId}`)
     }
 
     /**
      * Get all calendar accounts for a doctor
      */
     static async getCalendarAccounts(doctorId: number): Promise<CalendarAccountsResponse> {
-        const response = await fetch(
-            `${this.getBaseUrl()}/dashboard/calendar/accounts/${doctorId}`,
-            {
-                method: 'GET',
-                headers: this.getAuthHeaders(),
-            }
-        )
-        return this.handleResponse<CalendarAccountsResponse>(response)
+        return this.get<CalendarAccountsResponse>(`${this.getBaseUrl()}/dashboard/calendar/accounts/${doctorId}`)
     }
 
     /**
@@ -89,14 +68,7 @@ export class CalendarAPI extends BaseAPI {
         accountId: number,
         provider: 'google' | 'microsoft'
     ): Promise<void> {
-        const response = await fetch(
-            `${this.getBaseUrl()}/dashboard/calendar/accounts/${provider}/${doctorId}/${accountId}`,
-            {
-                method: 'DELETE',
-                headers: this.getAuthHeaders(),
-            }
-        )
-        await this.handleResponse<any>(response)
+        await this.delete<any>(`${this.getBaseUrl()}/dashboard/calendar/accounts/${provider}/${doctorId}/${accountId}`)
     }
 
     /**
@@ -107,14 +79,7 @@ export class CalendarAPI extends BaseAPI {
         accountId: number,
         provider: 'google' | 'microsoft'
     ): Promise<void> {
-        const response = await fetch(
-            `${this.getBaseUrl()}/dashboard/calendar/primary/${provider}/${doctorId}/${accountId}`,
-            {
-                method: 'PUT',
-                headers: this.getAuthHeaders(),
-            }
-        )
-        await this.handleResponse<any>(response)
+        await this.put<any>(`${this.getBaseUrl()}/dashboard/calendar/primary/${provider}/${doctorId}/${accountId}`)
     }
 
     /**

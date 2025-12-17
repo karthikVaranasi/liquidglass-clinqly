@@ -21,12 +21,7 @@ export class DoctorLogsAPI extends BaseAPI {
         const queryString = this.buildQueryString(allParams)
         const url = `${this.getBaseUrl()}/dashboard/logs/by-clinic${queryString ? `?${queryString}` : ''}`
 
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: this.getAuthHeaders(),
-        })
-
-        const data = await this.handleResponse<any>(response)
+        const data = await this.get<any>(url)
 
         let logs: CallLog[] = []
         if (Array.isArray(data)) {
@@ -43,15 +38,7 @@ export class DoctorLogsAPI extends BaseAPI {
      * Get transcript (and optional audio) for a specific call log
      */
     static async getTranscript(logId: string): Promise<TranscriptTurn[] | { transcript: TranscriptTurn[]; audio?: string }> {
-        const response = await fetch(
-            `${this.getBaseUrl()}/dashboard/logs/transcript?id=${logId}`,
-            {
-                method: 'GET',
-                headers: this.getAuthHeaders(),
-            }
-        )
-
-        const data = await this.handleResponse<any>(response)
+        const data = await this.get<any>(`${this.getBaseUrl()}/dashboard/logs/transcript?id=${logId}`)
 
         const normalizeTranscript = (raw: any[]): TranscriptTurn[] =>
             raw

@@ -1,7 +1,7 @@
 import "./App.css"
 import { useState, Suspense, lazy, useEffect, useCallback } from "react"
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom"
-import { AuthStorage, AuthAPI } from "@/api/auth"
+import { AuthAPI } from "@/api/auth"
 import { SessionProvider } from "@/contexts/session-context"
 import { AuthProvider, useAuth } from "@/contexts/auth-context"
 import { SessionExpiredModal } from "@/components/session-expired-modal"
@@ -43,7 +43,7 @@ const getApiBaseUrl = (): string => {
 // SSO Login handler component
 function SSOLoginHandler() {
   const navigate = useNavigate()
-  const { refreshProfile } = useAuth()
+  const { refreshProfile, setAccessToken } = useAuth()
   const [isProcessing, setIsProcessing] = useState(true)
 
   useEffect(() => {
@@ -54,8 +54,9 @@ function SSOLoginHandler() {
 
         if (ssoToken) {
           const response = await AuthAPI.ssoLogin({ token: ssoToken })
-          // Store only the JWT token
-          AuthStorage.setToken(response.access_token)
+          if (response.access_token) {
+            setAccessToken(response.access_token)
+          }
 
           // Refresh profile to load doctor/clinic data via AuthContext
           await refreshProfile()

@@ -9,12 +9,7 @@ export class AdminLogsAPI extends BaseAPI {
     const queryString = this.buildQueryString(filters || {})
     const url = `${this.getBaseUrl()}/dashboard/logs${queryString ? `?${queryString}` : ''}`
 
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: this.getAuthHeaders(),
-    })
-
-    const data = await this.handleResponse<any>(response)
+    const data = await this.get<any>(url)
 
     if (Array.isArray(data)) {
       return data
@@ -29,15 +24,7 @@ export class AdminLogsAPI extends BaseAPI {
    * Get transcript (and optional audio) for a specific call log
    */
   static async getTranscript(logId: string): Promise<TranscriptTurn[] | { transcript: TranscriptTurn[]; audio?: string }> {
-    const response = await fetch(
-      `${this.getBaseUrl()}/dashboard/logs/transcript?id=${logId}`,
-      {
-        method: 'GET',
-        headers: this.getAuthHeaders(),
-      }
-    )
-
-    const data = await this.handleResponse<any>(response)
+    const data = await this.get<any>(`${this.getBaseUrl()}/dashboard/logs/transcript?id=${logId}`)
 
     const normalizeTranscript = (raw: any[]): TranscriptTurn[] =>
       raw

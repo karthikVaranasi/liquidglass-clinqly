@@ -1,12 +1,11 @@
 import { Navigate } from "react-router-dom"
-import { AuthStorage } from "@/api/auth"
+import { useAuth } from "@/contexts/auth-context"
 
 export function AuthRedirect() {
-  const token = AuthStorage.getToken()
-  const role = AuthStorage.getUserRole()
+  const { accessToken, role } = useAuth()
 
   // If authenticated, redirect to appropriate dashboard
-  if (token && role) {
+  if (accessToken && role) {
     const defaultRoute = role === 'admin' ? '/admin/analytics' : '/doctor/appointments'
     return <Navigate to={defaultRoute} replace />
   }

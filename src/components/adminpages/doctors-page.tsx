@@ -378,7 +378,7 @@ export function DoctorsPage({ pageParams }: DoctorsPageProps) {
   const navigate = useNavigate()
 
   const { setDoctorsCount } = useCounts()
-  const { refreshProfile } = useAuth()
+  const { refreshProfile, setAccessToken } = useAuth()
   const [selectedDoctor, setSelectedDoctor] = useState<any | null>(null)
   const [viewMode, setViewMode] = useState<'table' | 'profile'>('table')
   const [showAppointmentsModal, setShowAppointmentsModal] = useState(false)
@@ -480,7 +480,7 @@ export function DoctorsPage({ pageParams }: DoctorsPageProps) {
       const response = await AuthAPI.adminLoginAsDoctor({ doctor_id: doctorId })
 
       // Store only the JWT token and mark as impersonating
-      AuthStorage.setToken(response.access_token)
+    setAccessToken(response.access_token)
       AuthStorage.setAdminImpersonating(true)
 
       // Refresh profile to load doctor/clinic data via AuthProvider

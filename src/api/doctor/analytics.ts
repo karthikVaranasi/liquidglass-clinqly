@@ -65,12 +65,7 @@ export class DoctorAnalyticsAPI extends BaseAPI {
     const queryString = this.buildQueryString(params)
     const url = `${this.getBaseUrl()}/dashboard/stats/all${queryString ? `?${queryString}` : ''}`
 
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: this.getAuthHeaders(),
-    })
-
-    const data = await this.handleResponse<AnalyticsResponse>(response)
+    const data = await this.get<AnalyticsResponse>(url)
     return data.stats
   }
 
@@ -85,12 +80,7 @@ export class DoctorAnalyticsAPI extends BaseAPI {
     const queryString = this.buildQueryString(params)
     const url = `${this.getBaseUrl()}/dashboard/stats/age-distribution${queryString ? `?${queryString}` : ''}`
 
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: this.getAuthHeaders(),
-    })
-
-    const data = await this.handleResponse<any>(response)
+    const data = await this.get<any>(url)
 
     // Default colors for age ranges
     const defaultColors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#00ff00', '#0088fe']
@@ -152,12 +142,7 @@ export class DoctorAnalyticsAPI extends BaseAPI {
     const queryString = this.buildQueryString(params)
     const url = `${this.getBaseUrl()}/dashboard/stats/appointment-trends${queryString ? `?${queryString}` : ''}`
 
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: this.getAuthHeaders(),
-    })
-
-    const data = await this.handleResponse<AppointmentTrendsResponse>(response)
+    const data = await this.get<AppointmentTrendsResponse>(url)
 
     // Transform API response to match chart format
     // API returns { week_summary: {...}, daily_breakdown: [...] }
@@ -214,12 +199,7 @@ export class DoctorAnalyticsAPI extends BaseAPI {
     const queryString = this.buildQueryString(params)
     const url = `${this.getBaseUrl()}/dashboard/logs/by-clinic${queryString ? `?${queryString}` : ''}`
 
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: this.getAuthHeaders(),
-    })
-
-    const data = await this.handleResponse<any>(response)
+    const data = await this.get<any>(url)
 
     // Extract logs array from response
     let logs: any[] = []

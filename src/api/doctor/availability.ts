@@ -24,14 +24,7 @@ export class AvailabilityAPI extends BaseAPI {
      */
     static async getClinicWorkingHours(clinicId: number): Promise<ClinicWorkingHoursGetResponse> {
         const queryString = this.buildQueryString({ clinic_id: clinicId })
-        const response = await fetch(
-            `${this.getBaseUrl()}/dashboard/clinics/clinic-working-hours?${queryString}`,
-            {
-                method: 'GET',
-                headers: this.getAuthHeaders(),
-            }
-        )
-        return this.handleResponse<ClinicWorkingHoursGetResponse>(response)
+        return this.get<ClinicWorkingHoursGetResponse>(`${this.getBaseUrl()}/dashboard/clinics/clinic-working-hours?${queryString}`)
     }
 
     /**
@@ -39,15 +32,7 @@ export class AvailabilityAPI extends BaseAPI {
      * @param data - The clinic working hours data
      */
     static async updateClinicWorkingHours(data: ClinicWorkingHoursRequest): Promise<ClinicWorkingHoursResponse> {
-        const response = await fetch(
-            `${this.getBaseUrl()}/dashboard/clinics/clinic-working-hours`,
-            {
-                method: 'PUT',
-                headers: this.getAuthHeaders(),
-                body: JSON.stringify(data),
-            }
-        )
-        return this.handleResponse<ClinicWorkingHoursResponse>(response)
+        return this.put<ClinicWorkingHoursResponse>(`${this.getBaseUrl()}/dashboard/clinics/clinic-working-hours`, data)
     }
 
     // ============================================
@@ -72,11 +57,7 @@ export class AvailabilityAPI extends BaseAPI {
         const queryString = this.buildQueryString(params)
         const url = `${this.getBaseUrl()}/dashboard/doctors/availability-exceptions/${doctorId}${queryString ? `?${queryString}` : ''}`
 
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: this.getAuthHeaders(),
-        })
-        return this.handleResponse<AvailabilityException[]>(response)
+        return this.get<AvailabilityException[]>(url)
     }
 
     /**
@@ -86,15 +67,7 @@ export class AvailabilityAPI extends BaseAPI {
     static async createAvailabilityException(
         data: CreateAvailabilityExceptionRequest
     ): Promise<AvailabilityException> {
-        const response = await fetch(
-            `${this.getBaseUrl()}/dashboard/doctors/availability-exceptions`,
-            {
-                method: 'POST',
-                headers: this.getAuthHeaders(),
-                body: JSON.stringify(data),
-            }
-        )
-        return this.handleResponse<AvailabilityException>(response)
+        return this.post<AvailabilityException>(`${this.getBaseUrl()}/dashboard/doctors/availability-exceptions`, data)
     }
 
     /**
@@ -106,15 +79,7 @@ export class AvailabilityAPI extends BaseAPI {
         exceptionId: number,
         data: UpdateAvailabilityExceptionRequest
     ): Promise<AvailabilityException> {
-        const response = await fetch(
-            `${this.getBaseUrl()}/dashboard/doctors/availability-exceptions/${exceptionId}`,
-            {
-                method: 'PUT',
-                headers: this.getAuthHeaders(),
-                body: JSON.stringify(data),
-            }
-        )
-        return this.handleResponse<AvailabilityException>(response)
+        return this.put<AvailabilityException>(`${this.getBaseUrl()}/dashboard/doctors/availability-exceptions/${exceptionId}`, data)
     }
 
     /**
@@ -122,14 +87,7 @@ export class AvailabilityAPI extends BaseAPI {
      * @param exceptionId - Exception's ID
      */
     static async deleteAvailabilityException(exceptionId: number): Promise<string> {
-        const response = await fetch(
-            `${this.getBaseUrl()}/dashboard/doctors/availability-exceptions/${exceptionId}`,
-            {
-                method: 'DELETE',
-                headers: this.getAuthHeaders(),
-            }
-        )
-        return this.handleResponse<string>(response)
+        return this.delete<string>(`${this.getBaseUrl()}/dashboard/doctors/availability-exceptions/${exceptionId}`)
     }
 
     /**
@@ -144,11 +102,7 @@ export class AvailabilityAPI extends BaseAPI {
         const queryString = this.buildQueryString(params)
         const url = `${this.getBaseUrl()}/dashboard/doctors/${doctorId}/sync-holidays${queryString ? `?${queryString}` : ''}`
 
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: this.getAuthHeaders(),
-        })
-        return this.handleResponse<any>(response)
+        return this.post<any>(url)
     }
 }
 

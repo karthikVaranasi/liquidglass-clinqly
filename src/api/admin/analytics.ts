@@ -12,12 +12,7 @@ export class AdminAnalyticsAPI extends BaseAPI {
   static async getAllStats(): Promise<DashboardStats> {
     const url = `${this.getBaseUrl()}/dashboard/stats/all`
 
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: this.getAuthHeaders(),
-    })
-
-    const data = await this.handleResponse<{ stats: DashboardStats }>(response)
+    const data = await this.get<{ stats: DashboardStats }>(url)
     return data.stats
   }
 
@@ -27,12 +22,7 @@ export class AdminAnalyticsAPI extends BaseAPI {
   static async getAgeDistribution(): Promise<AgeDistributionItem[]> {
     const url = `${this.getBaseUrl()}/dashboard/stats/age-distribution`
 
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: this.getAuthHeaders(),
-    })
-
-    const data = await this.handleResponse<any>(response)
+    const data = await this.get<any>(url)
 
     // Default colors for age ranges
     const defaultColors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#00ff00', '#0088fe']
@@ -89,12 +79,7 @@ export class AdminAnalyticsAPI extends BaseAPI {
   static async getAppointmentTrends(): Promise<AppointmentTrendItem[]> {
     const url = `${this.getBaseUrl()}/dashboard/stats/appointment-trends`
 
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: this.getAuthHeaders(),
-    })
-
-    const data = await this.handleResponse<{
+    const data = await this.get<{
       week_summary: any
       daily_breakdown: Array<{
         date: string

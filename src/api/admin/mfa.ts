@@ -34,12 +34,7 @@ export class AdminMFAAPI extends BaseAPI {
     static async setupMFA(): Promise<MFASetupResponse> {
         const url = `${this.getBaseUrl()}/dashboard/mfa/setup`
 
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: this.getAuthHeaders(),
-        })
-
-        return this.handleResponse<MFASetupResponse>(response)
+        return this.get<MFASetupResponse>(url)
     }
 
     /**
@@ -51,13 +46,7 @@ export class AdminMFAAPI extends BaseAPI {
     static async verifyMFA(code: string, secret: string): Promise<MFAVerifyResponse> {
         const url = `${this.getBaseUrl()}/dashboard/mfa/verify`
 
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: this.getAuthHeaders(),
-            body: JSON.stringify({ code, secret }),
-        })
-
-        return this.handleResponse<MFAVerifyResponse>(response)
+        return this.post<MFAVerifyResponse>(url, { code, secret }, 'login')
     }
 
     /**
@@ -67,12 +56,7 @@ export class AdminMFAAPI extends BaseAPI {
     static async getMFAStatus(): Promise<MFAStatusResponse> {
         const url = `${this.getBaseUrl()}/dashboard/mfa/status`
 
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: this.getAuthHeaders(),
-        })
-
-        return this.handleResponse<MFAStatusResponse>(response)
+        return this.get<MFAStatusResponse>(url)
     }
 
     /**
@@ -82,11 +66,6 @@ export class AdminMFAAPI extends BaseAPI {
     static async disableMFA(): Promise<string> {
         const url = `${this.getBaseUrl()}/dashboard/mfa/disable`
 
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: this.getAuthHeaders(),
-        })
-
-        return this.handleResponse<string>(response)
+        return this.post<string>(url)
     }
 }

@@ -8,6 +8,7 @@ import { Eye, EyeOff, AlertCircle } from "lucide-react"
 import { IconShield, IconStethoscope } from "@tabler/icons-react"
 import { AuthAPI, AuthStorage } from "@/api/auth"
 import { getLoginErrorMessage } from "@/lib/errors"
+import { useAuth } from "@/contexts/auth-context"
 
 interface LoginPageProps {
   onLogin: (userType: 'admin' | 'doctor') => void
@@ -15,17 +16,15 @@ interface LoginPageProps {
 
 export function LoginPage({ onLogin }: LoginPageProps) {
   const navigate = useNavigate()
+  const { accessToken, role, setAccessToken } = useAuth()
 
   // Redirect if already authenticated
   useEffect(() => {
-    const token = AuthStorage.getToken()
-    const role = AuthStorage.getUserRole()
-
-    if (token && role) {
+    if (accessToken && role) {
       const defaultRoute = role === 'admin' ? '/admin/analytics' : '/doctor/appointments'
       navigate(defaultRoute, { replace: true })
     }
-  }, [navigate])
+  }, [accessToken, role, navigate])
   const [userType, setUserType] = useState<'admin' | 'doctor'>('admin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -60,30 +59,30 @@ export function LoginPage({ onLogin }: LoginPageProps) {
           return
         }
 
-        if (response.access_token) {
-          // Store only the JWT token
-          AuthStorage.setToken(response.access_token)
-
-          // Decode token to get role
-          const decoded = AuthStorage.decodeToken(response.access_token)
-          const userRole = decoded?.role || 'admin'
-
-          // Trigger profile load via context (will be handled by AuthProvider)
-          onLogin(userRole as 'admin' | 'doctor')
-          navigate('/admin/analytics', { replace: true })
-        } else {
+        if (!response.access_token) {
           setError('Login successful but no access token received. Please try again.')
+          return
         }
+
+        setAccessToken(response.access_token)
+
+        const decoded = AuthStorage.decodeToken(response.access_token)
+        const userRole = decoded?.role || 'admin'
+
+        onLogin(userRole as 'admin' | 'doctor')
+        navigate('/admin/analytics', { replace: true })
       } else {
         response = await AuthAPI.doctorLogin(loginData)
-        // Store only the JWT token
-        AuthStorage.setToken(response.access_token)
+        if (!response.access_token) {
+          setError('Login successful but no access token received. Please try again.')
+          return
+        }
 
-        // Decode token to get role
+        setAccessToken(response.access_token)
+
         const decoded = AuthStorage.decodeToken(response.access_token)
         const userRole = decoded?.role || 'doctor'
 
-        // Trigger profile load via context (will be handled by AuthProvider)
         onLogin(userRole as 'admin' | 'doctor')
         navigate('/doctor/appointments', { replace: true })
       }

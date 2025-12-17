@@ -1,8 +1,6 @@
+import axios from "axios"
 import { createFriendlyError } from "@/lib/errors"
-
-const getApiBaseUrl = (): string => {
-  return import.meta.env.VITE_API_BASE_URL
-}
+import { http } from "./shared/http"
 
 export interface LoginRequest {
   email: string
@@ -46,38 +44,21 @@ export interface AdminLoginAsDoctorResponse {
 
 export class AuthAPI {
   private static async makeRequest(endpoint: string, data: any): Promise<any> {
-    const response = await fetch(`${getApiBaseUrl()}${endpoint}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: undefined }))
-      throw createFriendlyError(response.status, errorData.message, 'login')
+    try {
+      const response = await http.post(endpoint, data, { skipAuthRefresh: true } as any)
+      return response.data
+    } catch (error) {
+      throw this.normalizeError(error, 'login')
     }
-
-    return response.json()
   }
 
   private static async makeAuthenticatedRequest(endpoint: string, data: any): Promise<any> {
-    const response = await fetch(`${getApiBaseUrl()}${endpoint}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${AuthStorage.getToken()}`,
-      },
-      body: JSON.stringify(data),
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: undefined }))
-      throw createFriendlyError(response.status, errorData.message, 'data')
+    try {
+      const response = await http.post(endpoint, data)
+      return response.data
+    } catch (error) {
+      throw this.normalizeError(error, 'data')
     }
-
-    return response.json()
   }
 
   static async adminLogin(data: LoginRequest): Promise<AdminLoginResponse> {
@@ -99,33 +80,39 @@ export class AuthAPI {
   // Token validation - we can use this to check if a stored token is still valid
   static async validateToken(token: string): Promise<boolean> {
     try {
-      // Try to make a request to a protected endpoint to validate the token
-      // Using clinics endpoint which is simpler and should be protected
-      const response = await fetch(`${getApiBaseUrl()}/dashboard/clinics`, {
-        method: 'GET',
+      const response = await http.get('/dashboard/clinics', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
-      })
+        skipAuthRefresh: true,
+      } as any)
 
-      // If we get a 401 or 403, token is invalid (unauthorized/forbidden)
-      if (response.status === 401 || response.status === 403) {
-        // console.log('🔐 Token validation: unauthorized/forbidden')
-        return false
-      }
-
-      // If we get a 200, token is valid
-      // For other status codes (like 422 validation errors), we consider the token valid
-      // since the error is not auth-related
-      const isValid = response.ok || response.status === 422
-      // console.log(`🔐 Token validation result: ${isValid} (status: ${response.status})`)
-      return isValid
+      // If we get a 200, token is valid. 422 still considered valid.
+      return response.status >= 200 && response.status < 300 || response.status === 422
 
     } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const status = error.response?.status
+        if (status === 401 || status === 403) {
+          return false
+        }
+      }
       // Network errors or other issues - consider token invalid
       console.warn('💥 Token validation network error:', error)
       return false
     }
+  }
+
+  private static normalizeError(error: unknown, context: 'login' | 'data') {
+    if (axios.isAxiosError(error)) {
+      const status = error.response?.status ?? 500
+      const message = typeof error.response?.data?.message === 'string'
+        ? error.response?.data.message
+        : undefined
+      return createFriendlyError(status, message, context)
+    }
+    if (error instanceof Error) return error
+    return createFriendlyError(500, undefined, context)
   }
 }
 
@@ -141,22 +128,20 @@ export interface DecodedToken {
 
 // Auth token storage utilities
 export class AuthStorage {
-  private static readonly TOKEN_KEY = 'auth_token'
+  private static memoryToken: string | null = null
   private static readonly ADMIN_IMPERSONATING_KEY = 'admin_impersonating'
 
   // Token management
   static setToken(token: string): void {
-    localStorage.setItem(this.TOKEN_KEY, token)
-    // Dispatch custom event for same-tab token changes
-    window.dispatchEvent(new CustomEvent('auth-token-changed', { detail: { token } }))
+    this.memoryToken = token
   }
 
   static getToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY)
+    return this.memoryToken
   }
 
   static removeToken(): void {
-    localStorage.removeItem(this.TOKEN_KEY)
+    this.memoryToken = null
   }
 
   // JWT Decoding helpers

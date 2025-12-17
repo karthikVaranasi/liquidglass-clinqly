@@ -1,37 +1,62 @@
 import { useState, useEffect } from "react"
-import { IconArrowLeft, IconUserCircle, IconFilter } from "@tabler/icons-react"
+import {
+  IconArrowLeft,
+  IconUserCircle,
+  IconFilter,
+  IconSearch,
+  IconLoader2,
+  IconPhone,
+  IconCalendar,
+  IconMail,
+  IconUsers,
+  IconFileText,
+  IconCalendarEvent,
+  IconHistory,
+  IconX
+} from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { DatePicker } from "@/components/ui/date-picker"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 import { formatDateUS, formatDateUSShort, getCurrentDateInLocal } from "@/lib/date"
-import { getErrorMessage } from "@/lib/errors"
+import { getErrorMessage, getToastErrorMessage } from "@/lib/errors"
 import { AdminPatientsAPI, AdminClinicsAPI } from "@/api/admin"
 import type { Patient, Guardian } from "@/api/shared/types"
 
+type PatientDocument = {
+  document_id?: number
+  id?: number
+  type: string
+  title?: string
+  description?: string
+  uploaded_at?: string
+  url?: string
+  file_url?: string
+  document_url?: string
+}
+
 interface ExtendedPatient extends Patient {
-  documents?: Array<{
-    document_id?: number
-    id?: number
-    type: string
-    title?: string
-    description?: string
-    uploaded_at?: string
-    url?: string
-    file_url?: string
-    document_url?: string
-  }>
+  email?: string
+  guardians?: Guardian[]
+  documents?: PatientDocument[]
   appointments?: {
     upcoming: Array<{
       date: string
       time: string
       status: string
       appointment_id: number
+      reason_for_visit?: string
+      appointment_note?: string
+      duration?: number
     }>
     past: Array<{
       date: string
       time: string
       status: string
       appointment_id: number
+      reason_for_visit?: string
+      appointment_note?: string
+      duration?: number
     }>
   }
 }
@@ -46,10 +71,20 @@ export function PatientsPage() {
   const [filteredPatients, setFilteredPatients] = useState<Patient[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [profileLoading, setProfileLoading] = useState(false)
+  const [profileError, setProfileError] = useState<string | null>(null)
+
+  // Document loading states
+  const [downloadingDoc, setDownloadingDoc] = useState<number | null>(null)
+  const [viewingDoc, setViewingDoc] = useState<number | null>(null)
+
+  // Toast notification state
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null)
 
   // Clinics state
   const [clinics, setClinics] = useState<Clinic[]>([])
   const [selectedClinicId, setSelectedClinicId] = useState<string>('all')
+  const [searchQuery, setSearchQuery] = useState<string>('')
 
   // Fetch clinics and patients data on component mount
   useEffect(() => {
@@ -78,16 +113,30 @@ export function PatientsPage() {
     fetchData()
   }, [])
 
-  // Filter patients when clinic selection changes
+  // Filter patients when clinic selection or search query changes
   useEffect(() => {
-    if (selectedClinicId === 'all') {
-      setFilteredPatients(allPatients)
-    } else {
+    let filtered = allPatients
+
+    // Filter by clinic
+    if (selectedClinicId !== 'all') {
       const clinicId = parseInt(selectedClinicId)
-      const filtered = allPatients.filter(patient => patient.clinic_id === clinicId)
-      setFilteredPatients(filtered)
+      filtered = filtered.filter(patient => patient.clinic_id === clinicId)
     }
-  }, [selectedClinicId, allPatients])
+
+    // Filter by search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase()
+      filtered = filtered.filter(patient => {
+        const fullName = `${patient.first_name} ${patient.last_name}`.toLowerCase()
+        const phone = patient.phone_number.toLowerCase()
+        const dob = formatDate(patient.dob).toLowerCase()
+
+        return fullName.includes(query) || phone.includes(query) || dob.includes(query)
+      })
+    }
+
+    setFilteredPatients(filtered)
+  }, [selectedClinicId, allPatients, searchQuery])
 
   // Helper function to validate name input with user-friendly error messages
   const validateNameInput = (value: string): { value: string; error: string } => {
@@ -170,14 +219,245 @@ export function PatientsPage() {
   const formatDate = (dateString: string) => {
     return formatDateUS(dateString)
   }
-  const handleViewProfile = (patient: Patient) => {
-    setSelectedPatient(patient)
-    setViewMode('profile')
+
+  // Render modals - toast notification for admin
+  const renderModals = () => (
+    <>
+      {/* Toast Notification */}
+      {toast && (
+        <div
+          className={`fixed top-4 right-4 z-[10000] neumorphic-pressed rounded-lg p-4 min-w-[300px] max-w-[400px] bg-background shadow-lg animate-in slide-in-from-top-5 ${toast.type === 'success'
+            ? 'border-l-4 border-green-500'
+            : toast.type === 'error'
+              ? 'border-l-4 border-destructive'
+              : 'border-l-4 border-primary'
+            }`}
+        >
+          <div className="flex items-start gap-3">
+            <div className="flex-1">
+              <p
+                className={`text-sm font-medium ${toast.type === 'success'
+                  ? 'text-green-700 dark:text-green-400'
+                  : toast.type === 'error'
+                    ? 'text-destructive'
+                    : 'text-foreground'
+                  }`}
+              >
+                {toast.message}
+              </p>
+            </div>
+            <Button
+              onClick={() => setToast(null)}
+              className="neumorphic-button-destructive w-7 h-7 p-0 rounded-full"
+            >
+              <IconX />
+            </Button>
+          </div>
+        </div>
+      )}
+    </>
+  )
+  const handleViewProfile = async (patient: Patient) => {
+    try {
+      setProfileLoading(true)
+      setProfileError(null)
+      setViewMode('profile')
+
+      // For admin, documents and appointments might not be available via API
+      // We'll set empty arrays for now and handle them gracefully
+      const documentsData: PatientDocument[] = []
+      const appointmentsData: any[] = []
+
+      const extendedPatient: ExtendedPatient = {
+        ...(patient as any),
+        documents: documentsData,
+        appointments: appointmentsData ? transformAppointments(appointmentsData) : { upcoming: [], past: [] }
+      }
+
+      setSelectedPatient(extendedPatient)
+    } catch (err) {
+      console.error('Failed to fetch patient profile:', err)
+      setProfileError(getErrorMessage(err, 'data'))
+      // Still set the basic patient data
+      setSelectedPatient({
+        ...patient,
+        guardians: [],
+        documents: [],
+        appointments: { upcoming: [], past: [] }
+      })
+    } finally {
+      setProfileLoading(false)
+    }
+  }
+
+  // Transform appointment data from API format to display format
+  const transformAppointments = (appointments: any[]): { upcoming: any[], past: any[] } => {
+    const today = getCurrentDateInLocal()
+    today.setHours(0, 0, 0, 0)
+
+    const upcoming: any[] = []
+    const past: any[] = []
+
+    appointments.forEach((appt) => {
+      // Handle new API format where appointment_time is a full datetime string like "2026-12-09T10:00:00"
+      let appointmentDate: Date
+      let formattedTime: string
+      let dateStr: string
+
+      if (appt.appointment_time && appt.appointment_time.includes('T')) {
+        // Full datetime format: "2026-12-09T10:00:00"
+        const dateTime = new Date(appt.appointment_time)
+        appointmentDate = new Date(dateTime)
+        appointmentDate.setHours(0, 0, 0, 0)
+
+        formattedTime = dateTime.toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true
+        })
+
+        dateStr = dateTime.toISOString().split('T')[0]
+      } else if (appt.appointment_date) {
+        // Separate date and time format
+        appointmentDate = new Date(appt.appointment_date)
+        appointmentDate.setHours(0, 0, 0, 0)
+
+        const timeStr = appt.appointment_time || ''
+        formattedTime = timeStr.includes(':')
+          ? new Date(`2000-01-01T${timeStr}`).toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+          })
+          : timeStr
+
+        dateStr = appt.appointment_date
+      } else {
+        return // Skip invalid appointments
+      }
+
+      const appointmentData = {
+        date: dateStr,
+        time: formattedTime,
+        status: appt.status || 'scheduled',
+        appointment_id: appt.id,
+        appointment_time: appt.appointment_time,
+        appointment_note: appt.appointment_note || '',
+        reason_for_visit: appt.reason_for_visit || '',
+        duration: appt.duration || null
+      }
+
+      if (appointmentDate >= today && appt.status?.toLowerCase() !== 'cancelled') {
+        upcoming.push(appointmentData)
+      } else {
+        past.push(appointmentData)
+      }
+    })
+
+    // Sort upcoming by date ascending, past by date descending
+    upcoming.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    past.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+
+    return { upcoming, past }
   }
 
   const handleCloseProfile = () => {
     setSelectedPatient(null)
     setViewMode('table')
+    setProfileError(null)
+  }
+
+  const handleViewDocument = async (doc: PatientDocument) => {
+    if (!doc || !selectedPatient) return
+
+    setViewingDoc(doc.document_id || doc.id || null)
+
+    try {
+      // For admin, we might not have the view document API, so we'll just open in new tab if URL exists
+      if (doc.url || doc.file_url || doc.document_url) {
+        const url = doc.url || doc.file_url || doc.document_url
+        window.open(url, '_blank')
+      } else {
+        showToast('Document URL not available', 'error')
+      }
+    } catch (err) {
+      console.error('Failed to view document:', err)
+      showToast(getToastErrorMessage(err, 'data', 'Failed to open document. Please try again.'), 'error')
+    } finally {
+      setViewingDoc(null)
+    }
+  }
+
+  const handleDownloadDocument = async (doc: PatientDocument) => {
+    if (!doc || !selectedPatient) return
+
+    const docId = doc.document_id || doc.id
+    setDownloadingDoc(docId || null)
+
+    try {
+      // For admin, we might not have the download document API, so we'll just trigger download if URL exists
+      const url = doc.url || doc.file_url || doc.document_url
+      if (url) {
+        const link = document.createElement('a')
+        link.href = url
+        link.download = `${doc.type}_${doc.title || 'document'}`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      } else {
+        showToast('Document download not available', 'error')
+      }
+    } catch (err) {
+      console.error('Failed to download document:', err)
+      showToast(getToastErrorMessage(err, 'data', 'Failed to download document. Please try again.'), 'error')
+    } finally {
+      setDownloadingDoc(null)
+    }
+  }
+
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    setToast({ message, type })
+    setTimeout(() => {
+      setToast(null)
+    }, 4000)
+  }
+
+  const handleDownloadProfile = () => {
+    if (!selectedPatient) return
+
+    // Prepare patient data for export
+    const profileData = {
+      patient: {
+        id: selectedPatient.id,
+        first_name: selectedPatient.first_name,
+        last_name: selectedPatient.last_name,
+        dob: selectedPatient.dob,
+        phone_number: selectedPatient.phone_number,
+        email: selectedPatient.email || '',
+        status: selectedPatient.status || 'active'
+      },
+      guardians: selectedPatient.guardians || [],
+      appointments: selectedPatient.appointments || { upcoming: [], past: [] },
+      documents: selectedPatient.documents?.map(doc => ({
+        type: doc.type,
+        title: doc.title,
+        description: doc.description,
+        uploaded_at: doc.uploaded_at
+      })) || [],
+      exported_at: new Date().toISOString()
+    }
+
+    // Create and download JSON file
+    const dataStr = JSON.stringify(profileData, null, 2)
+    const dataBlob = new Blob([dataStr], { type: 'application/json' })
+    const url = window.URL.createObjectURL(dataBlob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `patient_profile_${selectedPatient.id}_${selectedPatient.first_name}_${selectedPatient.last_name}.json`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -197,247 +477,374 @@ export function PatientsPage() {
 
   if (viewMode === 'profile' && selectedPatient) {
     return (
-      <div className="space-y-6">
-        {/* Profile Header with Back Button */}
-        <div className="px-4 lg:px-6">
-          <Button
-            onClick={handleCloseProfile}
-            size="sm"
-            className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
-          >
-            <IconArrowLeft className="w-4 h-4" />
-            <span className="text-sm font-medium">Back to Patients</span>
-          </Button>
-        </div>
-
-        {/* Patient Profile Content */}
-        <div className="px-4 lg:px-6">
-          <div className="max-w-4xl mx-auto neumorphic-inset p-6 rounded-lg">
-            {/* Patient Info */}
-            <div className="rounded-lg mb-6">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full flex items-center justify-center text-lg font-bold">
-                  {`${selectedPatient.first_name[0]}${selectedPatient.last_name[0]}`.toUpperCase()}
-                </div>
-                <div className="flex-1">
-                  <h1 className="text-2xl font-bold">{`${selectedPatient.first_name} ${selectedPatient.last_name}`}</h1>
-                  <p className="text-sm">Patient ID: {selectedPatient.id}</p>
-                </div>
+      <>
+        <div className="min-h-screen">
+          {/* Navigation Bar */}
+          <div className="sticky top-0 z-40 backdrop-blur-md bg-background/90">
+            <div className="px-4 lg:px-6 py-3">
+              <div className="max-w-6xl mx-auto flex items-center justify-between">
+                <Button
+                  onClick={handleCloseProfile}
+                  size="sm"
+                  className="neumorphic-button-primary rounded-full"
+                >
+                  <IconArrowLeft className="w-4 h-4" />
+                  <span className="text-sm font-medium">Back to Patients</span>
+                </Button>
               </div>
             </div>
+          </div>
 
-            {/* Contact Information */}
-            <div className="rounded-lg mb-6">
-              <h3 className="text-lg font-semibold mb-4">Contact Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Phone Number
-                  </label>
-                  <div className="font-medium text-foreground">
-                    {selectedPatient.phone_number}
-                  </div>
-                </div>
+          {/* Loading State */}
+          {profileLoading && (
+            <div className="flex items-center justify-center py-20">
+              <div className="text-center">
+                <IconLoader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+                <p className="text-lg font-medium text-foreground">Loading patient profile...</p>
+              </div>
+            </div>
+          )}
 
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Date of Birth
-                  </label>
-                  <div className="font-medium text-foreground">
-                    {calculateAge(selectedPatient.dob)} years old ({formatDate(selectedPatient.dob)})
+          {/* Error State */}
+          {profileError && (
+            <div className="px-4 lg:px-6 py-8">
+              <div className="max-w-4xl mx-auto">
+                <div className="bg-red-50 border border-red-200 p-6 rounded-2xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                      <span className="text-red-600 text-lg font-bold">!</span>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-red-700 mb-1">Error Loading Profile</h3>
+                      <p className="text-sm text-red-600">{profileError}</p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+          )}
 
-            {/* Guardian Information */}
-            {selectedPatient?.guardians && selectedPatient.guardians.length > 0 && (
-              <div className="rounded-lg mb-6">
-                <h3 className="text-lg font-semibold mb-4">Guardian Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Guardian Name
-                    </label>
-                    <div className="font-medium text-foreground">
-                      {`${selectedPatient.guardians[0].first_name} ${selectedPatient.guardians[0].last_name}`}
+          {/* Patient Profile Content */}
+          {!profileLoading && !profileError && (
+            <div className="px-4 lg:px-6 py-6">
+              <div className="max-w-6xl mx-auto space-y-6">
+
+                {/* Top Row - Patient / Guardian / Documents (one row on large screens) */}
+                <div className="grid grid-cols-12 gap-6">
+                  {/* Patient */}
+                  <div
+                    className={`col-span-12 ${(selectedPatient?.guardians?.length ?? 0) > 0 ? 'lg:col-span-4' : 'lg:col-span-6'}`}
+                  >
+                    <div className="neumorphic-inset rounded-2xl p-5 border-2 border-emerald-300 bg-gradient-to-br from-emerald-50/40 via-transparent to-teal-50/30 flex flex-col lg:h-[220px]">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
+                          <IconUserCircle className="w-4 h-4 text-emerald-700" />
+                        </div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-foreground/60">Patient</p>
+                      </div>
+
+                      <div className="space-y-3 flex-1">
+                        <div>
+                          <p className="text-[10px] font-medium text-foreground/50 uppercase tracking-wide">Name</p>
+                          <p className="text-sm font-semibold text-foreground">
+                            {`${selectedPatient.first_name} ${selectedPatient.last_name}`}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-medium text-foreground/50 uppercase tracking-wide">Date of Birth</p>
+                          <p className="text-sm font-semibold text-foreground">{formatDate(selectedPatient.dob)}</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-medium text-foreground/50 uppercase tracking-wide">Phone</p>
+                          <p className="text-sm font-semibold text-foreground break-all">{selectedPatient.phone_number}</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Date of Birth
-                    </label>
-                    <div className="font-medium text-foreground">
-                      {formatDate(selectedPatient.guardians[0].dob)}
-                    </div>
-                  </div>
+                  {/* Guardian (skip entirely if none) */}
+                  {(selectedPatient?.guardians?.length ?? 0) > 0 && (
+                    <div className="col-span-12 lg:col-span-4">
+                      <div className="neumorphic-inset rounded-2xl p-5 border-2 border-violet-300 bg-gradient-to-br from-violet-50/40 via-transparent to-purple-50/30 flex flex-col lg:h-[220px]">
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center">
+                            <IconUsers className="w-4 h-4 text-violet-700" />
+                          </div>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-foreground/60">
+                            Guardian{(selectedPatient?.guardians?.length ?? 0) > 1 ? ` (${selectedPatient.guardians?.length})` : ''}
+                          </p>
+                        </div>
 
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Relationship to Patient
-                    </label>
-                    <div className="font-medium text-foreground">
-                      {selectedPatient.guardians[0].relationship_to_patient}
+                        <div className="divide-y divide-violet-200/40 flex-1 min-h-0 overflow-y-auto pr-1 -mr-1">
+                          {selectedPatient.guardians?.map((g) => (
+                            <div key={g.id} className="py-3 first:pt-0 last:pb-0">
+                              <div className="space-y-3">
+                                <div>
+                                  <p className="text-[10px] font-medium text-foreground/50 uppercase tracking-wide">Name</p>
+                                  <p className="text-sm font-semibold text-foreground">
+                                    {`${g.first_name} ${g.last_name}`}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-[10px] font-medium text-foreground/50 uppercase tracking-wide">Date of Birth</p>
+                                  <p className="text-sm font-semibold text-foreground">{formatDate(g.dob)}</p>
+                                </div>
+                                <div>
+                                  <p className="text-[10px] font-medium text-foreground/50 uppercase tracking-wide">Relationship</p>
+                                  <p className="text-sm font-semibold text-foreground capitalize">{g.relationship_to_patient}</p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </div>
-            )}
+                  )}
 
-            {/* Documents */}
-            <div className="rounded-lg mb-6">
-              <h3 className="text-lg font-semibold mb-4">Documents</h3>
-              {selectedPatient?.documents && selectedPatient.documents.length > 0 ? (
-                <div className="space-y-4">
-                  {selectedPatient.documents.map((doc, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-3 neumorphic-inset rounded-lg"
-                    >
-                      <div>
-                        <div className="font-medium text-sm">{doc.type}</div>
-                        {"title" in doc && (
-                          <div className="text-xs">
-                            {(doc as { title: string }).title}
+                  {/* Documents */}
+                  <div
+                    className={`col-span-12 ${(selectedPatient?.guardians?.length ?? 0) > 0 ? 'lg:col-span-4' : 'lg:col-span-6'}`}
+                  >
+                    <div className="neumorphic-inset rounded-2xl p-5 border-2 border-amber-300 bg-gradient-to-br from-amber-50/40 via-transparent to-orange-50/30 flex flex-col lg:h-[220px]">
+                      <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-foreground">
+                        <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center">
+                          <IconFileText className="w-4 h-4 text-amber-600" />
+                        </div>
+                        Documents
+                        {(selectedPatient?.documents?.length ?? 0) > 0 && (
+                          <span className="ml-auto px-2 py-0.5 rounded-full bg-amber-100 text-amber-600 text-xs font-semibold">
+                            {selectedPatient?.documents?.length ?? 0}
+                          </span>
+                        )}
+                      </h3>
+
+                      <div className="flex-1 min-h-0">
+                        {(selectedPatient?.documents?.length ?? 0) > 0 ? (
+                          <div className="space-y-3 h-full overflow-y-auto pr-1 -mr-1">
+                            {selectedPatient.documents?.map((doc, index) => {
+                              const docId = doc.document_id || doc.id || index
+                              const isDownloading = downloadingDoc === docId
+                              const isViewing = viewingDoc === docId
+
+                              return (
+                                <div key={index} className="p-3 rounded-xl bg-white/50 border border-amber-100/50 transition-all duration-200 hover:shadow-md hover:scale-[1.02]">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <span className="font-semibold text-foreground text-sm truncate flex-1">
+                                      {doc.type}
+                                    </span>
+                                    <span className="px-2 py-0.5 rounded-full bg-amber-100/80 text-amber-700 text-[10px] font-semibold uppercase">
+                                      Doc
+                                    </span>
+                                  </div>
+                                  {doc.title && (
+                                    <p className="text-xs text-foreground/60 mb-2 truncate">{doc.title}</p>
+                                  )}
+                                  <div className="flex gap-2">
+                                    <Button
+                                      onClick={() => handleViewDocument(doc)}
+                                      disabled={isViewing}
+                                      size="sm"
+                                      className="flex-1 neumorphic-button-primary text-xs"
+                                    >
+                                      {isViewing ? <IconLoader2 className="w-3 h-3 animate-spin" /> : 'View'}
+                                    </Button>
+                                    <Button
+                                      onClick={() => handleDownloadDocument(doc)}
+                                      disabled={isDownloading}
+                                      size="sm"
+                                      className="flex-1 neumorphic-button-primary text-xs"
+                                    >
+                                      {isDownloading ? <IconLoader2 className="w-3 h-3 animate-spin" /> : 'Download'}
+                                    </Button>
+                                  </div>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        ) : (
+                          <div className="h-full flex flex-col items-center justify-center text-center">
+                            <div className="w-12 h-12 rounded-full bg-amber-100/50 flex items-center justify-center mx-auto mb-3">
+                              <IconFileText className="w-6 h-6 text-amber-400" />
+                            </div>
+                            <p className="text-sm font-medium text-foreground/70">No Documents</p>
                           </div>
                         )}
                       </div>
-                      <div className="flex gap-2">
-                        <Button
-                          className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
-                        >
-                          View
-                        </Button>
-                        <Button
-                          className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
-                        >
-                          Download
-                        </Button>
-                      </div>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 neumorphic-inset rounded-lg">
-                  <p className="text-sm mb-2">No documents uploaded</p>
-                  <p className="text-xs">
-                    This patient has not uploaded any documents yet.
-                  </p>
-                </div>
-              )}
-            </div>
+                  </div>
 
-            {/* Upcoming Appointments */}
-            <div className="rounded-lg mb-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">
-                  Upcoming Appointments{" "}
-                  {selectedPatient?.appointments?.upcoming &&
-                    selectedPatient.appointments.upcoming.length > 0
-                    ? `(${selectedPatient.appointments.upcoming.length})`
-                    : ""}
-                </h3>
-                <Button
-                  className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
-                >
-                  Schedule
-                </Button>
+                  {/* Appointments */}
+                  <div className="col-span-12 space-y-6">
+
+                    {/* Upcoming Appointments */}
+                    <div className="neumorphic-inset rounded-2xl p-5 border-2 border-blue-300 bg-gradient-to-br from-blue-50/40 via-transparent to-indigo-50/30">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-base font-semibold flex items-center gap-2 text-foreground">
+                          <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                            <IconCalendarEvent className="w-4 h-4 text-blue-600" />
+                          </div>
+                          Upcoming Appointments
+                          {(selectedPatient?.appointments?.upcoming?.length ?? 0) > 0 && (
+                            <span className="ml-2 px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 text-xs font-semibold">
+                              {selectedPatient?.appointments?.upcoming?.length ?? 0}
+                            </span>
+                          )}
+                        </h3>
+                      </div>
+
+                      {(selectedPatient?.appointments?.upcoming?.length ?? 0) > 0 ? (
+                        <div className="space-y-3">
+                          {selectedPatient.appointments?.upcoming?.map((appointment, index) => (
+                            <div
+                              key={index}
+                              className="rounded-xl bg-white/60 border-2 border-blue-100/80 shadow-sm hover:shadow-lg transition-all duration-200 overflow-hidden"
+                            >
+                              <div className="flex items-center gap-4 p-4">
+                                {/* Date block */}
+                                <div className="flex flex-col items-center justify-center px-4 py-2 rounded-xl bg-gradient-to-br from-blue-100 to-indigo-100 min-w-[70px]">
+                                  <span className="text-[10px] font-bold uppercase tracking-wide text-blue-600">
+                                    {formatDateUSShort(appointment.date).split(' ')[0]}
+                                  </span>
+                                  <span className="text-2xl font-bold leading-tight text-blue-700">
+                                    {new Date(appointment.date).getDate()}
+                                  </span>
+                                </div>
+
+                                {/* Time */}
+                                <div className="flex-1">
+                                  <span className="text-lg font-bold text-foreground">{appointment.time}</span>
+                                </div>
+                              </div>
+                              <div className="border-t border-blue-100/50">
+                                <Accordion type="multiple" className="w-full">
+                                  <AccordionItem value={`reason-${appointment.appointment_id}`} className="border-b-0">
+                                    <AccordionTrigger className="px-4 py-3 text-sm font-medium hover:no-underline">
+                                      Reason for Visit
+                                    </AccordionTrigger>
+                                    <AccordionContent className="px-4 pb-3">
+                                      <span className="text-sm text-foreground/80">
+                                        {appointment.reason_for_visit || 'Not provided'}
+                                      </span>
+                                    </AccordionContent>
+                                  </AccordionItem>
+                                  <AccordionItem value={`notes-${appointment.appointment_id}`} className="border-b-0">
+                                    <AccordionTrigger className="px-4 py-3 text-sm font-medium hover:no-underline">
+                                      Appointment Notes
+                                    </AccordionTrigger>
+                                    <AccordionContent className="px-4 pb-3">
+                                      <span className="text-sm text-foreground/80">
+                                        {appointment.appointment_note || 'No notes added'}
+                                      </span>
+                                    </AccordionContent>
+                                  </AccordionItem>
+                                </Accordion>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8">
+                          <div className="w-12 h-12 rounded-full bg-blue-100/50 flex items-center justify-center mx-auto mb-3">
+                            <IconCalendarEvent className="w-6 h-6 text-blue-400" />
+                          </div>
+                          <p className="text-sm font-medium text-foreground/70">No Upcoming Appointments</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Past Appointments */}
+                    <div className="neumorphic-inset rounded-2xl p-5 border-2 border-slate-300 bg-gradient-to-br from-slate-50/40 via-transparent to-gray-50/30">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-base font-semibold flex items-center gap-2 text-foreground">
+                          <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
+                            <IconHistory className="w-4 h-4 text-slate-600" />
+                          </div>
+                          Past Appointments
+                          {(selectedPatient?.appointments?.past?.length ?? 0) > 0 && (
+                            <span className="ml-2 px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">
+                              {selectedPatient?.appointments?.past?.length ?? 0}
+                            </span>
+                          )}
+                        </h3>
+                      </div>
+
+                      {(selectedPatient?.appointments?.past?.length ?? 0) > 0 ? (
+                        <div className="space-y-3">
+                          {selectedPatient.appointments?.past?.map((appointment, index) => (
+                            <div
+                              key={index}
+                              className="rounded-xl bg-white/60 border border-slate-200/80 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
+                            >
+                              <div className="flex items-center gap-4 p-4">
+                                {/* Date block */}
+                                <div className="flex flex-col items-center justify-center px-4 py-2 rounded-xl bg-gradient-to-br from-slate-100 to-gray-100 min-w-[70px]">
+                                  <span className="text-[10px] font-bold uppercase tracking-wide text-slate-500">
+                                    {formatDateUSShort(appointment.date).split(' ')[0]}
+                                  </span>
+                                  <span className="text-2xl font-bold leading-tight text-slate-700">
+                                    {new Date(appointment.date).getDate()}
+                                  </span>
+                                </div>
+
+                                {/* Time and status */}
+                                <div className="flex-1">
+                                  <span className="text-lg font-bold text-foreground">{appointment.time}</span>
+                                </div>
+
+                                {/* Status badge */}
+                                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${appointment.status?.toLowerCase() === 'completed'
+                                  ? 'bg-green-100 text-green-700'
+                                  : appointment.status?.toLowerCase() === 'cancelled'
+                                    ? 'bg-red-100 text-red-700'
+                                    : 'bg-slate-100 text-slate-600'
+                                  }`}>
+                                  {appointment.status}
+                                </span>
+                              </div>
+                              <div className="border-t border-slate-100/50">
+                                <Accordion type="multiple" className="w-full">
+                                  <AccordionItem value={`past-reason-${appointment.appointment_id}`} className="border-b-0">
+                                    <AccordionTrigger className="px-4 py-3 text-sm font-medium hover:no-underline">
+                                      Reason for Visit
+                                    </AccordionTrigger>
+                                    <AccordionContent className="px-4 pb-3">
+                                      <span className="text-sm text-foreground/80">
+                                        {appointment.reason_for_visit || 'Not provided'}
+                                      </span>
+                                    </AccordionContent>
+                                  </AccordionItem>
+                                  <AccordionItem value={`past-notes-${appointment.appointment_id}`} className="border-b-0">
+                                    <AccordionTrigger className="px-4 py-3 text-sm font-medium hover:no-underline">
+                                      Appointment Notes
+                                    </AccordionTrigger>
+                                    <AccordionContent className="px-4 pb-3">
+                                      <span className="text-sm text-foreground/80">
+                                        {appointment.appointment_note || 'No notes added'}
+                                      </span>
+                                    </AccordionContent>
+                                  </AccordionItem>
+                                </Accordion>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8">
+                          <div className="w-12 h-12 rounded-full bg-slate-100/50 flex items-center justify-center mx-auto mb-3">
+                            <IconHistory className="w-6 h-6 text-slate-400" />
+                          </div>
+                          <p className="text-sm font-medium text-foreground/70">No Past Appointments</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
-              {selectedPatient?.appointments?.upcoming && selectedPatient.appointments.upcoming.length > 0 ? (
-                <div className="space-y-4">
-                  {selectedPatient.appointments.upcoming.map((appointment, index) => (
-                    <div key={index} className="neumorphic-inset rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="font-semibold text-foreground">
-                          {formatDateUSShort(appointment.date)}
-                        </span>
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium neumorphic-inset">
-                          {appointment.status}
-                        </span>
-                      </div>
-                      <p className="text-sm mb-4">
-                        {appointment.time}
-                      </p>
-                      <div className="flex justify-center items-center gap-3">
-                        <Button
-                          className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
-                        >
-                          Reschedule
-                        </Button>
-                        <Button
-                          className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 neumorphic-inset rounded-lg">
-                  <p className="text-sm mb-2">No upcoming appointments</p>
-                  <p className="text-xs">
-                    This patient has no upcoming appointments.
-                  </p>
-                </div>
-              )}
             </div>
-
-            {/* Past Appointments */}
-            <div className="rounded-lg mb-6">
-              <h3 className="text-lg font-semibold mb-4">Past Appointments</h3>
-              {selectedPatient?.appointments?.past && selectedPatient.appointments.past.length > 0 ? (
-                <div className="space-y-4">
-                  {selectedPatient.appointments.past.map((appointment, index) => (
-                    <div
-                      key={index}
-                      className="neumorphic-inset rounded-lg p-4 flex justify-between items-center"
-                    >
-                      <div className="flex flex-col gap-1">
-                        <span className="font-semibold text-foreground text-base">
-                          {formatDateUSShort(appointment.date)}
-                        </span>
-                        <span className="text-sm">
-                          {appointment.time}
-                        </span>
-                      </div>
-                      <span
-                        className={`
-                          inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
-                          ${appointment.status && appointment.status.toLowerCase() === "completed"
-                            ? "bg-green-100"
-                            : appointment.status && appointment.status.toLowerCase() === "cancelled"
-                              ? "bg-destructive/20"
-                              : "bg-primary/10"
-                          }
-                          neumorphic-inset
-                        `}
-                      >
-                        {appointment.status}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 neumorphic-inset rounded-lg">
-                  <p className="text-sm mb-2">No past appointments</p>
-                  <p className="text-xs">This patient has no appointment history.</p>
-                </div>
-              )}
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex justify-center items-center">
-              <Button
-                className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
-              >
-                Download Profile
-              </Button>
-            </div>
-          </div>
+          )}
         </div>
-      </div>
+        {renderModals()}
+      </>
     )
   }
 
@@ -461,7 +868,7 @@ export function PatientsPage() {
           <div className="text-red-500 text-lg mb-4">{error}</div>
           <Button
             onClick={() => window.location.reload()}
-            className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+            className="neumorphic-button-primary"
           >
             Try Again
           </Button>
@@ -477,23 +884,37 @@ export function PatientsPage() {
         {/* Header with title, filter and Add Patient button */}
         {/* <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-4"> */}
-        {/* Provider Filter */}
-        <div className="flex items-center gap-2 mb-3">
-          <IconFilter className="w-4 h-4" />
-          <label className="text-sm font-medium">Filter by:</label>
-          <Select value={selectedClinicId} onValueChange={setSelectedClinicId}>
-            <SelectTrigger className="w-[200px] neumorphic-inset">
-              <SelectValue placeholder="Select provider" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All providers</SelectItem>
-              {clinics.map((clinic) => (
-                <SelectItem key={clinic.id} value={clinic.id.toString()}>
-                  {clinic.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        {/* Search and Filter */}
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-3">
+          {/* Search - Left */}
+          <div className="flex items-center gap-2 flex-1 max-w-md">
+            <input
+              type="text"
+              placeholder="Search by name, phone, or DOB..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="flex-1 px-3 py-2 text-sm neumorphic-inset rounded-md border-2 border-primary focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+            />
+          </div>
+
+          {/* Filter - Right */}
+          <div className="flex items-center gap-2">
+            <IconFilter className="w-4 h-4" />
+            <label className="text-sm font-medium">Filter by:</label>
+            <Select value={selectedClinicId} onValueChange={setSelectedClinicId}>
+              <SelectTrigger className="w-[200px] neumorphic-inset">
+                <SelectValue placeholder="Select provider" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All providers</SelectItem>
+                {clinics.map((clinic) => (
+                  <SelectItem key={clinic.id} value={clinic.id.toString()}>
+                    {clinic.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         {/* </div>
         </div> */}
@@ -529,7 +950,7 @@ export function PatientsPage() {
                       <td className="py-3 px-4">
                         <Button
                           onClick={() => handleViewProfile(patient)}
-                          className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+                          className="neumorphic-button-primary"
                         >
                           View Profile
                         </Button>
@@ -572,28 +993,6 @@ export function PatientsPage() {
             <div className="p-5">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-base font-semibold">Add New Patient</h2>
-                <Button
-                  onClick={() => {
-                    setShowAddForm(false)
-                    setFormData({
-                      firstName: '',
-                      middleName: '',
-                      lastName: '',
-                      dob: '',
-                      phoneNumber: ''
-                    })
-                    setFormErrors({
-                      firstName: '',
-                      middleName: '',
-                      lastName: '',
-                      dob: '',
-                      phoneNumber: ''
-                    })
-                  }}
-                  className="w-8 h-8 flex items-center justify-center text-lg font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg cursor-pointer transition-all duration-200"
-                >
-                  ×
-                </Button>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-3">
@@ -723,13 +1122,13 @@ export function PatientsPage() {
                         phoneNumber: ''
                       })
                     }}
-                    className="flex-1 text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground hover:bg-destructive rounded-lg cursor-pointer transition-all duration-200 px-3 py-2"
+                    className="flex-1 neumorphic-button-destructive"
                   >
                     Cancel
                   </Button>
                   <Button
                     type="submit"
-                    className="flex-1 text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg cursor-pointer transition-all duration-200 px-3 py-2"
+                    className="flex-1 neumorphic-button-primary"
                   >
                     Add Patient
                   </Button>

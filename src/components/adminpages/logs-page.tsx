@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react"
-import { IconPhone, IconCheck, IconRefresh, IconX, IconExclamationCircle, IconStar, IconArrowLeft, IconPlayerPlay, IconPlayerPause, IconDownload } from "@tabler/icons-react"
+import { IconPhone, IconCheck, IconRefresh, IconX, IconExclamationCircle, IconStar, IconArrowLeft, IconPlayerPlay, IconPlayerPause, IconDownload, IconUserFilled } from "@tabler/icons-react"
 import {
   Select,
   SelectContent,
@@ -411,7 +411,7 @@ export function LogsPage() {
             <div className="text-red-500 text-lg mb-4">{error}</div>
             <Button
               onClick={fetchData}
-              className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+              className="neumorphic-button-primary"
             >
               Try Again
             </Button>
@@ -430,7 +430,7 @@ export function LogsPage() {
             placeholder="Search clinics by name or phone..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+            className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md border-2 border-primary focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
           />
         </div>
 
@@ -483,7 +483,7 @@ export function LogsPage() {
                         <td className="py-3 px-4">
                           <Button
                             onClick={handleViewAllLogs}
-                            className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                            className="neumorphic-button-primary"
                           >
                             View Logs
                           </Button>
@@ -515,7 +515,7 @@ export function LogsPage() {
                         <td className="py-3 px-4">
                           <Button
                             onClick={handleViewBotLogs}
-                            className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                            className="neumorphic-button-primary"
                           >
                             View Logs
                           </Button>
@@ -553,7 +553,7 @@ export function LogsPage() {
                           <td className="py-3 px-4">
                             <Button
                               onClick={() => handleViewClinicLogs(clinic)}
-                              className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                              className="neumorphic-button-primary"
                             >
                               View Logs
                             </Button>
@@ -579,7 +579,7 @@ export function LogsPage() {
         <Button
           onClick={handleBackToClinics}
           size="sm"
-          className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+          className="neumorphic-button-primary"
         >
           <IconArrowLeft className="w-4 h-4" />
           <span className="text-sm font-medium">Back to Clinics</span>
@@ -752,7 +752,7 @@ export function LogsPage() {
                       <td className="py-3 px-4">
                         <Button
                           onClick={() => handleViewTranscript(log)}
-                          className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                          className="neumorphic-button-primary"
                         >
                           View Conversation
                         </Button>
@@ -801,19 +801,19 @@ export function LogsPage() {
                 <div className="flex items-center gap-2">
                   <Button
                     onClick={handleDownloadTranscript}
-                    className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                    className="neumorphic-button-primary"
                   >
                     Download
                   </Button>
                   <Button
-                    className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                    className="neumorphic-button-destructive"
                     onClick={() => {
                       setShowTranscript(false)
                       setSelectedLog(null)
                       setTranscript([])
                     }}
                   >
-                    <IconX className="size-4" />
+                    Close
                   </Button>
                 </div>
               </div>
@@ -824,7 +824,7 @@ export function LogsPage() {
                     <div className="flex items-center gap-2">
                       <Button
                         onClick={handleToggleAudio}
-                        className="w-fit text-xs sm:text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                        className="neumorphic-button-primary"
                       >
                         {isAudioPlaying ? (
                           <IconPlayerPause className="size-5" />
@@ -853,7 +853,7 @@ export function LogsPage() {
                     <div className="flex items-center gap-2">
                       <Button
                         onClick={handleDownloadAudio}
-                        className="w-fit text-xs sm:text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                        className="neumorphic-button-primary"
                       >
                         <IconDownload className="size-4" />
                       </Button>
@@ -898,21 +898,34 @@ export function LogsPage() {
                   transcript.map((turn, idx) => (
                     <div key={idx} className="flex gap-3">
                       <div className="flex flex-col items-center mt-0.5">
-                        <span
-                          className={`w-6 h-6 flex items-center justify-center rounded-full text-xs font-semibold ${turn.speaker === "A"
-                            ? "bg-primary/10"
-                            : "bg-muted"
+                        <div
+                          className={`w-8 h-8 flex items-center justify-center rounded-full border ${turn.speaker === "A"
+                            ? "border-foreground"
+                            : "border-foreground"
                             }`}
                         >
-                          {turn.speaker}
-                        </span>
+                          {turn.speaker === "A" ? (
+                            <img
+                              src="/ez.svg"
+                              alt="Assistant"
+                              className="w-5 h-5"
+                            />
+                          ) : (
+                            <IconUserFilled className="w-5 h-5 text-foreground fill-foreground" />
+                          )}
+                        </div>
                       </div>
                       <div className="flex-1">
-                        <div className="text-xs font-semibold mb-0.5">
-                          {turn.label}
-                        </div>
-                        <div className="text-sm text-foreground whitespace-pre-line">
-                          {turn.text}
+                        <div className={`inline-block px-3 py-2 rounded-lg text-sm whitespace-pre-line ${turn.speaker === "A"
+                          ? "bg-blue-50 border border-blue-200 text-blue-900"
+                          : "bg-white border border-foreground/10 text-foreground"
+                          }`}>
+                          <div className="font-semibold text-xs mb-1 uppercase tracking-wide">
+                            {turn.label}
+                          </div>
+                          <div>
+                            {turn.text}
+                          </div>
                         </div>
                       </div>
                     </div>

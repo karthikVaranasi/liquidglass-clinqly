@@ -18,11 +18,9 @@ export function SessionProvider({ children, onLogout }: SessionProviderProps) {
     const [isSessionExpired, setIsSessionExpired] = useState(false)
 
     const handleLogout = useCallback(() => {
-        // Clear all auth data
-        AuthStorage.clearAll()
-        setIsSessionExpired(false)
-        // Call parent logout handler if provided
+        // Call parent logout handler (AuthProvider's clearAuth)
         onLogout?.()
+        setIsSessionExpired(false)
     }, [onLogout])
 
     // Listen for session expiration events from API calls

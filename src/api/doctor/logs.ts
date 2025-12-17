@@ -7,9 +7,8 @@ export class DoctorLogsAPI extends BaseAPI {
      * Get all call logs for a doctor/clinic using the clinic-specific endpoint
      */
     static async getLogs(filters?: LogFilters): Promise<CallLog[]> {
-        // Get clinic ID from auth storage
-        const userData = AuthStorage.getUserData()
-        const clinicId = userData?.clinic_id
+        // Get clinic ID from decoded JWT token
+        const clinicId = AuthStorage.getClinicId()
 
         if (!clinicId) {
             console.warn('⚠️ No clinic ID found, cannot fetch logs')

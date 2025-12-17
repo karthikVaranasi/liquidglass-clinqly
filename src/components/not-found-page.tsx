@@ -1,6 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AuthStorage } from '@/api/auth'
+import { useAuth } from '@/contexts/auth-context'
 import { Button } from '@/components/ui/button'
 
 interface NotFoundPageProps {
@@ -9,8 +9,9 @@ interface NotFoundPageProps {
 
 export const NotFoundPage: React.FC<NotFoundPageProps> = ({ userType }) => {
   const navigate = useNavigate()
-  const resolvedUserType = userType || (AuthStorage.getUserType() as 'admin' | 'doctor') || 'doctor'
-  
+  const { role } = useAuth()
+  const resolvedUserType = userType || (role as 'admin' | 'doctor') || 'doctor'
+
   const handleGoHome = () => {
     const defaultPage = resolvedUserType === 'admin' ? '/admin/analytics' : '/doctor/appointments'
     navigate(defaultPage)
@@ -24,17 +25,20 @@ export const NotFoundPage: React.FC<NotFoundPageProps> = ({ userType }) => {
         <p className="text-lg text-muted-foreground max-w-md">
           The page you're looking for doesn't exist or has been moved.
         </p>
+        <p className="text-sm font-mono text-muted-foreground/60 bg-muted/20 p-2 rounded">
+          URL: {window.location.pathname}
+        </p>
       </div>
       <div className="flex justify-center gap-4 w-fit">
         <Button
           onClick={handleGoHome}
-           className="w-full text-sm font-medium neumorphic-pressed text-foreground hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+          className="neumorphic-button-primary"
         >
           Go Home
         </Button>
         <Button
           onClick={() => window.history.back()}
-          className="w-full text-sm font-medium neumorphic-pressed text-foreground hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+          className="neumorphic-button-primary"
         >
           Go Back
         </Button>

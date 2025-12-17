@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import toast from "react-hot-toast"
 import { getToastErrorMessage } from "@/lib/errors"
 import { AuthStorage } from "@/api/auth"
+import { useAuth } from "@/contexts/auth-context"
 import { CalendarAPI } from "@/api/doctor"
 import type { CalendarAccount, CalendarAccountsResponse } from "@/api/doctor"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
@@ -49,9 +50,8 @@ export function CalendarIntegrations() {
   const [settingPrimaryId, setSettingPrimaryId] = useState<number | null>(null)
   const [disconnectingId, setDisconnectingId] = useState<number | null>(null)
 
-  // Get doctor ID from storage
-  const userData = AuthStorage.getUserData()
-  const doctorId = userData?.id
+  // Get doctor ID from auth context
+  const { userId: doctorId } = useAuth()
 
   // Fetch calendar accounts on mount
   useEffect(() => {
@@ -179,29 +179,27 @@ export function CalendarIntegrations() {
       </div>
       <div className="flex items-center gap-2">
         {/* Primary toggle */}
-        <Button
-          size="sm"
-          disabled={settingPrimaryId === account.id}
-          onClick={() => {
-            if (!account.is_primary) {
-              handleSetPrimary(account.id, provider)
-            }
-          }}
-          className={`text-xs px-3 py-1 rounded-full neumorphic-pressed ${
-            account.is_primary ? "text-foreground" : "text-foreground"
-          }`}
-        >
-          {settingPrimaryId === account.id ? (
-            <>
-              <IconLoader2 className="w-3 h-3 mr-1 animate-spin" />
-              Updating...
-            </>
-          ) : account.is_primary ? (
-            "Primary"
-          ) : (
-            "Set primary"
-          )}
-        </Button>
+        {account.is_primary ? (
+          <span className="px-3 py-1 text-xs font-semibold rounded-full bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-700 border border-emerald-300 cursor-default">
+            Primary
+          </span>
+        ) : (
+          <Button
+            size="sm"
+            disabled={settingPrimaryId === account.id}
+            onClick={() => handleSetPrimary(account.id, provider)}
+            className="neumorphic-button-primary"
+          >
+            {settingPrimaryId === account.id ? (
+              <>
+                <IconLoader2 className="w-3 h-3 mr-1 animate-spin" />
+                Updating...
+              </>
+            ) : (
+              "Set primary"
+            )}
+          </Button>
+        )}
 
         {/* Disconnect button */}
         {account.is_primary ? (
@@ -210,9 +208,8 @@ export function CalendarIntegrations() {
               <span>
                 <Button
                   size="sm"
-                  variant="ghost"
                   disabled
-                  className="text-xs px-3 py-1 rounded-full text-destructive neumorphic-pressed"
+                  className="neumorphic-button-destructive opacity-50 cursor-not-allowed"
                 >
                   Disconnect
                 </Button>
@@ -225,10 +222,9 @@ export function CalendarIntegrations() {
         ) : (
           <Button
             size="sm"
-            variant="ghost"
             disabled={disconnectingId === account.id}
             onClick={() => handleDisconnect(account.id, provider)}
-            className="text-xs px-3 py-1 rounded-full text-destructive neumorphic-pressed"
+            className="neumorphic-button-destructive"
           >
             {disconnectingId === account.id ? (
               <>
@@ -275,7 +271,7 @@ export function CalendarIntegrations() {
               </div>
               <Button
                 onClick={() => setShowModal(true)}
-                className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
+                className="neumorphic-button-primary"
               >
                 <IconPlus className="w-3 h-3" />
                 Add Google
@@ -284,7 +280,9 @@ export function CalendarIntegrations() {
 
             {/* Connected Google Calendars */}
             {googleAccounts.length > 0 ? (
-              googleAccounts.map((account) => renderAccountCard(account, "google"))
+              [...googleAccounts]
+                .sort((a, b) => (b.is_primary ? 1 : 0) - (a.is_primary ? 1 : 0))
+                .map((account) => renderAccountCard(account, "google"))
             ) : (
               <div className="p-4 text-center mt-4 neumorphic-inset rounded-lg">
                 <p className="text-sm">No Google calendars connected</p>
@@ -305,7 +303,7 @@ export function CalendarIntegrations() {
               </div>
               <Button
                 onClick={() => setShowMicrosoftModal(true)}
-                className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
+                className="neumorphic-button-primary"
               >
                 <IconPlus className="w-3 h-3" />
                 Add Microsoft
@@ -314,7 +312,9 @@ export function CalendarIntegrations() {
 
             {/* Connected Microsoft Calendars */}
             {microsoftAccounts.length > 0 ? (
-              microsoftAccounts.map((account) => renderAccountCard(account, "microsoft"))
+              [...microsoftAccounts]
+                .sort((a, b) => (b.is_primary ? 1 : 0) - (a.is_primary ? 1 : 0))
+                .map((account) => renderAccountCard(account, "microsoft"))
             ) : (
               <div className="p-4 text-center neumorphic-inset rounded-lg">
                 <p className="text-sm">No Microsoft calendars connected</p>
@@ -356,14 +356,14 @@ export function CalendarIntegrations() {
               <div className="w-full flex gap-3 pt-3">
                 <Button
                   onClick={() => setShowModal(false)}
-                  className="flex-1 w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                  className="flex-1 neumorphic-button-destructive"
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleConnectGoogle}
                   disabled={isConnecting}
-                  className="flex-1 w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                  className="flex-1 neumorphic-button-primary"
                 >
                   {isConnecting ? (
                     <>
@@ -404,14 +404,14 @@ export function CalendarIntegrations() {
               <div className="w-full flex gap-3 pt-3">
                 <Button
                   onClick={() => setShowMicrosoftModal(false)}
-                  className="flex-1 w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                  className="flex-1 neumorphic-button-destructive"
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleConnectMicrosoft}
                   disabled={isConnecting}
-                  className="flex-1 w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                  className="flex-1 neumorphic-button-primary"
                 >
                   {isConnecting ? (
                     <>

@@ -30,3 +30,5 @@ samplecode/
 
 .env
 .env.example
+
+apidocs.json

@@ -15,13 +15,13 @@ export interface PaginatedResponse<T> {
 
 export interface Appointment {
   id: number
-  clinic_id: number
-  doctor_id: number
   patient_id: number
-  appointment_date: string
+  doctor_id: number
   appointment_time: string
   status: string
-  phone?: string
+  duration: number
+  appointment_note: string | null
+  reason_for_visit: string | null
   patient?: Patient
   doctor?: Doctor
 }
@@ -32,10 +32,8 @@ export interface Patient {
   last_name: string
   dob: string
   phone_number: string
-  email?: string
-  clinic_id?: number
-  status?: string
-  guardians?: Guardian[]
+  clinic_id: number
+  status: string
 }
 
 export interface Guardian {
@@ -49,13 +47,10 @@ export interface Guardian {
 
 export interface Doctor {
   id: number
-  first_name: string
-  last_name: string
+  name: string
+  department: string
   email: string
-  phone_number?: string
-  department?: string
   clinic_id: number
-  status?: string
 }
 
 export interface FrontDeskRequest {

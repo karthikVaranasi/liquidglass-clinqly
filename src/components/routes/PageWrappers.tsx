@@ -1,6 +1,6 @@
 import { useNavigation } from "@/contexts/navigation-context"
 import { lazy, Suspense } from "react"
-import { AuthStorage } from "@/api/auth"
+import { useAuth } from "@/contexts/auth-context"
 
 // Lazy load page components
 const AdminAnalyticsPage = lazy(() => import("@/components/adminpages/analytics-page").then(module => ({ default: module.AnalyticsPage })))
@@ -37,7 +37,8 @@ export function DoctorAnalyticsPageWrapper() {
 }
 
 export function NotFoundPageWrapper() {
-  const userType = (AuthStorage.getUserType() as 'admin' | 'doctor') || 'doctor'
+  const { role } = useAuth()
+  const userType = (role as 'admin' | 'doctor') || 'doctor'
   return (
     <Suspense fallback={<div className="min-h-screen bg-background" />}>
       <NotFoundPage userType={userType} />

@@ -64,7 +64,7 @@ export function NavUser({
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{userType === 'doctor' ? `Dr. ${user.name}` : user.name}</span>
                 <span className="truncate text-xs">
-                  {user.role?.replace(/^Dr\.\s*/i, '') || user.email}
+                  {user.role?.replace(/^Dr\.\s*/i, '') || user.email || "null"}
                 </span>
               </div>
               <IconDotsVertical className="ml-auto size-4" />
@@ -88,7 +88,7 @@ export function NavUser({
                   <span className="truncate font-medium">{userType === 'doctor' ? `Dr. ${user.name}` : user.name}</span>
                   <span className="truncate text-xs flex items-center gap-1" style={{ textTransform: 'none' }}>
                     <IconMail className="w-3 h-3" />
-                    {user.email}
+                    {user.email || "null"}
                   </span>
                   {user.role && (
                     <span className="truncate text-xs flex items-center gap-1">
@@ -110,7 +110,7 @@ export function NavUser({
                 <DropdownMenuSeparator className="neumorphic-inset mx-2" />
                 <DropdownMenuItem
                   onClick={() => onPageChange("mfa-settings")}
-                  className="neumorphic-soft neumorphic-hover neumorphic-active focus:neumorphic-pressed cursor-pointer"
+                  className="w-full mx-auto neumorphic-button-primary cursor-pointer"
                 >
                   <IconShield />
                   MFA Settings
@@ -120,7 +120,7 @@ export function NavUser({
             <DropdownMenuSeparator className="neumorphic-inset mx-2" />
             <DropdownMenuItem
               onClick={onLogout}
-              className="neumorphic-soft neumorphic-hover neumorphic-active focus:neumorphic-pressed cursor-pointer"
+              className="w-full mx-auto neumorphic-button-primary cursor-pointer"
             >
               <IconLogout />
               Logout

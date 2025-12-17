@@ -23,6 +23,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs"
 import { AuthStorage } from "@/api/auth"
+import { useAuth } from "@/contexts/auth-context"
 import {
   AvailabilityAPI,
   workingHoursToApiFormat,
@@ -99,9 +100,10 @@ export function SettingsPage() {
   const [isDeletingOffDay, setIsDeletingOffDay] = useState(false)
   const [isSyncingHolidays, setIsSyncingHolidays] = useState(false)
 
-  // Get clinic and doctor IDs from storage
-  const clinicData = AuthStorage.getClinicData()
-  const userData = AuthStorage.getUserData()
+  // Get clinic and doctor IDs from auth context
+  const { clinic, doctor } = useAuth()
+  const clinicData = clinic
+  const userData = doctor
   const clinicId = clinicData?.id
   const doctorId = userData?.id
 
@@ -467,8 +469,7 @@ export function SettingsPage() {
 
                       <Button
                         onClick={() => handleToggleClosed(index)}
-                        className={`ml-auto w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 ${day.isClosed ? "" : "hover:bg-destructive"
-                          }`}
+                        className={day.isClosed ? "neumorphic-button-primary ml-auto" : "neumorphic-button-destructive ml-auto"}
                       >
                         {day.isClosed ? "Open" : "Close"}
                       </Button>
@@ -480,7 +481,7 @@ export function SettingsPage() {
                   <Button
                     onClick={handleSaveWorkingHours}
                     disabled={isSavingWorkingHours}
-                    className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                    className="neumorphic-button-primary"
                   >
                     {isSavingWorkingHours ? (
                       <>
@@ -505,7 +506,7 @@ export function SettingsPage() {
                 </span>
                 <Button
                   onClick={openCreateOffDayDialog}
-                  className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
+                  className="neumorphic-button-primary"
                 >
                   <IconPlus className="w-3 h-3" />
                   Add Off Day
@@ -560,7 +561,7 @@ export function SettingsPage() {
                                       setActiveSettingsTab("off-days")
                                       openEditOffDayDialog(entry)
                                     }}
-                                    className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
+                                    className="neumorphic-button-primary p-2"
                                   >
                                     <IconPencil className="w-3 h-3" />
                                   </Button>
@@ -569,7 +570,7 @@ export function SettingsPage() {
                                       setActiveSettingsTab("off-days")
                                       openDeleteDialog(entry)
                                     }}
-                                    className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
+                                    className="neumorphic-button-destructive p-2"
                                   >
                                     <IconTrash className="w-3 h-3" />
                                   </Button>
@@ -597,7 +598,7 @@ export function SettingsPage() {
                 <Button
                   onClick={handleSyncPublicHolidays}
                   disabled={isSyncingHolidays}
-                  className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
+                  className="neumorphic-button-primary"
                 >
                   {isSyncingHolidays ? (
                     <>
@@ -661,7 +662,7 @@ export function SettingsPage() {
                                       setActiveSettingsTab("public-holidays")
                                       openEditOffDayDialog(entry)
                                     }}
-                                    className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
+                                    className="neumorphic-button-primary p-2"
                                   >
                                     <IconPencil className="w-3 h-3" />
                                   </Button>
@@ -670,7 +671,7 @@ export function SettingsPage() {
                                       setActiveSettingsTab("public-holidays")
                                       openDeleteDialog(entry)
                                     }}
-                                    className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
+                                    className="neumorphic-button-destructive p-2"
                                   >
                                     <IconTrash className="w-3 h-3" />
                                   </Button>
@@ -815,7 +816,7 @@ export function SettingsPage() {
               <div className="flex justify-end gap-2 pt-2">
                 <Button
                   type="button"
-                  className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                  className="neumorphic-button-destructive"
                   onClick={() => {
                     setIsOffDayDialogOpen(false)
                     resetOffDayForm()
@@ -826,7 +827,7 @@ export function SettingsPage() {
                 <Button
                   type="submit"
                   disabled={isSavingOffDay}
-                  className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                  className="neumorphic-button-primary"
                 >
                   {isSavingOffDay ? (
                     <>
@@ -891,7 +892,7 @@ export function SettingsPage() {
             <div className="flex justify-end gap-2 pt-4">
               <Button
                 type="button"
-                className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                className="neumorphic-button-primary"
                 onClick={() => {
                   setIsDeleteDialogOpen(false)
                   setDeleteTarget(null)
@@ -903,7 +904,7 @@ export function SettingsPage() {
                 type="button"
                 onClick={confirmDeleteOffDay}
                 disabled={isDeletingOffDay}
-                className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                className="neumorphic-button-destructive"
               >
                 {isDeletingOffDay ? (
                   <>

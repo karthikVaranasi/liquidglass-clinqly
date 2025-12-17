@@ -197,10 +197,9 @@ export class DoctorAnalyticsAPI extends BaseAPI {
    * Get total logs count filtered by clinic using the clinic-specific endpoint
    */
   static async getLogsCount(clinicId?: number, doctorId?: number): Promise<number> {
-    // If no clinic ID provided, try to get from auth storage
+    // If no clinic ID provided, try to get from decoded JWT token
     if (!clinicId) {
-      const userData = AuthStorage.getUserData()
-      clinicId = userData?.clinic_id
+      clinicId = AuthStorage.getClinicId() ?? undefined
     }
 
     if (!clinicId) {

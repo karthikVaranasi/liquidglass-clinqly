@@ -76,11 +76,10 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
                   {hours.map((hour) => (
                     <div
                       key={hour}
-                      className={`w-fit text-xs font-medium neumorphic-pressed rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 mx-auto border ${
-                        selectedHour === hour
+                      className={`w-fit text-xs font-medium neumorphic-pressed rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 mx-auto border ${selectedHour === hour
                           ? "border-primary text-foreground hover:text-foreground-foreground"
                           : "border-transparent text-foreground hover:text-foreground-foreground"
-                      }`}
+                        }`}
                       onClick={() => setSelectedHour(hour)}
                     >
                       {hour}
@@ -100,11 +99,10 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
                   {minutes.map((minute) => (
                     <div
                       key={minute}
-                      className={`w-fit text-xs font-medium neumorphic-pressed rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 mx-auto border ${
-                        selectedMinute === minute
+                      className={`w-fit text-xs font-medium neumorphic-pressed rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 mx-auto border ${selectedMinute === minute
                           ? "border-primary text-foreground hover:text-foreground-foreground"
                           : "border-transparent text-foreground hover:text-foreground-foreground"
-                      }`}
+                        }`}
                       onClick={() => setSelectedMinute(minute)}
                     >
                       {minute}
@@ -123,11 +121,10 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
                 {periods.map((period) => (
                   <div
                     key={period}
-                    className={`w-fit text-xs font-medium neumorphic-pressed rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 mx-auto border ${
-                      selectedPeriod === period
+                    className={`w-fit text-xs font-medium neumorphic-pressed rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 mx-auto border ${selectedPeriod === period
                         ? "border-primary text-foreground hover:text-foreground-foreground"
                         : "border-transparent text-foreground hover:text-foreground-foreground"
-                    }`}
+                      }`}
                     onClick={() => setSelectedPeriod(period)}
                   >
                     {period}
@@ -141,7 +138,7 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
           <div className="flex justify-center border-t border-muted/30">
             <Button
               onClick={handleDone}
-              className="w-fit text-xs font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-4 py-2 inline-flex items-center gap-2"
+              className="neumorphic-button-primary"
             >
               <IconCheck className="w-3 h-3" />
               Done

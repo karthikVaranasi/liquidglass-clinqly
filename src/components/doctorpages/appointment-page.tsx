@@ -1,8 +1,10 @@
 // /mnt/data/appointment-page.tsx
 import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import { IconChevronLeft, IconChevronRight, IconCalendar, IconUserCircle } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { AuthStorage } from "@/api/auth"
+import { useAuth } from "@/contexts/auth-context"
 import { DoctorAppointmentsAPI } from "@/api/doctor"
 import { formatDateUS, getCurrentDateInNY, getCurrentDateStringInNY } from "@/lib/date"
 import { getErrorMessage } from "@/lib/errors"
@@ -18,6 +20,8 @@ const sortAppointmentsByTime = (appointments: any[]) => {
 }
 
 export function AppointmentPage() {
+  const navigate = useNavigate()
+  const { role, userId, doctor } = useAuth()
   const [selectedDate, setSelectedDate] = useState<number | null>(null)
   const [currentMonth, setCurrentMonth] = useState(11)
   const [currentYear, setCurrentYear] = useState(2025)
@@ -93,28 +97,31 @@ export function AppointmentPage() {
     return calendar
   }
 
-  // Get status styling based on appointment status (kept existing mapping)
+  // Get status styling based on appointment status (gradient colors)
   const getStatusStyle = (status: string) => {
     switch (status?.toLowerCase()) {
       case 'completed':
-        return 'bg-green-100 neumorphic-inset'
+        return 'bg-gradient-to-r from-emerald-50 to-green-100 neumorphic-inset text-emerald-700 border border-emerald-200/50'
       case 'in progress':
-        return 'bg-yellow-100 neumorphic-inset'
+        return 'bg-gradient-to-r from-amber-50 to-yellow-100 neumorphic-inset text-amber-700 border border-amber-200/50'
       case 'scheduled':
-        return 'bg-blue-100 neumorphic-inset'
+        return 'bg-gradient-to-r from-blue-50 to-indigo-100 neumorphic-inset text-blue-700 border border-blue-200/50'
       case 'cancelled':
-        return 'bg-red-100 neumorphic-inset'
+        return 'bg-gradient-to-r from-rose-50 to-red-100 neumorphic-inset text-rose-700 border border-rose-200/50'
       default:
-        return 'bg-muted neumorphic-inset'
+        return 'bg-gradient-to-r from-slate-50 to-gray-100 neumorphic-inset text-slate-700 border border-slate-200/50'
     }
   }
 
-  // Set today's date as default on component mount
+  // Set next day's date as default on component mount (today handled separately above)
   useEffect(() => {
     const today = getCurrentDateInNY()
-    setSelectedDate(today.getDate())
-    setCurrentMonth(today.getMonth() + 1)
-    setCurrentYear(today.getFullYear())
+    const tomorrow = new Date(today)
+    tomorrow.setDate(today.getDate() + 1)
+
+    setSelectedDate(tomorrow.getDate())
+    setCurrentMonth(tomorrow.getMonth() + 1)
+    setCurrentYear(tomorrow.getFullYear())
   }, [])
 
   // Fetch appointments from API
@@ -128,17 +135,14 @@ export function AppointmentPage() {
         setError(null)
 
         // Get user data to determine filtering
-        const userData = AuthStorage.getUserData()
-        const userType = AuthStorage.getUserType()
-
-        // console.log('👤 User type:', userType, 'User data:', userData)
+        // console.log('👤 User type:', role, 'User ID:', userId)
 
         let params = {}
-        if (userType === 'doctor') {
+        if (role === 'doctor') {
           params = {
-            doctor_id: userData?.id
+            doctor_id: userId
           }
-          // console.log('👨‍⚕️ Filtering appointments by doctor:', userData?.id)
+          // console.log('👨‍⚕️ Filtering appointments by doctor:', userId)
         }
 
         const appointmentsData = await DoctorAppointmentsAPI.getAllAppointments(params)
@@ -191,8 +195,10 @@ export function AppointmentPage() {
       }
     }
 
-    fetchAppointments()
-  }, [])
+    if (role && userId) {
+      fetchAppointments()
+    }
+  }, [role, userId])
 
   const handleDateClick = (date: number, isCurrentMonth: boolean) => {
     if (isCurrentMonth) {
@@ -239,19 +245,33 @@ export function AppointmentPage() {
     return sortAppointmentsByTime(selected)
   }
 
-  const isSelectedDatePast = () => {
+  // Check if selected date is in the past
+  const isSelectedDateInPast = () => {
     if (!selectedDate) return false
-    const today = getCurrentDateInNY()
-    today.setHours(0, 0, 0, 0)
     const selectedDateObj = new Date(currentYear, currentMonth - 1, selectedDate)
-    selectedDateObj.setHours(0, 0, 0, 0)
-    return selectedDateObj < today
+    const today = getCurrentDateInNY()
+    // Reset time to start of day for accurate date comparison
+    const todayStartOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+    const selectedStartOfDay = new Date(selectedDateObj.getFullYear(), selectedDateObj.getMonth(), selectedDateObj.getDate())
+    return selectedStartOfDay < todayStartOfDay
   }
+
+
+  const handleAppointmentCardClick = (appointment: any) => {
+    // Navigate to patients page with patient ID to show profile, indicating we came from appointments
+    navigate(`/doctor/patients?patient=${appointment.patient_id}&from=appointments`)
+  }
+
+  // Helper function to check if appointment is in morning (before 1 PM)
+  const isMorningAppointment = (appointmentTime: string) => {
+    const hour = new Date(appointmentTime).getHours()
+    return hour < 13
+  }
+
 
   const calendarGrid = generateCalendarGrid(currentMonth, currentYear)
   const todaysAppointments = getTodaysAppointments()
   const selectedDateAppointments = getSelectedDateAppointments()
-  const isPastDate = isSelectedDatePast()
 
   // Show loading state
   if (loading) {
@@ -297,10 +317,9 @@ export function AppointmentPage() {
           Welcome,{" "}
           <span className="font-bold">
             {(() => {
-              const userData = AuthStorage.getUserData()
-              if (userData) {
-                const name = userData.name || `${userData.first_name || ''} ${userData.last_name || ''}`.trim()
-                const title = userData.department ? `Dr. ${name}` : name
+              if (doctor) {
+                const name = doctor.name || `${doctor.first_name || ''} ${doctor.last_name || ''}`.trim()
+                const title = doctor.department ? `Dr. ${name}` : name
                 return title || 'User'
               }
               return 'User'
@@ -314,45 +333,66 @@ export function AppointmentPage() {
         className="-mt-1 space-y-4"
       >
         <div className="flex items-center gap-2">
-          <div
-          >
-            <IconCalendar className="w-5 h-5 text-foreground" />
-          </div>
           <h2 className="text-lg md:text-xl font-semibold">Today's Appointments ({todaysAppointments.length})</h2>
         </div>
 
         {todaysAppointments.length > 0 ? (
-          <div
-            className="grid grid-cols-1 sm:grid-cols-2 gap-3"
-          >
-            {todaysAppointments.map((apt: any, index: number) => (
-              <div
-                key={index}
-                className="neumorphic-inset p-3 md:p-4 rounded-lg neumorphic-hover cursor-pointer"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                      <span className="font-medium text-sm">
-                        {new Date(apt.appointment_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          <div className="space-y-4">
+            {/* Appointments Grid - responsive: 1 per row on small, 2 on medium, 3 on very wide screens */}
+            <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
+              {todaysAppointments.map((apt: any, index: number) => {
+                const isMorning = isMorningAppointment(apt.appointment_time)
+
+                // Simple border color based on time of day
+                const borderClass = isMorning ? "border-emerald-300" : "border-blue-300"
+
+                return (
+                  <div
+                    key={index}
+                    className={`p-4 transition-all duration-200 cursor-pointer rounded-lg hover:scale-102 border-2 ${borderClass} neumorphic-inset focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2`}
+                    onClick={() => handleAppointmentCardClick(apt)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        handleAppointmentCardClick(apt)
+                      }
+                    }}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`View profile for ${apt.patient?.first_name} ${apt.patient?.last_name}`}
+                  >
+                    <div className="flex items-start justify-between gap-3 flex-wrap">
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <span className="font-medium text-sm whitespace-nowrap">
+                            {new Date(apt.appointment_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                          {/* Time indicator */}
+                          {/* <div className={`w-2 h-2 rounded-full ${isMorning ? 'bg-emerald-500' : 'bg-blue-500'}`} /> */}
+                        </div>
+                        <div className="w-px h-6 bg-muted/90 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <span className="font-medium text-sm truncate">
+                            {apt.patient?.first_name} {apt.patient?.last_name}
+                          </span>
+                          <p className="text-sm text-foreground truncate">
+                            {apt.reason_for_visit || "No reason provided"}
+                          </p>
+                          {/* <p className="text-xs font-medium">Patient ID: {apt.patient_id}</p> */}
+                          {/* <p className="text-xs font-medium">{apt.doctor_name}</p> */}
+                        </div>
+                      </div>
+                      <span
+                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusStyle(apt.status)} flex-shrink-0 mt-2 md:mt-0`}
+                      >
+                        {apt.status}
                       </span>
                     </div>
-                    <div className="w-px h-6 bg-muted/50" />
-                    <div className="flex-1">
-                      <span className="font-medium text-sm">{apt.patient_name}</span>
-                      {/* <p className="text-xs font-medium">Patient ID: {apt.patient_id}</p> */}
-                      <p className="text-xs font-medium">{apt.doctor_name}</p>
-                    </div>
                   </div>
-                  <span
-                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusStyle(apt.status)}`}
-                  >
-                    {apt.status}
-                  </span>
-                </div>
-              </div>
-            ))}
+                )
+              })}
+            </div>
+
           </div>
         ) : (
           <div
@@ -379,15 +419,15 @@ export function AppointmentPage() {
           className="mb-2"
         >
           <h1 className="text-lg md:text-xl font-semibold text-foreground">
-            {selectedDate && isPastDate ? "Past Appointments" : "Future Appointments"}
+            {isSelectedDateInPast() ? 'Past Appointments' : 'Scheduled Appointments'}
           </h1>
         </div>
 
         {/* Bento Grid Layout - Calendar and Appointments Table */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100%-4rem)]">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 h-[calc(100%-4rem)]">
           {/* Appointments Table */}
           <div
-            className="col-span-12 md:col-span-8 lg:col-span-8 xl:col-span-8 flex flex-col"
+            className="order-2 md:order-1 col-span-12 md:col-span-7 lg:col-span-8 flex flex-col"
           >
             {/* Selected Date Appointments */}
             {selectedDate ? (
@@ -416,29 +456,48 @@ export function AppointmentPage() {
                     className="neumorphic-inset rounded-lg p-4 border-0 flex flex-col"
                   >
                     <div className="overflow-x-auto flex-1">
-                      <div className="max-h-[80vh] overflow-y-auto bg-card rounded-lg">
+                      <div className="max-h-[70vh] overflow-y-auto bg-card rounded-lg">
                         <table className="w-full text-sm">
                           <thead className="sticky top-0 z-10 bg-card">
                             <tr className="border-b-2 border-muted/90 bg-muted/10">
                               <th className="text-left font-medium py-3 px-2">Time</th>
                               <th className="text-left font-medium py-3 px-2">Patient</th>
+                              <th className="text-left font-medium py-3 px-2">Reason for Visit</th>
                               <th className="text-left font-medium py-3 px-2">Doctor</th>
                               <th className="text-left font-medium py-3 px-2">Status</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y-2 divide-muted/90">
                             {selectedDateAppointments.map((apt: any, index: number) => (
-                              <tr key={index} className="hover:bg-muted/30 transition-colors">
+                              <tr
+                                key={index}
+                                className="hover:bg-muted/30 transition-colors cursor-pointer"
+                                onClick={() => handleAppointmentCardClick(apt)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault()
+                                    handleAppointmentCardClick(apt)
+                                  }
+                                }}
+                                tabIndex={0}
+                                role="button"
+                                aria-label={`View profile for ${apt.patient?.first_name} ${apt.patient?.last_name}`}
+                              >
                                 <td className="py-3 px-2 font-medium text-sm">
                                   {new Date(apt.appointment_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 </td>
                                 <td className="py-3 px-2">
                                   <div className="flex items-center gap-1">
                                     <IconUserCircle className="w-5 h-5" />
-                                    <span className="font-medium text-sm">{apt.patient_name}</span>
+                                    <span className="font-medium text-sm">{apt.patient?.first_name} {apt.patient?.last_name}</span>
                                   </div>
                                 </td>
-                                <td className="py-3 px-2 text-sm">{apt.doctor_name}</td>
+                                <td className="py-3 px-2 text-foreground">
+                                  <span className="truncate block">
+                                    {apt.reason_for_visit || "No reason provided"}
+                                  </span>
+                                </td>
+                                <td className="py-3 px-2 text-sm">{apt.doctor?.name}</td>
                                 <td className="py-3 px-2">
                                   <span
                                     className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusStyle(apt.status)}`}
@@ -470,10 +529,10 @@ export function AppointmentPage() {
               </div>
             ) : (
               <div
-                className="flex flex-col items-center justify-center"
+                className="flex-1 flex flex-col"
               >
                 <div
-                  className="neumorphic-inset rounded-lg p-8 border-0 flex flex-col items-center justify-center text-center max-w-md"
+                  className="neumorphic-inset rounded-lg p-8 border-0 flex flex-col items-center justify-center text-center"
                 >
                   <div
                   >
@@ -496,11 +555,11 @@ export function AppointmentPage() {
 
           {/* Calendar Component */}
           <div
-            className="col-span-12 md:col-span-4 lg:col-span-4 xl:col-span-4 w-full"
+            className="order-1 md:order-2 col-span-12 md:col-span-5 lg:col-span-4 w-full max-w-md md:max-w-none mx-auto md:mx-0"
           >
             {/* Calendar Content */}
             <div
-              className="p-1.5 sm:p-2 md:p-3 items-center justify-center neumorphic-pressed rounded-lg overflow-hidden w-full min-h-[240px] sm:min-h-[280px] md:min-h-[320px] flex flex-col"
+              className="p-2 sm:p-3 md:p-4 items-center justify-center neumorphic-pressed rounded-lg overflow-hidden w-full min-h-[280px] sm:min-h-[320px] md:min-h-[360px] flex flex-col"
             >
               <div
                 className="flex items-center gap-1 sm:gap-2 mb-1.5 sm:mb-2 px-6 w-full justify-center"
@@ -537,12 +596,12 @@ export function AppointmentPage() {
               <div className="flex-1 flex flex-col w-full">
                 {/* Day Headers */}
                 <div
-                  className="grid grid-cols-7 gap-0.5 sm:gap-0.5 px-6 w-full"
+                  className="grid grid-cols-7 gap-1 sm:gap-1.5 md:gap-1 px-2 sm:px-4 md:px-3 w-full"
                 >
                   {weekDays.map((day) => (
                     <div
                       key={day}
-                      className="text-center text-[10px] sm:text-xs font-medium neumorphic-inset px-0.5 py-0.5 sm:py-1 rounded min-w-0"
+                      className="text-center text-[10px] sm:text-xs md:text-[11px] font-medium neumorphic-inset px-0.5 py-0.5 sm:py-1 rounded min-w-0"
                     >
                       <span className="hidden sm:inline">{day}</span>
                       <span className="sm:hidden">{day.charAt(0)}</span>
@@ -553,7 +612,7 @@ export function AppointmentPage() {
                 {/* Calendar Grid */}
                 <div
                   key={`${currentMonth}-${currentYear}`}
-                  className="grid grid-cols-7 gap-0.5 sm:gap-0.5 p-5 flex-1 w-full auto-rows-fr"
+                  className="grid grid-cols-7 gap-1 sm:gap-1.5 md:gap-1 p-2 sm:p-4 md:p-3 flex-1 w-full auto-rows-fr"
                 >
                   {calendarGrid.map((day, index) => (
                     <div
@@ -564,11 +623,14 @@ export function AppointmentPage() {
                           w-full min-h-0 flex flex-col justify-center items-center
                           ${day.isCurrentMonth
                           ? selectedDate === day.date
-                            ? 'neumorphic-pressed shadow-inner border-1 border-primary'
-                            : 'neumorphic'
-                          : 'neumorphic-inset opacity-50 cursor-not-allowed'
+                            ? 'neumorphic-pressed shadow-inner border-1 border-primary bg-gradient-to-br from-blue-100/80 via-indigo-50/60 to-purple-100/80'
+                            : day.isToday
+                              ? 'neumorphic ring-2 ring-primary ring-inset bg-gradient-to-br from-amber-100/70 via-yellow-50/50 to-orange-100/70'
+                              : day.hasAppointments
+                                ? 'neumorphic bg-gradient-to-br from-emerald-50/60 via-green-50/40 to-teal-50/60'
+                                : 'neumorphic bg-gradient-to-br from-slate-50/40 via-gray-50/30 to-zinc-50/40'
+                          : 'neumorphic-inset opacity-50 cursor-not-allowed bg-gradient-to-br from-gray-100/20 via-slate-50/15 to-neutral-50/20'
                         }
-                          ${day.isToday && day.isCurrentMonth ? 'ring-2 ring-primary ring-inset' : ''}
                         `}
                       style={{ aspectRatio: '1' }}
                     >
@@ -592,7 +654,7 @@ export function AppointmentPage() {
                       {day.appointments.length > 0 && day.isCurrentMonth && (
                         <div className="-mt-0.5">
                           <div
-                            className={`appointment-badge inline-flex items-center justify-center text-[8px] sm:text-[10px] font-medium rounded-full px-0.5 sm:px-1 neumorphic-inset bg-primary/10 border border-primary/20`}
+                            className={`appointment-badge inline-flex items-center justify-center text-[8px] sm:text-[10px] font-medium rounded-full px-0.5 sm:px-1 neumorphic-inset bg-gradient-to-r from-emerald-200/80 to-green-300/60 border border-emerald-300/40 text-emerald-800`}
                           >
                             {day.appointments.length}
                           </div>

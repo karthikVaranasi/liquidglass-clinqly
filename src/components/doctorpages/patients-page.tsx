@@ -1,12 +1,28 @@
 import { useState, useEffect } from "react"
-import { IconArrowLeft, IconUserCircle, IconLoader2 } from "@tabler/icons-react"
+import { useLocation, useSearchParams, useNavigate } from "react-router-dom"
+import {
+  IconArrowLeft,
+  IconUserCircle,
+  IconLoader2,
+  IconPhone,
+  IconCalendar,
+  IconMail,
+  IconUsers,
+  IconFileText,
+  IconCalendarEvent,
+  IconHistory,
+  IconX,
+  IconChartBar
+} from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { DatePicker } from "@/components/ui/date-picker"
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 import { formatDateUS, formatDateUSShort, getCurrentDateInLocal, getCurrentDateStringInLocal } from "@/lib/date"
 import { getErrorMessage, getToastErrorMessage } from "@/lib/errors"
 import { AuthStorage } from "@/api/auth"
+import { useAuth } from "@/contexts/auth-context"
 import { DoctorPatientsAPI, DoctorAppointmentsAPI } from "@/api/doctor"
-import type { Patient } from "@/api/shared/types"
+import type { Patient, Guardian } from "@/api/shared/types"
 
 type PatientDocument = {
   document_id?: number
@@ -21,6 +37,8 @@ type PatientDocument = {
 }
 
 interface ExtendedPatient extends Patient {
+  email?: string
+  guardians?: Guardian[]
   documents?: PatientDocument[]
   appointments?: {
     upcoming: Array<{
@@ -28,12 +46,18 @@ interface ExtendedPatient extends Patient {
       time: string
       status: string
       appointment_id: number
+      reason_for_visit?: string
+      appointment_note?: string
+      duration?: number
     }>
     past: Array<{
       date: string
       time: string
       status: string
       appointment_id: number
+      reason_for_visit?: string
+      appointment_note?: string
+      duration?: number
     }>
   }
 }
@@ -46,9 +70,17 @@ declare global {
 }
 
 export function PatientsPage() {
+  const location = useLocation()
+  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
+  const { clinicId, userId: doctorId } = useAuth()
   const [showAddForm, setShowAddForm] = useState(false)
   const [selectedPatient, setSelectedPatient] = useState<ExtendedPatient | null>(null)
   const [viewMode, setViewMode] = useState<'table' | 'profile'>('table')
+  const [initialProfileLoad, setInitialProfileLoad] = useState(() => {
+    // Check if we should load a profile initially
+    return !!new URLSearchParams(location.search).get('patient')
+  })
 
   // Helper function to filter name input - only allow letters, spaces, hyphens, and apostrophes
   const validateNameInput = (value: string): { value: string; error: string } => {
@@ -136,6 +168,7 @@ export function PatientsPage() {
   const [error, setError] = useState<string | null>(null)
   const [profileLoading, setProfileLoading] = useState(false)
   const [profileError, setProfileError] = useState<string | null>(null)
+  const [isClosingProfile, setIsClosingProfile] = useState(false)
 
 
   // Document loading states
@@ -166,9 +199,6 @@ export function PatientsPage() {
       try {
         setLoading(true)
         setError(null)
-
-        const userData = AuthStorage.getUserData()
-        const clinicId = userData?.clinic_id
 
         if (!clinicId) {
           setError('Clinic ID not found. Please log in again.')
@@ -205,6 +235,19 @@ export function PatientsPage() {
   useEffect(() => {
     setFilteredPatients(allPatients)
   }, [allPatients])
+
+  // Check for patient query parameter to auto-show profile
+  useEffect(() => {
+    const patientId = searchParams.get('patient')
+    if (patientId && allPatients.length > 0 && !isClosingProfile) {
+      const patient = allPatients.find(p => p.id.toString() === patientId)
+      if (patient) {
+        handleViewProfile(patient).finally(() => {
+          setInitialProfileLoad(false)
+        })
+      }
+    }
+  }, [searchParams, allPatients, isClosingProfile])
 
   // Transform appointment data from API format to display format
   const transformAppointments = (appointments: any[]): { upcoming: any[], past: any[] } => {
@@ -257,7 +300,10 @@ export function PatientsPage() {
         time: formattedTime,
         status: appt.status || 'scheduled',
         appointment_id: appt.id,
-        appointment_time: appt.appointment_time
+        appointment_time: appt.appointment_time,
+        appointment_note: appt.appointment_note || '',
+        reason_for_visit: appt.reason_for_visit || '',
+        duration: appt.duration || null
       }
 
       if (appointmentDate >= today && appt.status?.toLowerCase() !== 'cancelled') {
@@ -274,11 +320,17 @@ export function PatientsPage() {
     return { upcoming, past }
   }
 
+
   const handleViewProfile = async (patient: Patient) => {
     try {
       setProfileLoading(true)
       setProfileError(null)
       setViewMode('profile')
+
+      // Update URL with patient query parameter, preserving the 'from' parameter
+      const fromParam = searchParams.get('from')
+      const urlParams = `?patient=${patient.id}${fromParam ? `&from=${fromParam}` : ''}`
+      navigate(urlParams, { replace: true })
 
       // Fetch appointments and documents in parallel (patient details already available from list)
       const [appointmentsData, documentsData] = await Promise.all([
@@ -309,8 +361,7 @@ export function PatientsPage() {
       const transformedAppointments = transformAppointments(appointmentsData)
 
       const extendedPatient: ExtendedPatient = {
-        ...patient,
-        guardians: [], // Guardians are included in the patient list response, but let's use empty array as fallback
+        ...(patient as any),
         documents: documentsData,
         appointments: transformedAppointments
       }
@@ -343,9 +394,23 @@ export function PatientsPage() {
   }
 
   const handleCloseProfile = () => {
+    setIsClosingProfile(true)
     setSelectedPatient(null)
     setViewMode('table')
     setProfileError(null)
+
+    // Check if we came from appointments page
+    const fromParam = searchParams.get('from')
+    if (fromParam === 'appointments') {
+      // Navigate back to appointments page
+      navigate('/doctor/appointments', { replace: true })
+    } else {
+      // Remove patient query parameter from URL (stay on patients page)
+      navigate('', { replace: true })
+    }
+
+    // Reset the closing flag after navigation
+    setTimeout(() => setIsClosingProfile(false), 100)
   }
 
   const handleAddPatient = async (e: React.FormEvent) => {
@@ -440,9 +505,6 @@ export function PatientsPage() {
     setSelectedTimeSlot('')
 
     try {
-      const userData = AuthStorage.getUserData()
-      const clinicId = userData?.clinic_id
-      const doctorId = userData?.id
 
       if (!clinicId || !doctorId) {
         showToast('Unable to fetch availability. Please log in again.', 'error')
@@ -532,9 +594,6 @@ export function PatientsPage() {
     setScheduling(true)
 
     try {
-      const userData = AuthStorage.getUserData()
-      const clinicId = userData?.clinic_id
-      const doctorId = userData?.id
 
       if (!clinicId || !doctorId) {
         showToast('Unable to schedule appointment. Please log in again.', 'error')
@@ -580,9 +639,6 @@ export function PatientsPage() {
     setScheduling(true)
 
     try {
-      const userData = AuthStorage.getUserData()
-      const clinicId = userData?.clinic_id
-      const doctorId = userData?.id
 
       if (!clinicId || !doctorId) {
         showToast('Unable to reschedule appointment. Please log in again.', 'error')
@@ -664,9 +720,6 @@ export function PatientsPage() {
     setCancelling(true)
 
     try {
-      const userData = AuthStorage.getUserData()
-      const clinicId = userData?.clinic_id
-      const doctorId = userData?.id
 
       if (!clinicId || !doctorId) {
         showToast('Unable to cancel appointment. Please log in again.', 'error')
@@ -787,18 +840,6 @@ export function PatientsPage() {
             <div className="p-5">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-base font-semibold">Schedule Appointment</h2>
-                <Button
-                  onClick={() => {
-                    setShowScheduleModal(false)
-                    setSelectedDate('')
-                    setAvailableSlots([])
-                    setSelectedTimeSlot('')
-                  }}
-                  disabled={scheduling || loadingSlots}
-                  className="w-8 h-8 flex items-center justify-center text-lg font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg cursor-pointer transition-all duration-200"
-                >
-                  ×
-                </Button>
               </div>
 
               <div className="space-y-4">
@@ -836,22 +877,19 @@ export function PatientsPage() {
                     <label className="block text-xs font-medium uppercase tracking-wide mb-2">
                       Select Time Slot *
                     </label>
-                    <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto">
+                    <select
+                      value={selectedTimeSlot}
+                      onChange={(e) => setSelectedTimeSlot(e.target.value)}
+                      className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent max-h-60 overflow-y-auto"
+                      disabled={scheduling}
+                    >
+                      <option value="">Choose a time</option>
                       {availableSlots.map((slot) => (
-                        <Button
-                          key={slot}
-                          type="button"
-                          onClick={() => setSelectedTimeSlot(slot)}
-                          className={`text-sm font-medium neumorphic-pressed text-foreground rounded-lg cursor-pointer transition-all duration-200 px-2 py-2 border ${selectedTimeSlot === slot
-                            ? 'border-2 border-primary'
-                            : ''
-                            }`}
-                          disabled={scheduling}
-                        >
+                        <option key={slot} value={slot}>
                           {slot}
-                        </Button>
+                        </option>
                       ))}
-                    </div>
+                    </select>
                   </div>
                 )}
 
@@ -871,14 +909,14 @@ export function PatientsPage() {
                       setSelectedTimeSlot('')
                     }}
                     disabled={scheduling || loadingSlots}
-                    className="flex-1 text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground hover:bg-destructive rounded-lg cursor-pointer transition-all duration-200 px-3 py-2"
+                    className="flex-1 neumorphic-button-destructive"
                   >
                     Cancel
                   </Button>
                   <Button
                     onClick={handleScheduleAppointment}
                     disabled={scheduling || loadingSlots || !selectedDate || !selectedTimeSlot}
-                    className="flex-1 text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg cursor-pointer transition-all duration-200 px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 neumorphic-button-primary"
                   >
                     {scheduling ? (
                       <span className="flex items-center justify-center">
@@ -917,19 +955,6 @@ export function PatientsPage() {
             <div className="p-5">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-base font-semibold">Reschedule Appointment</h2>
-                <Button
-                  onClick={() => {
-                    setShowRescheduleModal(false)
-                    setRescheduleAppointmentId(null)
-                    setSelectedDate('')
-                    setAvailableSlots([])
-                    setSelectedTimeSlot('')
-                  }}
-                  disabled={scheduling || loadingSlots}
-                  className="w-8 h-8 flex items-center justify-center text-lg font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg cursor-pointer transition-all duration-200"
-                >
-                  ×
-                </Button>
               </div>
 
               <div className="space-y-4">
@@ -967,22 +992,19 @@ export function PatientsPage() {
                     <label className="block text-xs font-medium uppercase tracking-wide mb-2">
                       Select Time Slot *
                     </label>
-                    <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto">
+                    <select
+                      value={selectedTimeSlot}
+                      onChange={(e) => setSelectedTimeSlot(e.target.value)}
+                      className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent max-h-60 overflow-y-auto"
+                      disabled={scheduling}
+                    >
+                      <option value="">Choose a time</option>
                       {availableSlots.map((slot) => (
-                        <Button
-                          key={slot}
-                          type="button"
-                          onClick={() => setSelectedTimeSlot(slot)}
-                          className={`text-sm font-medium neumorphic-pressed text-foreground rounded-lg cursor-pointer transition-all duration-200 px-2 py-2 border ${selectedTimeSlot === slot
-                            ? 'border-2 border-primary'
-                            : ''
-                            }`}
-                          disabled={scheduling}
-                        >
+                        <option key={slot} value={slot}>
                           {slot}
-                        </Button>
+                        </option>
                       ))}
-                    </div>
+                    </select>
                   </div>
                 )}
 
@@ -1003,14 +1025,14 @@ export function PatientsPage() {
                       setSelectedTimeSlot('')
                     }}
                     disabled={scheduling || loadingSlots}
-                    className="flex-1 text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground hover:bg-destructive rounded-lg cursor-pointer transition-all duration-200 px-3 py-2"
+                    className="flex-1 neumorphic-button-destructive"
                   >
                     Cancel
                   </Button>
                   <Button
                     onClick={handleRescheduleAppointmentSubmit}
                     disabled={scheduling || loadingSlots || !selectedDate || !selectedTimeSlot}
-                    className="flex-1 text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg cursor-pointer transition-all duration-200 px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 neumorphic-button-primary"
                   >
                     {scheduling ? (
                       <span className="flex items-center justify-center">
@@ -1059,14 +1081,14 @@ export function PatientsPage() {
                     setCancelAppointmentId(null)
                   }}
                   disabled={cancelling}
-                  className="flex-1 text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg cursor-pointer transition-all duration-200 px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 neumorphic-button-primary"
                 >
                   No, Keep It
                 </Button>
                 <Button
                   onClick={confirmCancelAppointment}
                   disabled={cancelling}
-                  className="flex-1 text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground hover:bg-destructive rounded-lg cursor-pointer transition-all duration-200 px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 neumorphic-button-destructive"
                 >
                   {cancelling ? (
                     <span className="flex items-center justify-center">
@@ -1108,9 +1130,9 @@ export function PatientsPage() {
             </div>
             <Button
               onClick={() => setToast(null)}
-              className="text-foreground hover:text-foreground transition-colors"
+              className="neumorphic-button-destructive w-7 h-7 p-0 rounded-full"
             >
-              ×
+              <IconX />
             </Button>
           </div>
         </div>
@@ -1121,296 +1143,380 @@ export function PatientsPage() {
   if (viewMode === 'profile' && selectedPatient) {
     return (
       <>
-        <div className="space-y-6">
-          {/* Profile Header with Back Button */}
-          <div className="px-4 lg:px-6">
-            <Button
-              onClick={handleCloseProfile}
-              size="sm"
-              className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
-            >
-              <IconArrowLeft className="w-4 h-4" />
-              <span className="text-sm font-medium">Back to Patients</span>
-            </Button>
+        <div className="min-h-screen">
+          {/* Navigation Bar */}
+          <div className="sticky top-0 z-40 backdrop-blur-md bg-background/90">
+            <div className="px-4 lg:px-6 py-3">
+              <div className="max-w-6xl mx-auto flex items-center justify-between">
+                <Button
+                  onClick={handleCloseProfile}
+                  size="sm"
+                  className="neumorphic-button-primary rounded-full"
+                >
+                  <IconArrowLeft className="w-4 h-4" />
+                  <span className="text-sm font-medium">
+                    {searchParams.get('from') === 'appointments' ? 'Back to Appointments' : 'Back to Patients'}
+                  </span>
+                </Button>
+              </div>
+            </div>
           </div>
 
           {/* Loading State */}
           {profileLoading && (
-            <div className="flex items-center justify-center py-12">
-              <IconLoader2 className="w-8 h-8 animate-spin text-foreground" />
+            <div className="flex items-center justify-center py-20">
+              <div className="text-center">
+                <IconLoader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+                <p className="text-lg font-medium text-foreground">Loading patient profile...</p>
+              </div>
             </div>
           )}
 
           {/* Error State */}
           {profileError && (
-            <div className="px-4 lg:px-6">
-              <div className="max-w-4xl mx-auto neumorphic-inset p-4 rounded-lg bg-destructive/10">
-                <p className="text-sm text-destructive">{profileError}</p>
+            <div className="px-4 lg:px-6 py-8">
+              <div className="max-w-4xl mx-auto">
+                <div className="bg-red-50 border border-red-200 p-6 rounded-2xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                      <span className="text-red-600 text-lg font-bold">!</span>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-red-700 mb-1">Error Loading Profile</h3>
+                      <p className="text-sm text-red-600">{profileError}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
 
           {/* Patient Profile Content */}
-          {!profileLoading && (
-            <div className="px-4 lg:px-6">
-              <div className="max-w-4xl mx-auto neumorphic-inset p-6 rounded-lg">
-                {/* Patient Info */}
-                <div className="rounded-lg mb-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-full flex items-center justify-center text-lg font-bold bg-primary/10">
-                      {`${selectedPatient.first_name[0]}${selectedPatient.last_name[0]}`.toUpperCase()}
-                    </div>
-                    <div className="flex-1">
-                      <h1 className="text-2xl font-bold">{`${selectedPatient.first_name} ${selectedPatient.last_name}`}</h1>
-                      <p className="text-sm">Patient ID: {selectedPatient.id}</p>
-                    </div>
-                  </div>
-                </div>
+          {!profileLoading && !profileError && (
+            <div className="px-4 lg:px-6 py-6">
+              <div className="max-w-6xl mx-auto space-y-6">
 
-                {/* Contact Information */}
-                <div className="rounded-lg mb-6">
-                  <h3 className="text-lg font-semibold mb-4">Contact Information</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Phone Number
-                      </label>
-                      <div className="font-medium text-foreground">
-                        {selectedPatient.phone_number}
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Date of Birth
-                      </label>
-                      <div className="font-medium text-foreground">
-                        {calculateAge(selectedPatient.dob)} years old ({formatDate(selectedPatient.dob)})
-                      </div>
-                    </div>
-
-                    {selectedPatient.email && (
-                      <div>
-                        <label className="block text-sm font-medium mb-2">
-                          Email
-                        </label>
-                        <div className="font-medium text-foreground">
-                          {selectedPatient.email}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Guardian Information */}
-                {selectedPatient?.guardians && selectedPatient.guardians.length > 0 && (
-                  <div className="rounded-lg mb-6">
-                    <h3 className="text-lg font-semibold mb-4">Guardian Information</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium mb-2">
-                          Guardian Name
-                        </label>
-                        <div className="font-medium text-foreground">
-                          {`${selectedPatient.guardians[0].first_name} ${selectedPatient.guardians[0].last_name}`}
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium mb-2">
-                          Date of Birth
-                        </label>
-                        <div className="font-medium text-foreground">
-                          {formatDate(selectedPatient.guardians[0].dob)}
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium mb-2">
-                          Relationship to Patient
-                        </label>
-                        <div className="font-medium text-foreground">
-                          {selectedPatient.guardians[0].relationship_to_patient || 'N/A'}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Documents */}
-                <div className="rounded-lg mb-6">
-                  <h3 className="text-lg font-semibold mb-4">Documents</h3>
-                  {selectedPatient?.documents && selectedPatient.documents.length > 0 ? (
-                    <div className="space-y-4">
-                      {selectedPatient.documents.map((doc, index) => {
-                        const docId = doc.document_id || doc.id || index
-                        const isDownloading = downloadingDoc === docId
-                        const isViewing = viewingDoc === docId
-
-                        return (
-                          <div
-                            key={docId}
-                            className="flex items-center justify-between p-3 neumorphic-inset rounded-lg"
-                          >
-                            <div>
-                              <div className="font-medium text-sm">{doc.type}</div>
-                              {doc.title && (
-                                <div className="text-xs text-foreground">{doc.title}</div>
-                              )}
-                              {doc.description && (
-                                <div className="text-xs text-foreground">{doc.description}</div>
-                              )}
-                            </div>
-                            <div className="flex gap-2">
-                              <Button
-                                onClick={() => handleViewDocument(doc)}
-                                disabled={isViewing}
-                                className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
-                              >
-                                {isViewing ? (
-                                  <>
-                                    <IconLoader2 className="w-4 h-4 animate-spin mr-1" />
-                                    Opening...
-                                  </>
-                                ) : (
-                                  'View'
-                                )}
-                              </Button>
-                              <Button
-                                onClick={() => handleDownloadDocument(doc)}
-                                disabled={isDownloading}
-                                className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
-                              >
-                                {isDownloading ? (
-                                  <>
-                                    <IconLoader2 className="w-4 h-4 animate-spin mr-1" />
-                                    Downloading...
-                                  </>
-                                ) : (
-                                  'Download'
-                                )}
-                              </Button>
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 neumorphic-inset rounded-lg">
-                      <p className="text-sm mb-2">No documents uploaded</p>
-                      <p className="text-xs">This patient has not uploaded any documents yet.</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Upcoming Appointments */}
-                <div className="rounded-lg mb-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold">
-                      Upcoming Appointments{" "}
-                      {selectedPatient?.appointments?.upcoming &&
-                        selectedPatient.appointments.upcoming.length > 0
-                        ? `(${selectedPatient.appointments.upcoming.length})`
-                        : ""}
-                    </h3>
-                    <Button
-                      onClick={handleSchedule}
-                      className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
-                    >
-                      Schedule
-                    </Button>
-                  </div>
-                  {selectedPatient?.appointments?.upcoming && selectedPatient.appointments.upcoming.length > 0 ? (
-                    <div className="space-y-4">
-                      {selectedPatient.appointments.upcoming.map((appointment, index) => (
-                        <div key={index} className="neumorphic-inset rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-3">
-                            <span className="font-semibold text-foreground">
-                              {formatDateUSShort(appointment.date)}
-                            </span>
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium neumorphic-inset">
-                              {appointment.status}
-                            </span>
-                          </div>
-                          <p className="text-sm mb-4">
-                            {appointment.time}
-                          </p>
-                          <div className="flex justify-center items-center gap-3">
-                            <Button
-                              onClick={() => handleRescheduleAppointment(appointment.appointment_id)}
-                              className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
-                            >
-                              Reschedule
-                            </Button>
-                            <Button
-                              onClick={() => handleCancelAppointment(appointment.appointment_id)}
-                              className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
-                            >
-                              Cancel
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 neumorphic-inset rounded-lg">
-                      <p className="text-sm mb-2">No upcoming appointments</p>
-                      <p className="text-xs">This patient has no upcoming appointments.</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Past Appointments */}
-                <div className="rounded-lg mb-6">
-                  <h3 className="text-lg font-semibold mb-4">Past Appointments</h3>
-                  {selectedPatient?.appointments?.past && selectedPatient.appointments.past.length > 0 ? (
-                    <div className="space-y-4">
-                      {selectedPatient.appointments.past.map((appointment, index) => (
-                        <div
-                          key={index}
-                          className="neumorphic-inset rounded-lg p-4 flex justify-between items-center"
-                        >
-                          <div className="flex flex-col gap-1">
-                            <span className="font-semibold text-foreground text-base">
-                              {formatDateUSShort(appointment.date)}
-                            </span>
-                            <span className="text-sm">
-                              {appointment.time}
-                            </span>
-                          </div>
-                          <span
-                            className={`
-                            inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
-                            ${appointment.status && appointment.status.toLowerCase() === "completed"
-                                ? "bg-green-100"
-                                : appointment.status && appointment.status.toLowerCase() === "cancelled"
-                                  ? "bg-destructive/20"
-                                  : "bg-primary/10"
-                              }
-                            neumorphic-inset
-                          `}
-                          >
-                            {appointment.status}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 neumorphic-inset rounded-lg">
-                      <p className="text-sm mb-2">No past appointments</p>
-                      <p className="text-xs">This patient has no appointment history.</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex justify-center items-center">
-                  <Button
-                    onClick={handleDownloadProfile}
-                    className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                {/* Top Row - Patient / Guardian / Documents (one row on large screens) */}
+                <div className="grid grid-cols-12 gap-6">
+                  {/* Patient */}
+                  <div
+                    className={`col-span-12 ${(selectedPatient?.guardians?.length ?? 0) > 0 ? 'lg:col-span-4' : 'lg:col-span-6'}`}
                   >
-                    Download Profile
-                  </Button>
+                    <div className="neumorphic-inset rounded-2xl p-5 border-2 border-emerald-300 bg-gradient-to-br from-emerald-50/40 via-transparent to-teal-50/30 flex flex-col lg:h-[220px]">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
+                          <IconUserCircle className="w-4 h-4 text-emerald-700" />
+                        </div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-foreground/60">Patient</p>
+                      </div>
+
+                      <div className="space-y-3 flex-1">
+                        <div>
+                          <p className="text-[10px] font-medium text-foreground/50 uppercase tracking-wide">Name</p>
+                          <p className="text-sm font-semibold text-foreground">
+                            {`${selectedPatient.first_name} ${selectedPatient.last_name}`}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-medium text-foreground/50 uppercase tracking-wide">Date of Birth</p>
+                          <p className="text-sm font-semibold text-foreground">{formatDate(selectedPatient.dob)}</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-medium text-foreground/50 uppercase tracking-wide">Phone</p>
+                          <p className="text-sm font-semibold text-foreground break-all">{selectedPatient.phone_number}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Guardian (skip entirely if none) */}
+                  {(selectedPatient?.guardians?.length ?? 0) > 0 && (
+                    <div className="col-span-12 lg:col-span-4">
+                      <div className="neumorphic-inset rounded-2xl p-5 border-2 border-violet-300 bg-gradient-to-br from-violet-50/40 via-transparent to-purple-50/30 flex flex-col lg:h-[220px]">
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center">
+                            <IconUsers className="w-4 h-4 text-violet-700" />
+                          </div>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-foreground/60">
+                            Guardian{(selectedPatient?.guardians?.length ?? 0) > 1 ? ` (${selectedPatient.guardians?.length})` : ''}
+                          </p>
+                        </div>
+
+                        <div className="divide-y divide-violet-200/40 flex-1 min-h-0 overflow-y-auto pr-1 -mr-1">
+                          {selectedPatient.guardians?.map((g) => (
+                            <div key={g.id} className="py-3 first:pt-0 last:pb-0">
+                              <div className="space-y-3">
+                                <div>
+                                  <p className="text-[10px] font-medium text-foreground/50 uppercase tracking-wide">Name</p>
+                                  <p className="text-sm font-semibold text-foreground">
+                                    {`${g.first_name} ${g.last_name}`}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-[10px] font-medium text-foreground/50 uppercase tracking-wide">Date of Birth</p>
+                                  <p className="text-sm font-semibold text-foreground">{formatDate(g.dob)}</p>
+                                </div>
+                                <div>
+                                  <p className="text-[10px] font-medium text-foreground/50 uppercase tracking-wide">Relationship</p>
+                                  <p className="text-sm font-semibold text-foreground capitalize">{g.relationship_to_patient}</p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Documents */}
+                  <div
+                    className={`col-span-12 ${(selectedPatient?.guardians?.length ?? 0) > 0 ? 'lg:col-span-4' : 'lg:col-span-6'}`}
+                  >
+                    <div className="neumorphic-inset rounded-2xl p-5 border-2 border-amber-300 bg-gradient-to-br from-amber-50/40 via-transparent to-orange-50/30 flex flex-col lg:h-[220px]">
+                      <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-foreground">
+                        <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center">
+                          <IconFileText className="w-4 h-4 text-amber-600" />
+                        </div>
+                        Documents
+                        {(selectedPatient?.documents?.length ?? 0) > 0 && (
+                          <span className="ml-auto px-2 py-0.5 rounded-full bg-amber-100 text-amber-600 text-xs font-semibold">
+                            {selectedPatient?.documents?.length ?? 0}
+                          </span>
+                        )}
+                      </h3>
+
+                      <div className="flex-1 min-h-0">
+                        {(selectedPatient?.documents?.length ?? 0) > 0 ? (
+                          <div className="space-y-3 h-full overflow-y-auto pr-1 -mr-1">
+                            {selectedPatient.documents?.map((doc, index) => {
+                              const docId = doc.document_id || doc.id || index
+                              const isDownloading = downloadingDoc === docId
+                              const isViewing = viewingDoc === docId
+
+                              return (
+                                <div key={index} className="p-3 rounded-xl bg-white/50 border border-amber-100/50 transition-all duration-200 hover:shadow-md hover:scale-[1.02]">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <span className="font-semibold text-foreground text-sm truncate flex-1">
+                                      {doc.type}
+                                    </span>
+                                    <span className="px-2 py-0.5 rounded-full bg-amber-100/80 text-amber-700 text-[10px] font-semibold uppercase">
+                                      Doc
+                                    </span>
+                                  </div>
+                                  {doc.title && (
+                                    <p className="text-xs text-foreground/60 mb-2 truncate">{doc.title}</p>
+                                  )}
+                                  <div className="flex gap-2">
+                                    <Button
+                                      onClick={() => handleViewDocument(doc)}
+                                      disabled={isViewing}
+                                      size="sm"
+                                      className="flex-1 neumorphic-button-primary text-xs"
+                                    >
+                                      {isViewing ? <IconLoader2 className="w-3 h-3 animate-spin" /> : 'View'}
+                                    </Button>
+                                    <Button
+                                      onClick={() => handleDownloadDocument(doc)}
+                                      disabled={isDownloading}
+                                      size="sm"
+                                      className="flex-1 neumorphic-button-primary text-xs"
+                                    >
+                                      {isDownloading ? <IconLoader2 className="w-3 h-3 animate-spin" /> : 'Download'}
+                                    </Button>
+                                  </div>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        ) : (
+                          <div className="h-full flex flex-col items-center justify-center text-center">
+                            <div className="w-12 h-12 rounded-full bg-amber-100/50 flex items-center justify-center mx-auto mb-3">
+                              <IconFileText className="w-6 h-6 text-amber-400" />
+                            </div>
+                            <p className="text-sm font-medium text-foreground/70">No Documents</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Appointments */}
+                  <div className="col-span-12 space-y-6">
+
+                    {/* Upcoming Appointments */}
+                    <div className="neumorphic-inset rounded-2xl p-5 border-2 border-blue-300 bg-gradient-to-br from-blue-50/40 via-transparent to-indigo-50/30">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-base font-semibold flex items-center gap-2 text-foreground">
+                          <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                            <IconCalendarEvent className="w-4 h-4 text-blue-600" />
+                          </div>
+                          Upcoming Appointments
+                          {(selectedPatient?.appointments?.upcoming?.length ?? 0) > 0 && (
+                            <span className="ml-2 px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 text-xs font-semibold">
+                              {selectedPatient?.appointments?.upcoming?.length ?? 0}
+                            </span>
+                          )}
+                        </h3>
+                        <Button
+                          onClick={handleSchedule}
+                          className="neumorphic-button-primary text-xs"
+                          size="sm"
+                        >
+                          <IconCalendarEvent className="w-4 h-4 mr-1" />
+                          Schedule Appointment
+                        </Button>
+                      </div>
+
+                      {(selectedPatient?.appointments?.upcoming?.length ?? 0) > 0 ? (
+                        <div className="space-y-3">
+                          {selectedPatient.appointments?.upcoming?.map((appointment, index) => (
+                            <div
+                              key={index}
+                              className="rounded-xl bg-white/60 border-2 border-blue-100/80 shadow-sm hover:shadow-lg transition-all duration-200 overflow-hidden"
+                            >
+                              <div className="flex items-center gap-4 p-4">
+                                {/* Date block */}
+                                <div className="flex flex-col items-center justify-center px-4 py-2 rounded-xl bg-gradient-to-br from-blue-100 to-indigo-100 min-w-[70px]">
+                                  <span className="text-[10px] font-bold uppercase tracking-wide text-blue-600">
+                                    {formatDateUSShort(appointment.date).split(' ')[0]}
+                                  </span>
+                                  <span className="text-2xl font-bold leading-tight text-blue-700">
+                                    {new Date(appointment.date).getDate()}
+                                  </span>
+                                </div>
+
+                                {/* Time */}
+                                <div className="flex-1">
+                                  <span className="text-lg font-bold text-foreground">{appointment.time}</span>
+                                </div>
+
+                                {/* Actions */}
+                                <div className="flex flex-col sm:flex-row gap-2">
+                                  <Button
+                                    onClick={() => handleRescheduleAppointment(appointment.appointment_id)}
+                                    size="sm"
+                                    className="neumorphic-button-primary text-xs"
+                                  >
+                                    Reschedule
+                                  </Button>
+                                  <Button
+                                    onClick={() => handleCancelAppointment(appointment.appointment_id)}
+                                    size="sm"
+                                    className="neumorphic-button-destructive text-xs"
+                                  >
+                                    Cancel
+                                  </Button>
+                                </div>
+                              </div>
+                              <div className="border-t border-blue-100/50 bg-blue-50/30">
+                                <Accordion type="multiple" className="w-full">
+                                  <AccordionItem value={`reason-${appointment.appointment_id}`} className="border-b-0">
+                                    <AccordionTrigger className="px-4 py-2 text-sm font-medium hover:no-underline text-foreground">
+                                      Reason for Visit
+                                    </AccordionTrigger>
+                                    <AccordionContent className="px-4 pb-3 text-sm text-foreground">
+                                      {appointment.reason_for_visit || 'Not provided'}
+                                    </AccordionContent>
+                                  </AccordionItem>
+                                  <AccordionItem value={`notes-${appointment.appointment_id}`} className="border-b-0">
+                                    <AccordionTrigger className="px-4 py-2 text-sm font-medium hover:no-underline text-foreground">
+                                      Appointment Notes
+                                    </AccordionTrigger>
+                                    <AccordionContent className="px-4 pb-3 text-sm text-foreground">
+                                      {appointment.appointment_note || 'No notes added'}
+                                    </AccordionContent>
+                                  </AccordionItem>
+                                </Accordion>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-10">
+                          <div className="w-14 h-14 rounded-full bg-blue-100/50 flex items-center justify-center mx-auto mb-3">
+                            <IconCalendarEvent className="w-7 h-7 text-blue-400" />
+                          </div>
+                          <p className="text-sm font-medium text-foreground/70">No upcoming appointments</p>
+                          <p className="text-xs text-foreground/50">Click "Schedule Appointment" to book one</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Past Appointments */}
+                    <div className="neumorphic-inset rounded-2xl p-5 border-2 border-orange-300 bg-gradient-to-br from-orange-50/40 via-transparent to-amber-50/30">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-base font-semibold flex items-center gap-2 text-foreground">
+                          <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center">
+                            <IconHistory className="w-4 h-4 text-orange-600" />
+                          </div>
+                          Past Appointments
+                          {(selectedPatient?.appointments?.past?.length ?? 0) > 0 && (
+                            <span className="ml-2 px-2 py-0.5 rounded-full bg-orange-100 text-orange-600 text-xs font-semibold">
+                              {selectedPatient?.appointments?.past?.length ?? 0}
+                            </span>
+                          )}
+                        </h3>
+                      </div>
+
+                      {(selectedPatient?.appointments?.past?.length ?? 0) > 0 ? (
+                        <div className="space-y-3">
+                          {selectedPatient.appointments?.past?.map((appointment, index) => (
+                            <div key={index} className="p-4 rounded-xl bg-white/50 border-2 border-orange-100/80 transition-all duration-200 hover:shadow-md">
+                              <div className="flex items-center justify-between flex-wrap gap-2">
+                                <div className="flex items-center gap-3">
+                                  <span className="font-semibold text-foreground">
+                                    {formatDateUSShort(appointment.date)}
+                                  </span>
+                                  <span className="text-sm text-foreground/70">{appointment.time}</span>
+                                  {appointment.duration && (
+                                    <span className="px-2 py-0.5 rounded-md bg-orange-100 text-orange-600 text-xs">
+                                      {appointment.duration} mins
+                                    </span>
+                                  )}
+                                </div>
+                                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${appointment.status?.toLowerCase() === 'completed'
+                                  ? 'bg-green-100 text-green-700 active-success-scale'
+                                  : appointment.status?.toLowerCase() === 'cancelled'
+                                    ? 'bg-red-100 text-red-700 active-destructive-scale'
+                                    : 'bg-orange-100 text-orange-600'
+                                  }`}>
+                                  {appointment.status}
+                                </span>
+                              </div>
+                              <div className="mt-2 border-t border-orange-100/50 pt-2">
+                                <Accordion type="multiple" className="w-full">
+                                  <AccordionItem value={`reason-past-${appointment.appointment_id}`} className="border-b-0">
+                                    <AccordionTrigger className="py-1 text-sm font-medium hover:no-underline text-foreground">
+                                      Reason for Visit
+                                    </AccordionTrigger>
+                                    <AccordionContent className="pb-2 text-sm text-foreground">
+                                      {appointment.reason_for_visit || 'Not provided'}
+                                    </AccordionContent>
+                                  </AccordionItem>
+                                  <AccordionItem value={`notes-past-${appointment.appointment_id}`} className="border-b-0">
+                                    <AccordionTrigger className="py-1 text-sm font-medium hover:no-underline text-foreground">
+                                      Appointment Notes
+                                    </AccordionTrigger>
+                                    <AccordionContent className="pb-2 text-sm text-foreground">
+                                      {appointment.appointment_note || 'No notes added'}
+                                    </AccordionContent>
+                                  </AccordionItem>
+                                </Accordion>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-10">
+                          <div className="w-14 h-14 rounded-full bg-orange-100/50 flex items-center justify-center mx-auto mb-3">
+                            <IconHistory className="w-7 h-7 text-orange-400" />
+                          </div>
+                          <p className="text-sm font-medium text-foreground/70">No past appointments</p>
+                          {/* <p className="text-xs text-foreground/50">No appointment history available</p> */}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1426,18 +1532,20 @@ export function PatientsPage() {
       <div className="space-y-6">
         {/* Patients Table */}
         <div className="px-4 lg:px-6">
-          {/* Header with title, filter and Add Patient button */}
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold">
-              Patients {loading ? '' : `(${filteredPatients.length})`}
-            </h2>
-            <Button
-              onClick={() => setShowAddForm(true)}
-              className="w-full text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 max-w-[160px]"
-            >
-              Add Patient
-            </Button>
-          </div>
+          {/* Header with title, filter and Add Patient button - only show when not loading profile from URL */}
+          {!initialProfileLoad && (
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-semibold">
+                Patients {loading ? '' : `(${filteredPatients.length})`}
+              </h2>
+              <Button
+                onClick={() => setShowAddForm(true)}
+                className="neumorphic-button-primary"
+              >
+                Add Patient
+              </Button>
+            </div>
+          )}
 
           {/* Full-page Loading State */}
           {loading && (
@@ -1456,7 +1564,7 @@ export function PatientsPage() {
                 <div className="text-red-500 text-lg mb-4">{error}</div>
                 <Button
                   onClick={() => window.location.reload()}
-                  className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+                  className="neumorphic-button-primary"
                 >
                   Try Again
                 </Button>
@@ -1464,8 +1572,18 @@ export function PatientsPage() {
             </div>
           )}
 
+          {/* Loading patient profile from URL */}
+          {initialProfileLoad && viewMode === 'table' && !loading && (
+            <div className="flex items-center justify-center h-full min-h-[400px]">
+              <div className="text-center">
+                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <div className="text-lg">Loading patient profile...</div>
+              </div>
+            </div>
+          )}
+
           {/* Patients Table */}
-          {!loading && (
+          {!loading && !initialProfileLoad && (
             <div className="neumorphic-inset rounded-lg p-4 border-0">
               <div className="overflow-x-auto max-h-[78vh] overflow-y-auto bg-card rounded-lg">
                 {filteredPatients.length > 0 ? (
@@ -1494,7 +1612,7 @@ export function PatientsPage() {
                           <td className="py-3 px-4">
                             <Button
                               onClick={() => handleViewProfile(patient)}
-                              className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+                              className="neumorphic-button-primary"
                             >
                               View Profile
                             </Button>
@@ -1555,40 +1673,6 @@ export function PatientsPage() {
               <div className="p-5 overflow-y-auto max-h-[85vh]">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-base font-semibold">Add New Patient</h2>
-                  <Button
-                    onClick={() => {
-                      setShowAddForm(false)
-                      setSubmitError(null)
-                      setFormData({
-                        firstName: '',
-                        middleName: '',
-                        lastName: '',
-                        dob: '',
-                        phoneNumber: '',
-                        guardianFirstName: '',
-                        guardianMiddleName: '',
-                        guardianLastName: '',
-                        guardianDob: '',
-                        guardianRelationship: ''
-                      })
-                      setFormErrors({
-                        firstName: '',
-                        middleName: '',
-                        lastName: '',
-                        dob: '',
-                        phoneNumber: '',
-                        guardianFirstName: '',
-                        guardianMiddleName: '',
-                        guardianLastName: '',
-                        guardianDob: '',
-                        guardianRelationship: ''
-                      })
-                    }}
-                    disabled={submitting}
-                    className="w-8 h-8 flex items-center justify-center text-lg font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg cursor-pointer transition-all duration-200"
-                  >
-                    ×
-                  </Button>
                 </div>
 
                 {submitError && (
@@ -1861,14 +1945,14 @@ export function PatientsPage() {
                         })
                       }}
                       disabled={submitting}
-                      className="flex-1 text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground hover:bg-destructive rounded-lg cursor-pointer transition-all duration-200 px-3 py-2"
+                      className="flex-1 neumorphic-button-destructive"
                     >
                       Cancel
                     </Button>
                     <Button
                       type="submit"
                       disabled={submitting}
-                      className="flex-1 text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg cursor-pointer transition-all duration-200 px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 neumorphic-button-primary"
                     >
                       {submitting ? (
                         <span className="flex items-center justify-center">

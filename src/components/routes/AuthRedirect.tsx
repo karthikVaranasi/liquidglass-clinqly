@@ -3,11 +3,11 @@ import { AuthStorage } from "@/api/auth"
 
 export function AuthRedirect() {
   const token = AuthStorage.getToken()
-  const userType = AuthStorage.getUserType() as 'admin' | 'doctor' | null
+  const role = AuthStorage.getUserRole()
 
   // If authenticated, redirect to appropriate dashboard
-  if (token && userType) {
-    const defaultRoute = userType === 'admin' ? '/admin/analytics' : '/doctor/appointments'
+  if (token && role) {
+    const defaultRoute = role === 'admin' ? '/admin/analytics' : '/doctor/appointments'
     return <Navigate to={defaultRoute} replace />
   }
 

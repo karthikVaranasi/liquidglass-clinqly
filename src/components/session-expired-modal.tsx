@@ -39,7 +39,7 @@ export function SessionExpiredModal() {
                     {/* Login Button */}
                     <Button
                         onClick={handleLoginClick}
-                        className="w-fit flex flex-row items-center justify-center text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg cursor-pointer transition-all duration-200 px-3 py-2 mx-auto"
+                        className="neumorphic-button-primary"
                     >
                         <LogIn className="w-4 h-4 mr-2" />
                         Log In Again

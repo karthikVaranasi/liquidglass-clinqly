@@ -7,22 +7,22 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
   const token = AuthStorage.getToken()
-  const userType = AuthStorage.getUserType() as 'admin' | 'doctor' | null
+  const role = AuthStorage.getUserRole()
 
-  const getDefaultRoute = (role: 'admin' | 'doctor' | null) => {
-    if (role === 'admin') return '/admin/analytics'
-    if (role === 'doctor') return '/doctor/appointments'
+  const getDefaultRoute = (userRole: 'admin' | 'doctor' | null) => {
+    if (userRole === 'admin') return '/admin/analytics'
+    if (userRole === 'doctor') return '/doctor/appointments'
     return '/login'
   }
 
-  // If no token or user type, redirect to login
-  if (!token || !userType) {
+  // If no token or role, redirect to login
+  if (!token || !role) {
     return <Navigate to="/login" replace />
   }
 
-  // If user type is not in allowed roles, redirect to not-found
-  if (!allowedRoles.includes(userType)) {
-    return <Navigate to={getDefaultRoute(userType)} replace />
+  // If user role is not in allowed roles, redirect to their default route
+  if (!allowedRoles.includes(role)) {
+    return <Navigate to={getDefaultRoute(role)} replace />
   }
 
   // User is authenticated and has correct role, render child routes

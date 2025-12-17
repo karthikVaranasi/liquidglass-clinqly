@@ -1,13 +1,16 @@
 import "./App.css"
-import { useState, Suspense, lazy, useEffect } from "react"
+import { useState, Suspense, lazy, useEffect, useCallback } from "react"
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom"
 import { AuthStorage, AuthAPI } from "@/api/auth"
 import { SessionProvider } from "@/contexts/session-context"
+import { AuthProvider, useAuth } from "@/contexts/auth-context"
 import { SessionExpiredModal } from "@/components/session-expired-modal"
 import { ProtectedRoute } from "@/routes/ProtectedRoute"
 import { DashboardLayout } from "@/components/layouts/DashboardLayout"
 
-// Dynamic imports for shared components
+import { CalendarCallbackHandler } from "@/components/routes/CalendarCallbackHandler"
+
+// Lazy load page components for code splitting
 const LoginPage = lazy(() => import("@/components/login-page").then(module => ({ default: module.LoginPage })))
 
 // Import page wrappers for pages that need onPageChange
@@ -40,6 +43,7 @@ const getApiBaseUrl = (): string => {
 // SSO Login handler component
 function SSOLoginHandler() {
   const navigate = useNavigate()
+  const { refreshProfile } = useAuth()
   const [isProcessing, setIsProcessing] = useState(true)
 
   useEffect(() => {
@@ -50,41 +54,11 @@ function SSOLoginHandler() {
 
         if (ssoToken) {
           const response = await AuthAPI.ssoLogin({ token: ssoToken })
+          // Store only the JWT token
           AuthStorage.setToken(response.access_token)
-          AuthStorage.setUserType('doctor')
-          AuthStorage.setUserData(response.doctor)
 
-          // Fetch additional data asynchronously
-          if (response.doctor?.clinic_id) {
-            fetch(`${getApiBaseUrl()}/dashboard/clinics/${response.doctor.clinic_id}`, {
-              method: 'GET',
-              headers: {
-                'Authorization': `Bearer ${response.access_token}`,
-              },
-            })
-              .then(res => res.ok ? res.json() : null)
-              .then(clinic => {
-                if (clinic) AuthStorage.setClinicData(clinic)
-              })
-              .catch(err => console.warn('Failed to fetch clinic data:', err))
-          }
-
-          if (response.doctor?.id) {
-            fetch(`${getApiBaseUrl()}/dashboard/doctors/${response.doctor.id}`, {
-              method: 'GET',
-              headers: {
-                'Authorization': `Bearer ${response.access_token}`,
-              },
-            })
-              .then(res => res.ok ? res.json() : null)
-              .then(doctor => {
-                if (doctor) {
-                  const updatedUserData = { ...response.doctor, ...doctor }
-                  AuthStorage.setUserData(updatedUserData)
-                }
-              })
-              .catch(err => console.warn('Failed to fetch doctor data:', err))
-          }
+          // Refresh profile to load doctor/clinic data via AuthContext
+          await refreshProfile()
 
           navigate('/doctor/appointments', { replace: true })
         } else {
@@ -99,7 +73,7 @@ function SSOLoginHandler() {
     }
 
     processSSO()
-  }, [navigate])
+  }, [navigate, refreshProfile])
 
   if (isProcessing) {
     return null
@@ -110,170 +84,29 @@ function SSOLoginHandler() {
 
 // Main App Router Component
 function AppRouter() {
-  const [isValidatingAuth, setIsValidatingAuth] = useState(true)
-  const [userData, setUserData] = useState<any>(null)
-  const [clinicData, setClinicData] = useState<any>(null)
-  const [authValidationInProgress, setAuthValidationInProgress] = useState(false)
+  const { role, doctor, clinic, admin, isLoading: authLoading, refreshProfile, clearAuth } = useAuth()
 
-  const userType = (AuthStorage.getUserType() || 'doctor') as 'admin' | 'doctor'
-
-  // Function to fetch clinic data
-  const fetchClinicData = async (clinicId: number) => {
-    try {
-      const response = await fetch(`${getApiBaseUrl()}/dashboard/clinics/${clinicId}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${AuthStorage.getToken()}`,
-        },
-      })
-
-      if (response.ok) {
-        const clinic = await response.json()
-        setClinicData(clinic)
-        AuthStorage.setClinicData(clinic)
-        return clinic
-      } else {
-        console.warn('⚠️ Failed to fetch clinic data:', response.status)
-        return null
-      }
-    } catch (error) {
-      console.error('💥 Error fetching clinic data:', error)
-      return null
-    }
+  const handleLogin = async (userRole: 'admin' | 'doctor') => {
+    // Profile will be loaded automatically by AuthProvider when token is set
+    // Just trigger a refresh to ensure data is loaded
+    await refreshProfile()
   }
 
-  // Function to fetch full doctor profile (includes phone number)
-  const fetchDoctorData = async (doctorId: number, currentUserData?: any) => {
-    try {
-      const response = await fetch(`${getApiBaseUrl()}/dashboard/doctors/${doctorId}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${AuthStorage.getToken()}`,
-        },
-      })
+  const handleLogout = useCallback(() => {
+    // Clear auth state through AuthProvider
+    clearAuth()
+  }, [clearAuth])
 
-      if (response.ok) {
-        const doctor = await response.json()
-        const baseData = currentUserData || userData || {}
-        const updatedUserData = { ...baseData, ...doctor }
-        setUserData(updatedUserData)
-        AuthStorage.setUserData(updatedUserData)
-        return doctor
-      } else {
-        console.warn('⚠️ Failed to fetch doctor data:', response.status)
-        return null
-      }
-    } catch (error) {
-      console.error('💥 Error fetching doctor data:', error)
-      return null
-    }
-  }
-
-  // Check for stored authentication token on app load
-  useEffect(() => {
-    if (authValidationInProgress) {
-      return
-    }
-
-    const validateStoredAuth = async () => {
-      setAuthValidationInProgress(true)
-
-      try {
-        // Check for stored authentication data
-        const token = AuthStorage.getToken()
-        const storedUserType = AuthStorage.getUserType()
-        const storedUserData = AuthStorage.getUserData()
-        const storedClinicData = AuthStorage.getClinicData()
-
-        if (storedClinicData) {
-          setClinicData(storedClinicData)
-        }
-
-        if (token && storedUserType && storedUserData) {
-          try {
-            // Validate the stored token before showing any UI
-            const isTokenValid = await AuthAPI.validateToken(token)
-
-            if (isTokenValid) {
-              // Set user data after token validation
-              setUserData(storedUserData)
-
-              // Fetch additional data asynchronously (don't block UI on these)
-              if (storedUserData?.clinic_id && !storedClinicData) {
-                fetchClinicData(storedUserData.clinic_id).catch(err => {
-                  console.warn('Failed to fetch clinic data on refresh:', err)
-                })
-              }
-
-              if (storedUserType === 'doctor' && storedUserData?.id) {
-                fetchDoctorData(storedUserData.id, storedUserData).catch(err => {
-                  console.warn('Failed to fetch doctor data on refresh:', err)
-                })
-              }
-            } else {
-              // Token is invalid, clear auth data
-              AuthStorage.clearAll()
-              setUserData(null)
-              setClinicData(null)
-            }
-          } catch (error) {
-            console.error('💥 Token validation network error:', error)
-            // Don't clear auth data on network errors - assume token is still valid
-            // Still set up the user session with stored data
-            setUserData(storedUserData)
-
-            // Try to fetch additional data, but don't fail if network is down
-            if (storedUserData?.clinic_id && !storedClinicData) {
-              fetchClinicData(storedUserData.clinic_id).catch(err => {
-                console.warn('Failed to fetch clinic data on refresh (network issue):', err)
-              })
-            }
-
-            if (storedUserType === 'doctor' && storedUserData?.id) {
-              fetchDoctorData(storedUserData.id, storedUserData).catch(err => {
-                console.warn('Failed to fetch doctor data on refresh (network issue):', err)
-              })
-            }
-          }
-        } else {
-          setUserData(null)
-          setClinicData(null)
-        }
-      } finally {
-        setIsValidatingAuth(false)
-        setAuthValidationInProgress(false)
-      }
-    }
-
-    validateStoredAuth()
-  }, []) // Empty dependency array - run only once on mount
-
-  const handleLogin = async (type: 'admin' | 'doctor', loginUserData?: any) => {
-    setUserData(loginUserData)
-
-    // Fetch clinic data only for doctors (admins see app branding)
-    if (type === 'doctor' && loginUserData?.clinic_id) {
-      await fetchClinicData(loginUserData.clinic_id)
-    }
-    // Fetch full doctor profile (includes phone number)
-    if (type === 'doctor' && loginUserData?.id) {
-      await fetchDoctorData(loginUserData.id, loginUserData)
-    }
-    
-    // Navigation will be handled by ProtectedRoute redirecting to default page
-  }
-
-  const handleLogout = () => {
-    AuthStorage.clearAll()
-    setUserData(null)
-    setClinicData(null)
-  }
-
-  // Show blank screen while validating authentication
-  if (isValidatingAuth) {
+  // Show blank screen while loading auth
+  if (authLoading) {
     // Avoid white flash on refresh by matching app background
     return <div className="min-h-screen bg-background" />
   }
+
+  // Get user data based on role
+  const userData = role === 'doctor' ? doctor : role === 'admin' ? admin : null
+  const clinicData = role === 'doctor' ? clinic : null
+  const userType = role || 'doctor'
 
   return (
     <SessionProvider onLogout={handleLogout}>
@@ -282,6 +115,10 @@ function AppRouter() {
         {/* Public routes */}
         <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
         <Route path="/sso-login" element={<SSOLoginHandler />} />
+        <Route path="/dashboard/calendar/callback/:provider" element={<CalendarCallbackHandler />} />
+        <Route path="/calendar/callback/:provider" element={<CalendarCallbackHandler />} />
+        <Route path="/dashboard/calendar/callback" element={<CalendarCallbackHandler />} />
+        <Route path="/dashboard/*" element={<CalendarCallbackHandler />} />
 
         {/* Protected Doctor routes */}
         <Route element={<ProtectedRoute allowedRoles={['doctor']} />}>
@@ -347,10 +184,12 @@ function AppRouter() {
 export default function App() {
   return (
     <BrowserRouter>
-      {/* Avoid white flash on refresh by using a neutral, background-matched fallback */}
-      <Suspense fallback={<div className="min-h-screen bg-background" />}>
-        <AppRouter />
-      </Suspense>
+      <AuthProvider>
+        {/* Avoid white flash on refresh by using a neutral, background-matched fallback */}
+        <Suspense fallback={<div className="min-h-screen bg-background" />}>
+          <AppRouter />
+        </Suspense>
+      </AuthProvider>
     </BrowserRouter>
   )
 }

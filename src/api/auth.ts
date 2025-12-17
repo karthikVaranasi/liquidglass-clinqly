@@ -129,16 +129,26 @@ export class AuthAPI {
   }
 }
 
+// JWT Token Payload Interface
+export interface DecodedToken {
+  sub: string
+  name?: string
+  email?: string
+  clinic_id?: number
+  role: 'admin' | 'doctor'
+  exp: number
+}
+
 // Auth token storage utilities
 export class AuthStorage {
   private static readonly TOKEN_KEY = 'auth_token'
-  private static readonly USER_TYPE_KEY = 'user_type'
-  private static readonly USER_DATA_KEY = 'user_data'
-  private static readonly CLINIC_DATA_KEY = 'clinic_data'
   private static readonly ADMIN_IMPERSONATING_KEY = 'admin_impersonating'
 
+  // Token management
   static setToken(token: string): void {
     localStorage.setItem(this.TOKEN_KEY, token)
+    // Dispatch custom event for same-tab token changes
+    window.dispatchEvent(new CustomEvent('auth-token-changed', { detail: { token } }))
   }
 
   static getToken(): string | null {
@@ -149,45 +159,52 @@ export class AuthStorage {
     localStorage.removeItem(this.TOKEN_KEY)
   }
 
-  static setUserType(userType: 'admin' | 'doctor'): void {
-    localStorage.setItem(this.USER_TYPE_KEY, userType)
+  // JWT Decoding helpers
+  static decodeToken(token: string | null): DecodedToken | null {
+    if (!token) return null
+
+    try {
+      const parts = token.split('.')
+      if (parts.length !== 3) return null
+
+      const payload = parts[1]
+      const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')))
+
+      // Check if token is expired
+      if (decoded.exp && decoded.exp * 1000 < Date.now()) {
+        return null
+      }
+
+      return decoded as DecodedToken
+    } catch (error) {
+      console.warn('Failed to decode token:', error)
+      return null
+    }
   }
 
-  static getUserType(): 'admin' | 'doctor' | null {
-    const type = localStorage.getItem(this.USER_TYPE_KEY)
-    return type === 'admin' || type === 'doctor' ? type : null
+  static getDecodedToken(): DecodedToken | null {
+    const token = this.getToken()
+    return this.decodeToken(token)
   }
 
-  static removeUserType(): void {
-    localStorage.removeItem(this.USER_TYPE_KEY)
+  static getUserRole(): 'admin' | 'doctor' | null {
+    const decoded = this.getDecodedToken()
+    return decoded?.role || null
   }
 
-  static setUserData(userData: any): void {
-    localStorage.setItem(this.USER_DATA_KEY, JSON.stringify(userData))
+  static getUserId(): number | null {
+    const decoded = this.getDecodedToken()
+    if (!decoded?.sub) return null
+    const userId = parseInt(decoded.sub, 10)
+    return isNaN(userId) ? null : userId
   }
 
-  static getUserData(): any | null {
-    const data = localStorage.getItem(this.USER_DATA_KEY)
-    return data ? JSON.parse(data) : null
+  static getClinicId(): number | null {
+    const decoded = this.getDecodedToken()
+    return decoded?.clinic_id || null
   }
 
-  static removeUserData(): void {
-    localStorage.removeItem(this.USER_DATA_KEY)
-  }
-
-  static setClinicData(clinicData: any): void {
-    localStorage.setItem(this.CLINIC_DATA_KEY, JSON.stringify(clinicData))
-  }
-
-  static getClinicData(): any | null {
-    const data = localStorage.getItem(this.CLINIC_DATA_KEY)
-    return data ? JSON.parse(data) : null
-  }
-
-  static removeClinicData(): void {
-    localStorage.removeItem(this.CLINIC_DATA_KEY)
-  }
-
+  // Admin impersonation (still needed)
   static setAdminImpersonating(isImpersonating: boolean): void {
     localStorage.setItem(this.ADMIN_IMPERSONATING_KEY, isImpersonating.toString())
   }
@@ -202,13 +219,32 @@ export class AuthStorage {
 
   static clearAll(): void {
     this.removeToken()
-    this.removeUserType()
-    this.removeUserData()
-    this.removeClinicData()
     this.removeAdminImpersonating()
   }
 
   static isAuthenticated(): boolean {
-    return !!this.getToken()
+    const token = this.getToken()
+    if (!token) return false
+
+    // Check if token is valid and not expired
+    const decoded = this.decodeToken(token)
+    return decoded !== null
+  }
+
+  // Deprecated methods - kept for backward compatibility during migration
+  // These will be removed after all components are migrated
+  /** @deprecated Use getUserRole() instead */
+  static getUserType(): 'admin' | 'doctor' | null {
+    return this.getUserRole()
+  }
+
+  /** @deprecated Use AuthContext instead */
+  static getUserData(): any | null {
+    return null
+  }
+
+  /** @deprecated Use AuthContext instead */
+  static getClinicData(): any | null {
+    return null
   }
 }

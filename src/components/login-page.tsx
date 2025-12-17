@@ -10,19 +10,19 @@ import { AuthAPI, AuthStorage } from "@/api/auth"
 import { getLoginErrorMessage } from "@/lib/errors"
 
 interface LoginPageProps {
-  onLogin: (userType: 'admin' | 'doctor', userData?: any) => void
+  onLogin: (userType: 'admin' | 'doctor') => void
 }
 
 export function LoginPage({ onLogin }: LoginPageProps) {
   const navigate = useNavigate()
-  
+
   // Redirect if already authenticated
   useEffect(() => {
     const token = AuthStorage.getToken()
-    const userType = AuthStorage.getUserType() as 'admin' | 'doctor' | null
-    
-    if (token && userType) {
-      const defaultRoute = userType === 'admin' ? '/admin/analytics' : '/doctor/appointments'
+    const role = AuthStorage.getUserRole()
+
+    if (token && role) {
+      const defaultRoute = role === 'admin' ? '/admin/analytics' : '/doctor/appointments'
       navigate(defaultRoute, { replace: true })
     }
   }, [navigate])
@@ -61,24 +61,30 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         }
 
         if (response.access_token) {
-          // console.log('💾 Storing admin auth data...')
+          // Store only the JWT token
           AuthStorage.setToken(response.access_token)
-          AuthStorage.setUserType('admin')
-          AuthStorage.setUserData(response.admin)
-          // console.log('✅ Admin login successful, token stored')
-          onLogin('admin', response.admin)
+
+          // Decode token to get role
+          const decoded = AuthStorage.decodeToken(response.access_token)
+          const userRole = decoded?.role || 'admin'
+
+          // Trigger profile load via context (will be handled by AuthProvider)
+          onLogin(userRole as 'admin' | 'doctor')
           navigate('/admin/analytics', { replace: true })
         } else {
           setError('Login successful but no access token received. Please try again.')
         }
       } else {
         response = await AuthAPI.doctorLogin(loginData)
-        // console.log('💾 Storing doctor auth data...')
+        // Store only the JWT token
         AuthStorage.setToken(response.access_token)
-        AuthStorage.setUserType('doctor')
-        AuthStorage.setUserData(response.doctor)
-        // console.log('✅ Doctor login successful, token stored')
-        onLogin('doctor', response.doctor)
+
+        // Decode token to get role
+        const decoded = AuthStorage.decodeToken(response.access_token)
+        const userRole = decoded?.role || 'doctor'
+
+        // Trigger profile load via context (will be handled by AuthProvider)
+        onLogin(userRole as 'admin' | 'doctor')
         navigate('/doctor/appointments', { replace: true })
       }
     } catch (err) {
@@ -247,7 +253,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full text-sm font-medium neumorphic-pressed text-foreground hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full neumorphic-button-primary"
               >
                 {isLoading ? (
                   <>

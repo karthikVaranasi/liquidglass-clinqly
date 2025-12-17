@@ -81,6 +81,11 @@ export class DoctorPatientsAPI extends BaseAPI {
 
       const data = await this.handleResponse<any>(response)
 
+      // If response body is empty or null, just return an empty list
+      if (!data) {
+        return []
+      }
+
       if (Array.isArray(data)) {
         return data
       } else if (data.documents && Array.isArray(data.documents)) {

@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { IconArrowLeft, IconChevronRight, IconUserCircle, IconStethoscope, IconX, IconFilter } from "@tabler/icons-react"
+import { IconArrowLeft, IconChevronRight, IconUserCircle, IconStethoscope, IconX, IconFilter, IconSearch } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { AdminDoctorsAPI } from "@/api/admin/doctors"
 import { AdminAppointmentsAPI } from "@/api/admin/appointments"
 import { AuthAPI, AuthStorage } from "@/api/auth"
+import { useAuth } from "@/contexts/auth-context"
 import { useCounts } from "@/contexts/counts-context"
 import { getErrorMessage, getToastErrorMessage } from "@/lib/errors"
 import { getCurrentDateInLocal } from "@/lib/date"
@@ -204,9 +205,9 @@ function DoctorAppointmentsModal({ doctor, onClose }: { doctor: any, onClose: ()
             </div>
             <Button
               onClick={onClose}
-              className="w-8 h-8 flex items-center justify-center text-lg font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg cursor-pointer transition-all duration-200"
+              className="neumorphic-button-destructive"
             >
-              <IconX className="w-4 h-4" />
+              Close
             </Button>
           </div>
 
@@ -228,7 +229,7 @@ function DoctorAppointmentsModal({ doctor, onClose }: { doctor: any, onClose: ()
                   <p className="font-medium">Failed to load appointments</p>
                   <p className="text-sm text-muted-foreground mt-1">{error}</p>
                 </div>
-                <Button onClick={() => window.location.reload()}>
+                <Button onClick={() => window.location.reload()} className="neumorphic-button-primary">
                   Try Again
                 </Button>
               </div>
@@ -339,7 +340,7 @@ function DoctorAppointmentsModal({ doctor, onClose }: { doctor: any, onClose: ()
                               <td className="py-2 px-2">
                                 <div className="flex items-center gap-2">
                                   <IconUserCircle className="w-4 h-4" />
-                                  <span className="text-sm">{apt.patient_name}</span>
+                                  <span className="text-sm">{apt.patient?.first_name} {apt.patient?.last_name}</span>
                                 </div>
                               </td>
                               <td className="py-2 px-2">
@@ -377,6 +378,7 @@ export function DoctorsPage({ pageParams }: DoctorsPageProps) {
   const navigate = useNavigate()
 
   const { setDoctorsCount } = useCounts()
+  const { refreshProfile } = useAuth()
   const [selectedDoctor, setSelectedDoctor] = useState<any | null>(null)
   const [viewMode, setViewMode] = useState<'table' | 'profile'>('table')
   const [showAppointmentsModal, setShowAppointmentsModal] = useState(false)
@@ -387,6 +389,7 @@ export function DoctorsPage({ pageParams }: DoctorsPageProps) {
   const [doctors, setDoctors] = useState<any[]>([])
   const [appointments, setAppointments] = useState<any[]>([])
   const [selectedDepartment, setSelectedDepartment] = useState<string>(pageParams?.department || 'all')
+  const [searchQuery, setSearchQuery] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -439,10 +442,31 @@ export function DoctorsPage({ pageParams }: DoctorsPageProps) {
   // Get unique departments for filter dropdown
   const departments = Array.from(new Set(doctors.map(doctor => doctor.department).filter(Boolean)))
 
-  // Filter doctors based on selected department
-  const filteredDoctors = selectedDepartment === 'all'
-    ? doctors
-    : doctors.filter(doctor => doctor.department === selectedDepartment)
+  // Filter doctors based on selected department and search query
+  const filteredDoctors = doctors.filter(doctor => {
+    let matches = true
+
+    // Filter by department
+    if (selectedDepartment !== 'all') {
+      matches = matches && doctor.department === selectedDepartment
+    }
+
+    // Filter by search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase()
+      const name = (doctor.name || '').toLowerCase()
+      const department = (doctor.department || '').toLowerCase()
+      const email = (doctor.email || '').toLowerCase()
+
+      matches = matches && (
+        name.includes(query) ||
+        department.includes(query) ||
+        email.includes(query)
+      )
+    }
+
+    return matches
+  })
 
   const handleCloseProfile = () => {
     setSelectedDoctor(null)
@@ -455,18 +479,14 @@ export function DoctorsPage({ pageParams }: DoctorsPageProps) {
 
       const response = await AuthAPI.adminLoginAsDoctor({ doctor_id: doctorId })
 
-      // Update auth state for doctor session
+      // Store only the JWT token and mark as impersonating
       AuthStorage.setToken(response.access_token)
-      AuthStorage.setUserType('doctor')
-      AuthStorage.setUserData(response.doctor)
-      if (response.doctor?.clinic) {
-        AuthStorage.setClinicData(response.doctor.clinic)
-      } else {
-        AuthStorage.setClinicData(null)
-      }
       AuthStorage.setAdminImpersonating(true)
 
-      // Navigate directly to doctor dashboard without a full reload
+      // Refresh profile to load doctor/clinic data via AuthProvider
+      await refreshProfile()
+
+      // Navigate to doctor dashboard
       navigate('/doctor/appointments', { replace: true })
     } catch (error) {
       console.error('Failed to login as doctor:', error)
@@ -562,13 +582,20 @@ export function DoctorsPage({ pageParams }: DoctorsPageProps) {
 
   return (
     <div className="space-y-4 px-4 lg:px-6">
-      {/* Department Filter */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+      {/* Search and Filter */}
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+        {/* Search - Left */}
+        <div className="flex items-center gap-2 flex-1 max-w-md">
+          <input
+            type="text"
+            placeholder="Search by name, department, or email..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 px-3 py-2 text-sm neumorphic-inset rounded-md border-2 border-primary focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+          />
+        </div>
 
-
-
-
-        {/* Department Filter */}
+        {/* Filter - Right */}
         <div className="flex items-center gap-2">
           <IconFilter className="w-4 h-4" />
           <span className="text-sm font-medium">Filter by:</span>
@@ -616,7 +643,7 @@ export function DoctorsPage({ pageParams }: DoctorsPageProps) {
                   <td className="py-3 px-2">
                     <div className="flex gap-2">
                       <Button
-                        className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+                        className="neumorphic-button-primary"
                         onClick={() => {
                           setSelectedDoctorForAppointments(doctor)
                           setShowAppointmentsModal(true)
@@ -627,7 +654,7 @@ export function DoctorsPage({ pageParams }: DoctorsPageProps) {
                       <Button
                         onClick={() => handleLoginAsDoctor(doctor.id)}
                         disabled={loggingInAs === doctor.id}
-                        className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="neumorphic-button-primary"
                       >
                         {loggingInAs === doctor.id ? 'Logging in...' : 'Login'}
                       </Button>

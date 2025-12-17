@@ -2,11 +2,13 @@ import { useState, useEffect } from "react"
 import { IconMapPin } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { AuthStorage } from "@/api/auth"
+import { useAuth } from "@/contexts/auth-context"
 import { DoctorRequestsAPI } from "@/api/doctor"
 import { useCounts } from "@/contexts/counts-context"
 import { getErrorMessage } from "@/lib/errors"
 
 export function RefillRequestsPage() {
+  const { clinicId } = useAuth()
   const [requests, setRequests] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -17,9 +19,6 @@ export function RefillRequestsPage() {
       try {
         setLoading(true)
         setError(null)
-
-        const userData = AuthStorage.getUserData()
-        const clinicId = userData?.clinic_id
 
         if (!clinicId) {
           setError('Clinic ID not found. Please log in again.')
@@ -129,7 +128,7 @@ export function RefillRequestsPage() {
           <div className="text-red-500 text-lg mb-4">{error}</div>
           <Button
             onClick={() => window.location.reload()}
-            className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+            className="neumorphic-button-primary"
           >
             Try Again
           </Button>

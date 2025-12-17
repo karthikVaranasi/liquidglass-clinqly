@@ -2,6 +2,7 @@ import { IconCalendar, IconMedicalCross, IconUsers, IconLogs } from "@tabler/ico
 import { PieChart, Pie, Cell, Bar, BarChart, XAxis, Tooltip } from "recharts"
 import { useState, useEffect } from "react"
 import { AuthStorage } from "@/api/auth"
+import { useAuth } from "@/contexts/auth-context"
 import { DoctorAnalyticsAPI, type DashboardStats, type AgeDistributionItem, type AppointmentTrendItem } from "@/api/doctor"
 import { getErrorMessage } from "@/lib/errors"
 
@@ -69,6 +70,7 @@ interface AnalyticsPageProps {
 }
 
 export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
+  const { clinicId, userId: doctorId } = useAuth()
   const [selectedPieSlice, setSelectedPieSlice] = useState<string | null>(null)
   const [selectedBar, setSelectedBar] = useState<string | null>(null)
   const [chartSize, setChartSize] = useState({ innerRadius: 20, outerRadius: 45 })
@@ -91,16 +93,13 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
         setLoading(true)
         setError(null)
 
-        const userData = AuthStorage.getUserData()
-        const clinicId = userData?.clinic_id
-        const doctorId = userData?.id
 
         // Fetch all data in parallel
         const [statsData, logsCountData, ageDistributionData, trendsData] = await Promise.all([
-          DoctorAnalyticsAPI.getAllStats(clinicId, doctorId),
-          DoctorAnalyticsAPI.getLogsCount(clinicId, doctorId),
-          DoctorAnalyticsAPI.getAgeDistribution(clinicId, doctorId),
-          DoctorAnalyticsAPI.getAppointmentTrends(clinicId, doctorId),
+          DoctorAnalyticsAPI.getAllStats(clinicId ?? undefined, doctorId ?? undefined),
+          DoctorAnalyticsAPI.getLogsCount(clinicId ?? undefined, doctorId ?? undefined),
+          DoctorAnalyticsAPI.getAgeDistribution(clinicId ?? undefined, doctorId ?? undefined),
+          DoctorAnalyticsAPI.getAppointmentTrends(clinicId ?? undefined, doctorId ?? undefined),
         ])
 
         setStats(statsData)
@@ -115,8 +114,10 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
       }
     }
 
-    fetchAnalyticsData()
-  }, [])
+    if (clinicId && doctorId) {
+      fetchAnalyticsData()
+    }
+  }, [clinicId, doctorId])
 
   // Responsive chart size based on screen size
   useEffect(() => {

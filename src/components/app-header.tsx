@@ -2,6 +2,8 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
 import { useCounts } from "@/contexts/counts-context"
 import { AuthStorage } from "@/api/auth"
+import { useAuth } from "@/hooks/use-auth"
+import { callLogoutEndpoint } from "@/api/shared/http"
 
 // Static app config
 const app = {
@@ -38,6 +40,7 @@ interface AppHeaderProps {
 
 export function AppHeader({ currentPage, userType = 'doctor', doctorsCount, userData }: AppHeaderProps) {
   const { frontDeskCount, refillRequestsCount } = useCounts()
+  const { clearAuth } = useAuth()
 
   // Get the appropriate navigation items based on user type
   const navItems = userType === 'admin' ? adminNavItems : doctorNavItems
@@ -71,8 +74,14 @@ export function AppHeader({ currentPage, userType = 'doctor', doctorsCount, user
           <div className="flex items-center justify-center gap-2">
             <span>👑 Admin logged in as {userData.name || `${userData.first_name || ''} ${userData.last_name || ''}`.trim()}</span>
             <Button
-              onClick={() => {
-                AuthStorage.clearAll()
+              onClick={async () => {
+                // Call logout endpoint to revoke refresh token
+                await callLogoutEndpoint()
+                // Clear auth state
+                clearAuth({ skipBootstrap: true })
+                // Clear impersonation flag
+                AuthStorage.removeAdminImpersonating()
+                // Reload to return to admin view
                 window.location.reload()
               }}
               size="sm"

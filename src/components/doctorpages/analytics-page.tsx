@@ -2,7 +2,7 @@ import { IconCalendar, IconMedicalCross, IconUsers, IconLogs } from "@tabler/ico
 import { PieChart, Pie, Cell, Bar, BarChart, XAxis, Tooltip } from "recharts"
 import { useState, useEffect } from "react"
 import { AuthStorage } from "@/api/auth"
-import { useAuth } from "@/contexts/auth-context"
+import { useAuth } from "@/hooks/use-auth"
 import { DoctorAnalyticsAPI, type DashboardStats, type AgeDistributionItem, type AppointmentTrendItem } from "@/api/doctor"
 import { getErrorMessage } from "@/lib/errors"
 

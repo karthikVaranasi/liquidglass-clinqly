@@ -1,6 +1,6 @@
 import { useNavigation } from "@/contexts/navigation-context"
 import { lazy, Suspense } from "react"
-import { useAuth } from "@/contexts/auth-context"
+import { useAuth } from "@/hooks/use-auth"
 
 // Lazy load page components
 const AdminAnalyticsPage = lazy(() => import("@/components/adminpages/analytics-page").then(module => ({ default: module.AnalyticsPage })))

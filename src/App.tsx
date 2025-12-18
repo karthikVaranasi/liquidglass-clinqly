@@ -1,9 +1,10 @@
 import "./App.css"
-import { useState, Suspense, lazy, useEffect, useCallback } from "react"
+import { useState, Suspense, lazy, useEffect, useCallback, useRef } from "react"
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom"
-import { AuthAPI } from "@/api/auth"
+import { AuthAPI, AuthStorage } from "@/api/auth"
 import { SessionProvider } from "@/contexts/session-context"
-import { AuthProvider, useAuth } from "@/contexts/auth-context"
+import { useAuth } from "@/hooks/use-auth"
+import { callLogoutEndpoint } from "@/api/shared/http"
 import { SessionExpiredModal } from "@/components/session-expired-modal"
 import { ProtectedRoute } from "@/routes/ProtectedRoute"
 import { DashboardLayout } from "@/components/layouts/DashboardLayout"
@@ -43,26 +44,45 @@ const getApiBaseUrl = (): string => {
 // SSO Login handler component
 function SSOLoginHandler() {
   const navigate = useNavigate()
-  const { refreshProfile, setAccessToken } = useAuth()
+  const { refreshProfile, setAccessToken, clearAuth } = useAuth()
   const [isProcessing, setIsProcessing] = useState(true)
+  const processedRef = useRef(false)
 
   useEffect(() => {
+    // Prevent multiple executions (e.g., React Strict Mode)
+    if (processedRef.current) return
+    processedRef.current = true
+
     const processSSO = async () => {
       try {
         const urlParams = new URLSearchParams(window.location.search)
         const ssoToken = urlParams.get('token')
 
         if (ssoToken) {
+          // SSO login endpoint handles session management on backend
+          // No need to call logout here - backend will handle it
           const response = await AuthAPI.ssoLogin({ token: ssoToken })
           if (response.access_token) {
+            // Set new token (this will replace any existing token)
             setAccessToken(response.access_token)
+            
+            // Decode token to get role immediately
+            const decoded = AuthStorage.decodeToken(response.access_token)
+            const userRole = decoded?.role || 'doctor'
+            
+            // Refresh profile to load doctor/clinic data
+            // Zustand updates are synchronous, so role will be available immediately
+            await refreshProfile()
+            
+            // Navigate based on role - ProtectedRoute will check store role
+            const targetRoute = userRole === 'admin' ? '/admin/analytics' : '/doctor/appointments'
+            navigate(targetRoute, { replace: true })
+          } else {
+            navigate('/login', { replace: true })
           }
-
-          // Refresh profile to load doctor/clinic data via AuthContext
-          await refreshProfile()
-
-          navigate('/doctor/appointments', { replace: true })
         } else {
+          // No SSO token, clear auth and redirect to login
+          clearAuth({ skipBootstrap: true })
           navigate('/login', { replace: true })
         }
       } catch (error) {
@@ -74,7 +94,7 @@ function SSOLoginHandler() {
     }
 
     processSSO()
-  }, [navigate, refreshProfile])
+  }, [navigate, refreshProfile, setAccessToken, clearAuth])
 
   if (isProcessing) {
     return null
@@ -88,13 +108,15 @@ function AppRouter() {
   const { role, doctor, clinic, admin, isLoading: authLoading, refreshProfile, clearAuth } = useAuth()
 
   const handleLogin = async (userRole: 'admin' | 'doctor') => {
-    // Profile will be loaded automatically by AuthProvider when token is set
+    // Profile will be loaded automatically when token is set
     // Just trigger a refresh to ensure data is loaded
     await refreshProfile()
   }
 
-  const handleLogout = useCallback(() => {
-    // Clear auth state through AuthProvider
+  const handleLogout = useCallback(async () => {
+    // Call logout endpoint to revoke refresh token
+    await callLogoutEndpoint()
+    // Clear auth state
     clearAuth()
   }, [clearAuth])
 
@@ -185,12 +207,10 @@ function AppRouter() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        {/* Avoid white flash on refresh by using a neutral, background-matched fallback */}
-        <Suspense fallback={<div className="min-h-screen bg-background" />}>
-          <AppRouter />
-        </Suspense>
-      </AuthProvider>
+      {/* Avoid white flash on refresh by using a neutral, background-matched fallback */}
+      <Suspense fallback={<div className="min-h-screen bg-background" />}>
+        <AppRouter />
+      </Suspense>
     </BrowserRouter>
   )
 }

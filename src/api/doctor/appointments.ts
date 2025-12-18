@@ -68,10 +68,10 @@ export class DoctorAppointmentsAPI extends BaseAPI {
    */
   static async getDoctorAvailability(clinicId: number, doctorId: number, startDate: string, endDate: string): Promise<any> {
     return this.post<any>(`${this.getBaseUrl()}/dashboard/doctors/availability`, {
-      clinic_id: clinicId,
-      doctor_id: doctorId,
-      start_date: startDate,
-      end_date: endDate
+        clinic_id: clinicId,
+        doctor_id: doctorId,
+        start_date: startDate,
+        end_date: endDate
     })
   }
 }

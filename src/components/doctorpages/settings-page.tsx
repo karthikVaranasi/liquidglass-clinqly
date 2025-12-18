@@ -23,7 +23,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs"
 import { AuthStorage } from "@/api/auth"
-import { useAuth } from "@/contexts/auth-context"
+import { useAuth } from "@/hooks/use-auth"
 import {
   AvailabilityAPI,
   workingHoursToApiFormat,

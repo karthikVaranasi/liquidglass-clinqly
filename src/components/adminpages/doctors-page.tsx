@@ -6,7 +6,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { AdminDoctorsAPI } from "@/api/admin/doctors"
 import { AdminAppointmentsAPI } from "@/api/admin/appointments"
 import { AuthAPI, AuthStorage } from "@/api/auth"
-import { useAuth } from "@/contexts/auth-context"
+import { useAuth } from "@/hooks/use-auth"
 import { useCounts } from "@/contexts/counts-context"
 import { getErrorMessage, getToastErrorMessage } from "@/lib/errors"
 import { getCurrentDateInLocal } from "@/lib/date"
@@ -483,7 +483,7 @@ export function DoctorsPage({ pageParams }: DoctorsPageProps) {
     setAccessToken(response.access_token)
       AuthStorage.setAdminImpersonating(true)
 
-      // Refresh profile to load doctor/clinic data via AuthProvider
+      // Refresh profile to load doctor/clinic data
       await refreshProfile()
 
       // Navigate to doctor dashboard

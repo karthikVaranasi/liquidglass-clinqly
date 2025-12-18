@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom"
-import { useAuth } from "@/contexts/auth-context"
+import { useAuth } from "@/hooks/use-auth"
 
 interface ProtectedRouteProps {
   allowedRoles: Array<'admin' | 'doctor'>

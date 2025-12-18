@@ -20,7 +20,7 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/
 import { formatDateUS, formatDateUSShort, getCurrentDateInLocal, getCurrentDateStringInLocal } from "@/lib/date"
 import { getErrorMessage, getToastErrorMessage } from "@/lib/errors"
 import { AuthStorage } from "@/api/auth"
-import { useAuth } from "@/contexts/auth-context"
+import { useAuth } from "@/hooks/use-auth"
 import { DoctorPatientsAPI, DoctorAppointmentsAPI } from "@/api/doctor"
 import type { Patient, Guardian } from "@/api/shared/types"
 

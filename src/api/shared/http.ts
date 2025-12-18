@@ -1,21 +1,8 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 import { createFriendlyError } from '../../lib/errors'
+import { useAuthStore } from '../../stores/auth-store'
 
 const baseURL = import.meta.env.VITE_API_BASE_URL
-
-type TokenAccessors = {
-  getToken: () => string | null
-  setToken: (token: string | null) => void
-}
-
-let tokenAccessors: TokenAccessors = {
-  getToken: () => null,
-  setToken: () => {},
-}
-
-export const setHttpTokenAccessors = (accessors: TokenAccessors) => {
-  tokenAccessors = accessors
-}
 
 // Primary axios client used across the app
 export const http = axios.create({
@@ -46,7 +33,7 @@ const refreshAccessToken = async (): Promise<string | null> => {
       const response = await authlessClient.post('/dashboard/auth/refresh')
       const newToken = extractAccessToken(response.data)
       if (newToken) {
-        tokenAccessors.setToken(newToken)
+        useAuthStore.getState().setAccessToken(newToken)
         return newToken
       }
       return null
@@ -57,20 +44,23 @@ const refreshAccessToken = async (): Promise<string | null> => {
   return refreshPromise
 }
 
-export const logoutCleanup = async (): Promise<void> => {
+export const callLogoutEndpoint = async (): Promise<void> => {
   try {
     await authlessClient.post('/dashboard/auth/logout')
   } catch {
-    // Ignore logout errors; proceed with cleanup
-  } finally {
-    tokenAccessors.setToken(null)
-    dispatchSessionExpired()
+    // Ignore logout errors; proceed anyway
   }
+}
+
+export const logoutCleanup = async (): Promise<void> => {
+  await callLogoutEndpoint()
+  useAuthStore.getState().setAccessToken(null)
+  dispatchSessionExpired()
 }
 
 http.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = tokenAccessors.getToken()
+    const token = useAuthStore.getState().accessToken
     if (token) {
       config.headers = config.headers || {}
       if (!config.headers.Authorization) {
@@ -89,7 +79,7 @@ http.interceptors.response.use(
 
     const url = requestConfig?.url || ''
     const shouldSkipRefresh = requestConfig?.skipAuthRefresh || url.includes('/dashboard/auth/refresh') || url.includes('/dashboard/auth/logout')
-    const hasToken = Boolean(tokenAccessors.getToken())
+    const hasToken = Boolean(useAuthStore.getState().accessToken)
 
     if (response?.status === 401 && requestConfig && !requestConfig._retry && !shouldSkipRefresh && hasToken) {
       requestConfig._retry = true

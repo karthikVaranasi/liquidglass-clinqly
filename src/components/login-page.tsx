@@ -8,7 +8,7 @@ import { Eye, EyeOff, AlertCircle } from "lucide-react"
 import { IconShield, IconStethoscope } from "@tabler/icons-react"
 import { AuthAPI, AuthStorage } from "@/api/auth"
 import { getLoginErrorMessage } from "@/lib/errors"
-import { useAuth } from "@/contexts/auth-context"
+import { useAuth } from "@/hooks/use-auth"
 
 interface LoginPageProps {
   onLogin: (userType: 'admin' | 'doctor') => void

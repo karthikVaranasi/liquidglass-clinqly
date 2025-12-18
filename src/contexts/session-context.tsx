@@ -4,7 +4,7 @@ import { AuthStorage } from '@/api/auth'
 interface SessionContextType {
     isSessionExpired: boolean
     setSessionExpired: (expired: boolean) => void
-    handleLogout: () => void
+    handleLogout: () => void | Promise<void>
 }
 
 const SessionContext = createContext<SessionContextType | undefined>(undefined)
@@ -18,7 +18,7 @@ export function SessionProvider({ children, onLogout }: SessionProviderProps) {
     const [isSessionExpired, setIsSessionExpired] = useState(false)
 
     const handleLogout = useCallback(() => {
-        // Call parent logout handler (AuthProvider's clearAuth)
+        // Call parent logout handler
         onLogout?.()
         setIsSessionExpired(false)
     }, [onLogout])

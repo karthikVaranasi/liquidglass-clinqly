@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react"
 import { IconUserCircle } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
-import { useAuth } from "@/contexts/auth-context"
+import { useAuth } from "@/hooks/use-auth"
 import { DoctorRequestsAPI } from "@/api/doctor"
 import { useCounts } from "@/contexts/counts-context"
 import { getErrorMessage } from "@/lib/errors"

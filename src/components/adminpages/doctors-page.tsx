@@ -2,7 +2,10 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { IconArrowLeft, IconChevronRight, IconUserCircle, IconStethoscope, IconX, IconFilter, IconSearch } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
+import { MfaDialog } from "@/components/mfa-dialog"
 import { AdminDoctorsAPI } from "@/api/admin/doctors"
 import { AdminAppointmentsAPI } from "@/api/admin/appointments"
 import { AuthAPI, AuthStorage } from "@/api/auth"
@@ -11,6 +14,7 @@ import { useCounts } from "@/contexts/counts-context"
 import { getErrorMessage, getToastErrorMessage } from "@/lib/errors"
 import { getCurrentDateInLocal } from "@/lib/date"
 import toast from "react-hot-toast"
+import axios from "axios"
 
 // Doctor Appointments Modal Component
 function DoctorAppointmentsModal({ doctor, onClose }: { doctor: any, onClose: () => void }) {
@@ -384,6 +388,9 @@ export function DoctorsPage({ pageParams }: DoctorsPageProps) {
   const [showAppointmentsModal, setShowAppointmentsModal] = useState(false)
   const [selectedDoctorForAppointments, setSelectedDoctorForAppointments] = useState<any | null>(null)
   const [loggingInAs, setLoggingInAs] = useState<number | null>(null)
+  const [showMfaDialog, setShowMfaDialog] = useState(false)
+  const [pendingDoctorId, setPendingDoctorId] = useState<number | null>(null)
+  const [mfaError, setMfaError] = useState<string | null>(null)
 
   // API state
   const [doctors, setDoctors] = useState<any[]>([])
@@ -473,27 +480,58 @@ export function DoctorsPage({ pageParams }: DoctorsPageProps) {
     setViewMode('table')
   }
 
-  const handleLoginAsDoctor = async (doctorId: number) => {
+  const handleLoginAsDoctor = async (doctorId: number, mfaCodeInput?: string) => {
     try {
       setLoggingInAs(doctorId)
 
-      const response = await AuthAPI.adminLoginAsDoctor({ doctor_id: doctorId })
+      const response = await AuthAPI.adminLoginAsDoctor({ 
+        doctor_id: doctorId,
+        ...(mfaCodeInput && { mfa_code: mfaCodeInput })
+      })
 
       // Store only the JWT token and mark as impersonating
-    setAccessToken(response.access_token)
+      setAccessToken(response.access_token)
       AuthStorage.setAdminImpersonating(true)
 
       // Refresh profile to load doctor/clinic data
       await refreshProfile()
 
+      // Close MFA dialog if open
+      setShowMfaDialog(false)
+      setPendingDoctorId(null)
+      setMfaError(null)
+
       // Navigate to doctor dashboard
       navigate('/doctor/appointments', { replace: true })
     } catch (error) {
       console.error('Failed to login as doctor:', error)
+      
+      const statusCode = axios.isAxiosError(error) 
+        ? error.response?.status 
+        : (error as any)?.statusCode
+      
+      if (statusCode === 401) {
+        // If MFA dialog is already open, show error in dialog
+        if (showMfaDialog && mfaCodeInput) {
+          setMfaError('Invalid MFA code. Please try again.')
+          setLoggingInAs(null)
+          return
+        }
+        
+        // Otherwise, show MFA dialog for the first time
+        setPendingDoctorId(doctorId)
+        setShowMfaDialog(true)
+        setMfaError(null)
+        setLoggingInAs(null)
+        return
+      }
+
       const errorMessage = getToastErrorMessage(error, 'data', 'Failed to login as doctor. Please try again.')
       toast.error(errorMessage)
     } finally {
-      setLoggingInAs(null)
+      if (!showMfaDialog) {
+        setLoggingInAs(null)
+      }
     }
   }
 
@@ -677,6 +715,32 @@ export function DoctorsPage({ pageParams }: DoctorsPageProps) {
           }}
         />
       )}
+
+      {/* MFA Dialog */}
+      <MfaDialog
+        open={showMfaDialog}
+        onOpenChange={(open) => {
+          setShowMfaDialog(open)
+          if (!open) {
+            setPendingDoctorId(null)
+            setLoggingInAs(null)
+            setMfaError(null)
+          }
+        }}
+        onSubmit={async (code) => {
+          if (!pendingDoctorId) {
+            setMfaError('Invalid request. Please try again.')
+            return
+          }
+          setMfaError(null)
+          await handleLoginAsDoctor(pendingDoctorId, code)
+        }}
+        title="MFA Code Required"
+        description="Please enter your 6-digit MFA code to login as this doctor."
+        isLoading={loggingInAs !== null}
+        error={mfaError}
+        onErrorChange={setMfaError}
+      />
     </div>
   )
 }

@@ -34,6 +34,7 @@ export interface SSOLoginResponse {
 
 export interface AdminLoginAsDoctorRequest {
   doctor_id: number
+  mfa_code?: string
 }
 
 export interface AdminLoginAsDoctorResponse {
@@ -52,9 +53,10 @@ export class AuthAPI {
     }
   }
 
-  private static async makeAuthenticatedRequest(endpoint: string, data: any): Promise<any> {
+  private static async makeAuthenticatedRequest(endpoint: string, data: any, config?: { skipAuthRefresh?: boolean }): Promise<any> {
     try {
-      const response = await http.post(endpoint, data)
+      const requestConfig = config ? { skipAuthRefresh: config.skipAuthRefresh } as any : undefined
+      const response = await http.post(endpoint, data, requestConfig)
       return response.data
     } catch (error) {
       throw this.normalizeError(error, 'data')
@@ -74,7 +76,8 @@ export class AuthAPI {
   }
 
   static async adminLoginAsDoctor(data: AdminLoginAsDoctorRequest): Promise<AdminLoginAsDoctorResponse> {
-    return this.makeAuthenticatedRequest('/dashboard/auth/admin/login-as-doctor', data)
+    // Skip refresh on 401 so we can handle MFA requirement
+    return this.makeAuthenticatedRequest('/dashboard/auth/admin/login-as-doctor', data, { skipAuthRefresh: true })
   }
 
   // Token validation - we can use this to check if a stored token is still valid

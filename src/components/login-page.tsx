@@ -9,6 +9,7 @@ import { IconShield, IconStethoscope } from "@tabler/icons-react"
 import { AuthAPI, AuthStorage } from "@/api/auth"
 import { getLoginErrorMessage } from "@/lib/errors"
 import { useAuth } from "@/hooks/use-auth"
+import { MfaDialog } from "@/components/mfa-dialog"
 
 interface LoginPageProps {
   onLogin: (userType: 'admin' | 'doctor') => void
@@ -32,8 +33,8 @@ export function LoginPage({ onLogin }: LoginPageProps) {
   const [rememberMe, setRememberMe] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [mfaCode, setMfaCode] = useState('')
-  const [showMfa, setShowMfa] = useState(false)
+  const [showMfaDialog, setShowMfaDialog] = useState(false)
+  const [mfaError, setMfaError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -44,7 +45,6 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       const loginData = {
         email: email.trim(),
         password,
-        ...(mfaCode && { mfa_code: mfaCode })
       }
 
       let response
@@ -52,8 +52,8 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         response = await AuthAPI.adminLogin(loginData)
 
         // Handle MFA requirement for admin login
-        if (response.mfa_required && !mfaCode) {
-          setShowMfa(true)
+        if (response.mfa_required) {
+          setShowMfaDialog(true)
           setIsLoading(false)
           setError('MFA code required. Please enter your 6-digit MFA code.')
           return
@@ -89,8 +89,8 @@ export function LoginPage({ onLogin }: LoginPageProps) {
     } catch (err) {
       const errorMessage = getLoginErrorMessage(err)
       setError(errorMessage)
-      setShowMfa(false) // Reset MFA on error
-      setMfaCode('')
+      setShowMfaDialog(false) // Reset MFA on error
+      setMfaError(null)
       setIsLoading(false) // Only reset loading state on error
     }
     // Note: We don't reset isLoading on success because the page will redirect
@@ -210,24 +210,6 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                 </div>
               </div>
 
-              {/* MFA Code Field (shown when required) */}
-              {showMfa && (
-                <div className="space-y-2">
-                  <Label htmlFor="mfaCode" className="text-sm font-medium text-foreground">
-                    MFA Code
-                  </Label>
-                  <Input
-                    id="mfaCode"
-                    type="text"
-                    value={mfaCode}
-                    onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                    placeholder="Enter 6-digit MFA code"
-                    className="neumorphic-inset border-0 focus:ring-0 shadow-none rounded-lg bg-background focus:border-0 transition-all duration-200"
-                    maxLength={6}
-                    required={showMfa}
-                  />
-                </div>
-              )}
 
               {/* Remember me and Forgot password */}
               <div className="flex items-center justify-between">
@@ -271,6 +253,63 @@ export function LoginPage({ onLogin }: LoginPageProps) {
           </div>
         </div>
       </div>
+
+      {/* MFA Dialog */}
+      <MfaDialog
+        open={showMfaDialog}
+        onOpenChange={(open) => {
+          setShowMfaDialog(open)
+          if (!open) {
+            setMfaError(null)
+          }
+        }}
+        onSubmit={async (mfaCode) => {
+          try {
+            setIsLoading(true)
+            setError(null)
+            setMfaError(null)
+
+            const loginData = {
+              email: email.trim(),
+              password,
+              mfa_code: mfaCode,
+            }
+
+            const response = await AuthAPI.adminLogin(loginData)
+
+            if (!response.access_token) {
+              setError('Login successful but no access token received. Please try again.')
+              setShowMfaDialog(false)
+              setIsLoading(false)
+              return
+            }
+
+            setAccessToken(response.access_token)
+
+            const decoded = AuthStorage.decodeToken(response.access_token)
+            const userRole = decoded?.role || 'admin'
+
+            setShowMfaDialog(false)
+            onLogin(userRole as 'admin' | 'doctor')
+            navigate('/admin/analytics', { replace: true })
+          } catch (err) {
+            const statusCode = (err as any)?.statusCode || (err as any)?.response?.status
+            if (statusCode === 401) {
+              setMfaError('Invalid MFA code. Please try again.')
+            } else {
+              const errorMessage = getLoginErrorMessage(err)
+              setError(errorMessage)
+              setShowMfaDialog(false)
+            }
+            setIsLoading(false)
+          }
+        }}
+        title="MFA Code Required"
+        description="Please enter your 6-digit MFA code to complete login."
+        isLoading={isLoading}
+        error={mfaError}
+        onErrorChange={setMfaError}
+      />
     </div>
   )
 }

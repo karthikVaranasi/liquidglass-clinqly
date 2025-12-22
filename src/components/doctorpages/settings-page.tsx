@@ -513,7 +513,7 @@ export function SettingsPage() {
                 </Button>
               </div>
 
-              <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+              <div className="bg-white/20 dark:bg-transparent backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/20 dark:border-white/10 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
                 {isLoadingOffDays ? (
                   <div className="flex flex-col items-center justify-center py-12">
                     <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
@@ -521,63 +521,60 @@ export function SettingsPage() {
                   </div>
                 ) : (
                   <div className="overflow-hidden rounded-lg">
-                    {/* Fixed Header - Outside scroll container */}
-                    <Table>
-                      <TableHeader className="!bg-transparent dark:!bg-transparent border-b border-white/20">
-                        <TableRow className="!bg-transparent dark:!bg-transparent hover:!bg-transparent border-0">
-                          <TableHead className="w-[200px] text-sm sm:text-base !bg-transparent dark:!bg-transparent text-foreground font-bold">Date(s)</TableHead>
-                          <TableHead className="w-[120px] text-sm sm:text-base !bg-transparent dark:!bg-transparent text-foreground font-bold">Time Range</TableHead>
-                          <TableHead className="text-sm sm:text-base !bg-transparent dark:!bg-transparent text-foreground font-bold">Reason</TableHead>
-                          <TableHead className="w-[120px] text-right text-sm sm:text-base !bg-transparent dark:!bg-transparent text-foreground font-bold">Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                    </Table>
-                    {/* Scrollable Body */}
-                    <div className="max-h-[60vh] overflow-y-auto">
-                      <Table>
-                        <TableBody>
+                    {/* Single table with fixed columns for perfect alignment */}
+                    <div className="overflow-x-auto max-h-[60vh] overflow-y-auto">
+                      <Table className="w-full text-sm table-fixed">
+                        <TableHeader className="sticky top-0 z-10 bg-white/20 dark:bg-black/40 backdrop-blur-md">
+                          <TableRow className="border-b border-white/20">
+                            <TableHead className="w-1/4 font-bold py-3 px-4 text-foreground">Date(s)</TableHead>
+                            <TableHead className="w-1/4 font-bold py-3 px-4 text-foreground">Time Range</TableHead>
+                            <TableHead className="w-1/4 font-bold py-3 px-4 text-foreground">Reason</TableHead>
+                            <TableHead className="w-1/4 font-bold py-3 px-4 text-right">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody className="divide-y divide-white/10">
                           {offDays.length === 0 ? (
                             <TableRow>
                               <TableCell
                                 colSpan={4}
-                                className="py-6 text-center text-sm"
+                                className="py-8 text-center text-foreground"
                               >
                                 No off days added yet.
                               </TableCell>
                             </TableRow>
                           ) : (
                             offDays.map((entry) => (
-                              <TableRow key={entry.id}>
-                                <TableCell className="text-sm sm:text-base font-medium w-[200px]">
+                              <TableRow key={entry.id} className="hover:bg-white/10 transition-colors">
+                                <TableCell className="py-3 px-4 w-1/4 font-medium">
                                   {formatOffDayDateRange(entry)}
                                 </TableCell>
-                                <TableCell className="text-sm sm:text-base w-[120px]">
+                                <TableCell className="py-3 px-4 w-1/4">
                                   {getOffDayTimeRangeLabel(entry)}
                                 </TableCell>
-                                <TableCell className="text-sm sm:text-base">
+                                <TableCell className="py-3 px-4 w-1/4 overflow-hidden text-ellipsis whitespace-nowrap">
                                   {entry.reason && entry.reason.trim().length > 0
                                     ? entry.reason
                                     : "No reason provided"}
                                 </TableCell>
-                                <TableCell className="text-right w-[120px]">
+                                <TableCell className="py-3 px-4 w-1/4 text-right">
                                   <div className="flex items-center justify-end gap-2">
                                     <Button
                                       onClick={() => {
                                         setActiveSettingsTab("off-days")
                                         openEditOffDayDialog(entry)
                                       }}
-                                      className="neumorphic-button-primary p-2"
+                                      className="neumorphic-button-primary p-2 h-8 w-8"
                                     >
-                                      <IconPencil className="w-3 h-3" />
+                                      <IconPencil className="w-4 h-4" />
                                     </Button>
                                     <Button
                                       onClick={() => {
                                         setActiveSettingsTab("off-days")
                                         openDeleteDialog(entry)
                                       }}
-                                      className="neumorphic-button-destructive p-2"
+                                      className="neumorphic-button-destructive p-2 h-8 w-8"
                                     >
-                                      <IconTrash className="w-3 h-3" />
+                                      <IconTrash className="w-4 h-4" />
                                     </Button>
                                   </div>
                                 </TableCell>
@@ -620,7 +617,7 @@ export function SettingsPage() {
                 </Button>
               </div>
 
-              <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+              <div className="bg-white/20 dark:bg-transparent backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/20 dark:border-white/10 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
                 {isLoadingOffDays ? (
                   <div className="flex flex-col items-center justify-center py-12">
                     <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
@@ -628,63 +625,60 @@ export function SettingsPage() {
                   </div>
                 ) : (
                   <div className="overflow-hidden rounded-lg">
-                    {/* Fixed Header - Outside scroll container */}
-                    <Table>
-                      <TableHeader className="!bg-transparent dark:!bg-transparent border-b border-white/20">
-                        <TableRow className="!bg-transparent dark:!bg-transparent hover:!bg-transparent border-0">
-                          <TableHead className="w-[200px] text-sm sm:text-base !bg-transparent dark:!bg-transparent text-foreground font-bold">Date(s)</TableHead>
-                          <TableHead className="w-[120px] text-sm sm:text-base !bg-transparent dark:!bg-transparent text-foreground font-bold">Time Range</TableHead>
-                          <TableHead className="text-sm sm:text-base !bg-transparent dark:!bg-transparent text-foreground font-bold">Reason</TableHead>
-                          <TableHead className="w-[120px] text-right text-sm sm:text-base !bg-transparent dark:!bg-transparent text-foreground font-bold">Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                    </Table>
-                    {/* Scrollable Body */}
-                    <div className="max-h-[60vh] overflow-y-auto">
-                      <Table>
-                        <TableBody>
+                    {/* Single table with fixed columns for perfect alignment */}
+                    <div className="overflow-x-auto max-h-[60vh] overflow-y-auto">
+                      <Table className="w-full text-sm table-fixed">
+                        <TableHeader className="sticky top-0 z-10 bg-white/20 dark:bg-black/40 backdrop-blur-md">
+                          <TableRow className="border-b border-white/20">
+                            <TableHead className="w-1/4 font-bold py-3 px-4 text-foreground">Date(s)</TableHead>
+                            <TableHead className="w-1/4 font-bold py-3 px-4 text-foreground">Time Range</TableHead>
+                            <TableHead className="w-1/4 font-bold py-3 px-4 text-foreground">Reason</TableHead>
+                            <TableHead className="w-1/4 font-bold py-3 px-4 text-right">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody className="divide-y divide-white/10">
                           {publicHolidays.length === 0 ? (
                             <TableRow>
                               <TableCell
                                 colSpan={4}
-                                className="py-6 text-center text-sm"
+                                className="py-8 text-center text-foreground"
                               >
                                 No public holidays synced yet. Click "Sync Holidays" to load them.
                               </TableCell>
                             </TableRow>
                           ) : (
                             publicHolidays.map((entry) => (
-                              <TableRow key={entry.id}>
-                                <TableCell className="text-sm sm:text-base font-medium w-[200px]">
+                              <TableRow key={entry.id} className="hover:bg-white/10 transition-colors">
+                                <TableCell className="py-3 px-4 w-1/4 font-medium">
                                   {formatOffDayDateRange(entry)}
                                 </TableCell>
-                                <TableCell className="text-sm sm:text-base w-[120px]">
+                                <TableCell className="py-3 px-4 w-1/4">
                                   {getOffDayTimeRangeLabel(entry)}
                                 </TableCell>
-                                <TableCell className="text-sm sm:text-base">
+                                <TableCell className="py-3 px-4 w-1/4 overflow-hidden text-ellipsis whitespace-nowrap">
                                   {entry.reason && entry.reason.trim().length > 0
                                     ? entry.reason
                                     : "No reason provided"}
                                 </TableCell>
-                                <TableCell className="text-right w-[120px]">
+                                <TableCell className="py-3 px-4 w-1/4 text-right">
                                   <div className="flex items-center justify-end gap-2">
                                     <Button
                                       onClick={() => {
                                         setActiveSettingsTab("public-holidays")
                                         openEditOffDayDialog(entry)
                                       }}
-                                      className="neumorphic-button-primary p-2"
+                                      className="neumorphic-button-primary p-2 h-8 w-8"
                                     >
-                                      <IconPencil className="w-3 h-3" />
+                                      <IconPencil className="w-4 h-4" />
                                     </Button>
                                     <Button
                                       onClick={() => {
                                         setActiveSettingsTab("public-holidays")
                                         openDeleteDialog(entry)
                                       }}
-                                      className="neumorphic-button-destructive p-2"
+                                      className="neumorphic-button-destructive p-2 h-8 w-8"
                                     >
-                                      <IconTrash className="w-3 h-3" />
+                                      <IconTrash className="w-4 h-4" />
                                     </Button>
                                   </div>
                                 </TableCell>

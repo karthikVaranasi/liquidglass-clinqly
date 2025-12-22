@@ -127,8 +127,8 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 lg:p-8 min-h-screen lg:min-h-0 relative">
         <div className="w-full max-w-md mx-auto space-y-6 sm:space-y-8 p-6 sm:p-8 rounded-2xl liquid-glass backdrop-blur-xl border border-white/20 shadow-[0_0_30px_rgba(38,198,192,0.2)] relative z-10">
           <div className="lg:hidden text-center mb-6 sm:mb-8">
-            <h1 className="text-xl sm:text-2xl font-semibold text-foreground mb-2">EZMedtech</h1>
-            <p className="text-sm text-muted-foreground">Medical Dashboard</p>
+            <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-2">EZMedtech</h1>
+            <p className="text-sm text-gray-600">Medical Dashboard</p>
           </div>
 
           <div className="space-y-4">
@@ -222,11 +222,11 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                     onChange={(e) => setRememberMe(e.target.checked)}
                     className="rounded border-gray-300 cursor-pointer"
                   />
-                  <Label htmlFor="remember" className="text-sm cursor-pointer">
+                  <Label htmlFor="remember" className="text-sm cursor-pointer text-gray-700">
                     Remember me
                   </Label>
                 </div>
-                <span className="text-sm text-muted-foreground cursor-pointer">
+                <span className="text-sm text-gray-600 cursor-pointer hover:text-gray-900 transition-colors">
                   Forgot password?
                 </span>
               </div>

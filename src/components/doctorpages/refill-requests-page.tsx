@@ -142,7 +142,7 @@ export function RefillRequestsPage() {
 
       {/* Refill Requests Table */}
       <div className="px-4 lg:px-6">
-        <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+        <div className="bg-white/20 dark:bg-transparent backdrop-blur-sm rounded-xl p-4 border border-white/20 dark:border-white/10 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
           {requests.length === 0 ? (
             <div className="flex items-center justify-center h-64">
               <div className="text-center">

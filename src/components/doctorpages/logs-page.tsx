@@ -375,21 +375,18 @@ export function LogsPage() {
       <div className="-mt-2 px-4 lg:px-6">
         <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
           <div className="overflow-hidden rounded-lg">
-            {/* Fixed Header */}
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-white/20">
-                  {tableHeaders.map((header) => (
-                    <th key={header.key} className="text-left font-bold py-3 px-4 text-foreground">
-                      {header.label}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-            </table>
-            {/* Scrollable Body */}
+            {/* Single table with fixed columns for alignment */}
             <div className="overflow-x-auto max-h-[70vh] overflow-y-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-sm table-fixed">
+                <thead>
+                  <tr className="border-b border-white/20">
+                    <th className="text-left font-bold py-3 px-4 text-foreground w-1/5">From</th>
+                    <th className="text-left font-bold py-3 px-4 text-foreground w-1/5">Start Time</th>
+                    <th className="text-left font-bold py-3 px-4 text-foreground w-1/5">Call Duration</th>
+                    <th className="text-left font-bold py-3 px-4 text-foreground w-1/5">Sentiment</th>
+                    <th className="text-left font-bold py-3 px-4 text-foreground w-1/5">Actions</th>
+                  </tr>
+                </thead>
                 <tbody className="divide-y divide-white/10">
                   {filteredLogs.length === 0 ? (
                     <tr>
@@ -400,19 +397,19 @@ export function LogsPage() {
                   ) : (
                     filteredLogs.map((log, index) => (
                       <tr key={index} className="hover:bg-white/10 transition-colors">
-                        <td className="py-3 px-4">
-                          <span className="text-sm font-medium">{log.from_phone}</span>
+                        <td className="py-3 px-4 w-1/5">
+                          <span className="text-sm font-semibold">{log.from_phone}</span>
                         </td>
-                        <td className="py-3 px-4">
+                        <td className="py-3 px-4 w-1/5">
                           <span className="text-sm">{formatDate(log.start_time)}</span>
                         </td>
-                        <td className="py-3 px-4">
+                        <td className="py-3 px-4 w-1/5">
                           <span className="text-sm">{calculateDuration(log.start_time, log.end_time)}</span>
                         </td>
-                        <td className="py-3 px-4">
+                        <td className="py-3 px-4 w-1/5">
                           <SentimentRating rating={log.sentiment_score || 0} />
                         </td>
-                        <td className="py-3 px-4">
+                        <td className="py-3 px-4 w-1/5">
                           <Button
                             onClick={() => handleViewTranscript(log)}
                             className="neumorphic-button-primary"

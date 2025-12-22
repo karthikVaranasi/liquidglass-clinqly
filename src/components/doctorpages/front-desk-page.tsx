@@ -155,11 +155,11 @@ export function FrontDeskPage() {
 
       {/* Front Desk Requests Table */}
       <div className="px-4 lg:px-6">
-        <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+        <div className="bg-white/20 dark:bg-transparent backdrop-blur-sm rounded-xl p-4 border border-white/20 dark:border-white/10 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
           <div className="overflow-hidden rounded-lg">
             {/* Fixed Header - Outside scroll container */}
             <div className="border-b border-white/20">
-              <div className="grid grid-cols-4 gap-4 py-3 px-4 items-center">
+              <div className="grid grid-cols-[25%_25%_25%_25%] gap-2 py-3 px-4 items-center">
                 <div className="font-bold text-sm text-foreground">Name</div>
                 <div className="font-bold text-sm text-foreground">Phone Number</div>
                 <div className="font-bold text-sm text-foreground">Created At</div>
@@ -214,7 +214,7 @@ export function FrontDeskPage() {
                       className="border-b border-white/10"
                     >
                       <AccordionTrigger className="hover:bg-white/10 hover:rounded-none px-4 py-0 hover:no-underline [&>svg]:my-auto transition-colors">
-                        <div className="grid grid-cols-4 gap-4 w-full py-3 text-left items-center">
+                        <div className="grid grid-cols-[25%_25%_25%_25%] gap-2 w-full py-3 text-left items-center">
                           <div className="flex items-center gap-2 font-medium text-sm">
                             <IconUserCircle className="w-5 h-5 flex-shrink-0" />
                             <span className="truncate">{request.name}</span>

@@ -171,8 +171,8 @@ export function CalendarIntegrations() {
     <div key={account.id} className="flex items-center justify-between my-3 p-4 bg-white/50 dark:bg-gradient-to-r dark:from-slate-800/60 dark:to-slate-700/40 backdrop-blur-sm border border-white/30 dark:border-white/10 rounded-xl shadow-sm dark:shadow-[0_0_15px_rgba(255,255,255,0.05)]">
       <div className="flex items-center gap-3">
         <div>
-          <p className="text-sm font-semibold text-foreground" style={{ textTransform: 'none' }}>{account.email}</p>
-          <div className="text-xs text-muted-foreground">
+          <p className="text-sm font-semibold text-gray-900 dark:text-gray-900" style={{ textTransform: 'none' }}>{account.email}</p>
+          <div className="text-xs text-gray-600 dark:text-gray-500">
             Connected: {formatDate(account.created_at)}
           </div>
         </div>
@@ -322,7 +322,7 @@ export function CalendarIntegrations() {
             ) : (
               <div className="p-4 text-center bg-white/30 dark:bg-white/5 rounded-lg border border-white/20 dark:border-white/10">
                 <p className="text-sm font-medium text-foreground">No Microsoft calendars connected</p>
-                <p className="text-xs text-muted-foreground mt-1">Connect your Outlook calendar to sync appointments</p>
+                <p className="text-xs text-gray-600 dark:text-white mt-1">Connect your Outlook calendar to sync appointments</p>
               </div>
             )}
           </div>

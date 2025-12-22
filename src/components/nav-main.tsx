@@ -48,28 +48,29 @@ export function NavMain({
         <SidebarMenu>
           {items.map((item, index) => (
             <SidebarMenuItem key={item.title} ref={(el) => { menuRefs.current[index] = el; }}>
-              <SidebarMenuButton
-                tooltip={item.title}
-                onClick={() => item.page && onPageChange?.(item.page)}
-                isActive={currentPage === item.page}
-                className=""
-              >
-                {item.icon && <item.icon />}
-                <span>{item.title}</span>
-              </SidebarMenuButton>
+           <SidebarMenuButton
+  tooltip={item.title}
+  onClick={() => item.page && onPageChange?.(item.page)}
+  isActive={currentPage === item.page}
+  className="transition-colors"
+>
+  {item.icon && <item.icon />}
+  <span>{item.title}</span>
+</SidebarMenuButton>
+
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
 
-          {activeTabRect && (
+        {activeTabRect && (
           <div
-              className="absolute left-0 right-0 bg-primary/20 rounded-sm pointer-events-none"
+            className="absolute left-0 right-0 bg-primary/20 rounded-sm pointer-events-none"
             style={{
-                top: activeTabRect.top,
-                height: activeTabRect.height,
-              }}
-            />
-          )}
+              top: activeTabRect.top,
+              height: activeTabRect.height,
+            }}
+          />
+        )}
       </SidebarGroupContent>
     </SidebarGroup>
   )

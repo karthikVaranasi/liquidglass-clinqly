@@ -100,33 +100,35 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
 
   return (
-    <div className="min-h-screen flex ">
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-primary">
+    <div className="min-h-screen flex liquid-glass-login-bg">
+      {/* Left side - Light theme only */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <div className="relative z-10 flex flex-col justify-between w-full px-12 py-12">
           <div className="flex items-center gap-2">
             <img src="/logo.svg" alt="EzMedTech Logo" className="w-8 h-8 object-contain" />
-            <h1 className="text-xl font-semibold">EZMedTech</h1>
+            <h1 className="text-xl font-semibold text-slate-800">EZMedTech</h1>
           </div>
 
           <div className="flex-1 flex flex-col justify-center">
-            <h2 className="text-4xl mb-6 leading-tight">Effortlessly manage your medical practice.</h2>
-            <p className="text-lg leading-relaxed">
+            <h2 className="text-4xl mb-6 leading-tight font-bold text-slate-800">Effortlessly manage your medical practice.</h2>
+            <p className="text-lg leading-relaxed text-slate-700">
               Manage Patients Information, Appointments, and more.
             </p>
           </div>
 
-          <div className="flex justify-between items-center text-sm">
+          <div className="flex justify-between items-center text-sm text-black">
             <span>© {new Date().getFullYear()} EZMedTech. All rights reserved.</span>
-            <span className="cursor-pointer">Privacy Policy</span>
+            <span className="cursor-pointer hover:text-primary transition-colors">Privacy Policy</span>
           </div>
         </div>
       </div>
 
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-background min-h-screen lg:min-h-0">
-        <div className="w-full max-w-md mx-auto space-y-6 sm:space-y-8 p-6 sm:p-8 rounded-lg neumorphic-pressed">
+      {/* Right side - Login form with liquid glass */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 lg:p-8 min-h-screen lg:min-h-0 relative">
+        <div className="w-full max-w-md mx-auto space-y-6 sm:space-y-8 p-6 sm:p-8 rounded-2xl liquid-glass backdrop-blur-xl border border-white/20 shadow-[0_0_30px_rgba(38,198,192,0.2)] relative z-10">
           <div className="lg:hidden text-center mb-6 sm:mb-8">
             <h1 className="text-xl sm:text-2xl font-semibold text-foreground mb-2">EZMedtech</h1>
-            <p className="text-sm">Medical Dashboard</p>
+            <p className="text-sm text-muted-foreground">Medical Dashboard</p>
           </div>
 
           <div className="space-y-4">
@@ -140,13 +142,13 @@ export function LoginPage({ onLogin }: LoginPageProps) {
               value={userType}
               onValueChange={(value) => setUserType(value as 'admin' | 'doctor')}
             >
-              <TabsList className="-p-2.5 w-full">
-                <TabsTrigger value="admin" className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-xs sm:text-sm">
+              <TabsList className="-p-2.5 w-full bg-gray-100 rounded-full p-1">
+                <TabsTrigger value="admin" className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-xs sm:text-sm rounded-full data-[state=active]:bg-primary data-[state=active]:text-white transition-all">
                   <IconShield className="w-4 h-4" />
                   <span className="hidden sm:inline">Admin</span>
                   <span className="sm:hidden">Admin</span>
                 </TabsTrigger>
-                <TabsTrigger value="doctor" className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-xs sm:text-sm">
+                <TabsTrigger value="doctor" className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-xs sm:text-sm rounded-full data-[state=active]:bg-primary data-[state=active]:text-white transition-all">
                   <IconStethoscope className="w-4 h-4" />
                   <span className="hidden sm:inline">Doctor</span>
                   <span className="sm:hidden">Doctor</span>
@@ -165,7 +167,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Email Field */}
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium text-foreground">
+                <Label htmlFor="email" className="text-sm font-medium text-gray-700">
                   Email
                 </Label>
                 <Input
@@ -174,14 +176,13 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
-                  className="neumorphic-inset border-0 focus:ring-0 shadow-none rounded-lg bg-background focus:border-0 transition-all duration-200"
+                  className="border border-gray-300 focus:ring-2 focus:ring-primary/30 shadow-none rounded-xl bg-gray-50 focus:border-primary/50 transition-all duration-200 text-gray-900"
                   required
                 />
               </div>
 
-              {/* Password Field */}
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium text-foreground">
+                <Label htmlFor="password" className="text-sm font-medium text-gray-700">
                   Password
                 </Label>
                 <div className="relative">
@@ -191,7 +192,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
-                    className="pr-10 neumorphic-inset border-0 focus:ring-0 shadow-none rounded-lg bg-background focus:border-0 transition-all duration-200"
+                    className="pr-10 border border-gray-300 focus:ring-2 focus:ring-primary/30 shadow-none rounded-xl bg-gray-50 focus:border-primary/50 transition-all duration-200 text-gray-900"
                     required
                   />
                   <Button
@@ -234,7 +235,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full neumorphic-button-primary"
+                className="w-full bg-gradient-to-r from-primary via-emerald-500 to-cyan-500 hover:from-primary hover:via-emerald-400 hover:to-cyan-400 text-white rounded-xl py-3 font-semibold shadow-[0_0_20px_rgba(38,198,192,0.5)] hover:shadow-[0_0_30px_rgba(38,198,192,0.7)] transition-all duration-300"
               >
                 {isLoading ? (
                   <>

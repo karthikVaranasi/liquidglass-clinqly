@@ -65,15 +65,15 @@ function SSOLoginHandler() {
           if (response.access_token) {
             // Set new token (this will replace any existing token)
             setAccessToken(response.access_token)
-            
+
             // Decode token to get role immediately
             const decoded = AuthStorage.decodeToken(response.access_token)
             const userRole = decoded?.role || 'doctor'
-            
+
             // Refresh profile to load doctor/clinic data
             // Zustand updates are synchronous, so role will be available immediately
             await refreshProfile()
-            
+
             // Navigate based on role - ProtectedRoute will check store role
             const targetRoute = userRole === 'admin' ? '/admin/analytics' : '/doctor/appointments'
             navigate(targetRoute, { replace: true })
@@ -123,7 +123,7 @@ function AppRouter() {
   // Show blank screen while loading auth
   if (authLoading) {
     // Avoid white flash on refresh by matching app background
-    return <div className="min-h-screen bg-background" />
+    return <div className="min-h-screen" />
   }
 
   // Get user data based on role
@@ -206,11 +206,14 @@ function AppRouter() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      {/* Avoid white flash on refresh by using a neutral, background-matched fallback */}
-      <Suspense fallback={<div className="min-h-screen bg-background" />}>
-        <AppRouter />
-      </Suspense>
-    </BrowserRouter>
+    <div className="min-h-screen liquid-glass-app-bg">
+      <BrowserRouter>
+        {/* Avoid white flash on refresh by using a neutral, background-matched fallback */}
+        <Suspense fallback={<div className="min-h-screen" />}>
+          <AppRouter />
+        </Suspense>
+      </BrowserRouter>
+    </div>
   )
 }
+

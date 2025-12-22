@@ -1529,9 +1529,9 @@ export function PatientsPage() {
 
   return (
     <>
-      <div className="space-y-6">
+      <div className="space-y-6 min-h-screen">
         {/* Patients Table */}
-        <div className="px-4 lg:px-6">
+        <div className="px-4 lg:px-6 py-4">
           {/* Header with title, filter and Add Patient button - only show when not loading profile from URL */}
           {!initialProfileLoad && (
             <div className="flex items-center justify-between mb-3">
@@ -1584,49 +1584,56 @@ export function PatientsPage() {
 
           {/* Patients Table */}
           {!loading && !initialProfileLoad && (
-            <div className="neumorphic-inset rounded-lg p-4 border-0">
-              <div className="overflow-x-auto max-h-[78vh] overflow-y-auto bg-card rounded-lg">
-                {filteredPatients.length > 0 ? (
+            <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+              {filteredPatients.length > 0 ? (
+                <div className="overflow-hidden rounded-lg">
+                  {/* Fixed Header - Outside scroll container */}
                   <table className="w-full text-sm table-fixed">
-                    <thead className="sticky top-0 z-10 bg-card">
-                      <tr className="border-b-2 border-muted/90 bg-muted/10">
-                        {/* <th className="text-left font-medium py-3 px-4 w-1/5">Patient ID</th> */}
-                        <th className="text-left font-medium py-3 px-4 w-1/5">Patient Name</th>
-                        <th className="text-left font-medium py-3 px-4 w-1/5">DOB</th>
-                        <th className="text-left font-medium py-3 px-4 w-1/5">Contact</th>
-                        <th className="text-left font-medium py-3 px-4 w-1/5">Actions</th>
+                    <thead>
+                      <tr className="border-b border-white/20">
+                        <th className="text-left font-bold py-3 px-4 w-1/5 text-foreground">Patient Name</th>
+                        <th className="text-left font-bold py-3 px-4 w-1/5 text-foreground">DOB</th>
+                        <th className="text-left font-bold py-3 px-4 w-1/5 text-foreground">Contact</th>
+                        <th className="text-left font-bold py-3 px-4 w-1/5 text-foreground">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y-2 divide-muted/90">
-                      {filteredPatients.map((patient) => (
-                        <tr key={patient.id} className="hover:bg-muted/30 transition-colors">
-                          {/* <td className="py-3 px-4 font-medium text-sm">{patient.id}</td> */}
-                          <td className="py-3 px-4">
-                            <div className="flex items-center gap-2">
-                              <IconUserCircle className="w-5 h-5 flex-shrink-0" />
-                              <span className="font-medium text-sm truncate">{`${patient.first_name} ${patient.last_name}`}</span>
-                            </div>
-                          </td>
-                          <td className="py-3 px-4 text-sm">{formatDate(patient.dob)}</td>
-                          <td className="py-3 px-4 text-sm">{patient.phone_number}</td>
-                          <td className="py-3 px-4">
-                            <Button
-                              onClick={() => handleViewProfile(patient)}
-                              className="neumorphic-button-primary"
-                            >
-                              View Profile
-                            </Button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
                   </table>
-                ) : (
-                  <div className="text-center py-12">
-                    <p className="text-sm text-foreground">No patients found</p>
+                  {/* Scrollable Body - Separate scroll container */}
+                  <div className="overflow-x-auto max-h-[70vh] overflow-y-auto">
+                    <table className="w-full text-sm table-fixed">
+                      <tbody className="divide-y divide-white/10">
+                        {filteredPatients.map((patient) => (
+                          <tr key={patient.id} className="hover:bg-white/10 transition-all duration-200">
+                            <td className="py-3 px-4 w-1/5">
+                              <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-chart-2/20 flex items-center justify-center">
+                                  <IconUserCircle className="w-5 h-5 text-primary flex-shrink-0" />
+                                </div>
+                                <span className="font-medium text-sm truncate">{`${patient.first_name} ${patient.last_name}`}</span>
+                              </div>
+                            </td>
+                            <td className="py-3 px-4 text-sm w-1/5">{formatDate(patient.dob)}</td>
+                            <td className="py-3 px-4 text-sm w-1/5">{patient.phone_number}</td>
+                            <td className="py-3 px-4 w-1/5">
+                              <Button
+                                onClick={() => handleViewProfile(patient)}
+                                className="neumorphic-button-primary text-xs"
+                                size="sm"
+                              >
+                                View Profile
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
-                )}
-              </div>
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-sm text-foreground">No patients found</p>
+                </div>
+              )}
             </div>
           )}
         </div>

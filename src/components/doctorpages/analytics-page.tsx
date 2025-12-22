@@ -230,15 +230,15 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
             return (
               <div
                 key={stat.id}
-              className={`relative overflow-hidden neumorphic-inset p-4 neumorphic-hover transition-all duration-200 ${isClickable ? "cursor-pointer" : ""
+                className={`relative overflow-hidden neumorphic-inset p-4 rounded-xl transition-all duration-200 neumorphic-hover ${isClickable ? "cursor-pointer" : ""
                   }`}
                 onClick={isClickable ? handleCardClick : undefined}
               >
-              <div
-                className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${gradientClasses[stat.id] ?? "from-primary/20 via-primary/5 to-transparent"}`}
-                aria-hidden
-              />
-              <div className="relative space-y-2 z-10">
+                <div
+                  className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${gradientClasses[stat.id] ?? "from-primary/20 via-primary/5 to-transparent"}`}
+                  aria-hidden
+                />
+                <div className="relative space-y-2 z-10">
                   <div className="flex items-center gap-2 text-sm">
                     <IconComponent className="size-4" />
                     {stat.label}
@@ -257,33 +257,27 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
       {/* Appointment Trends and Patients Overview*/}
       <div className="grid grid-cols-1 gap-3 sm:gap-4 px-4 lg:px-6 xl:grid-cols-[2fr_1fr]">
         {/* Appointment Trends */}
-        <Card className="neumorphic-inset border-0">
-          <CardHeader>
-            <CardTitle>
+        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.1)] h-full flex flex-col">
+          <div className="mb-4">
+            <h3 className="text-lg font-semibold">
               {dashboardConfig.sections.appointmentTrends.title}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+            </h3>
+          </div>
+          <div className="flex-1 flex flex-col min-h-0">
             {appointmentData.length === 0 ? (
-              <div className="flex items-center justify-center h-[250px] sm:h-[280px] lg:h-[320px]">
+              <div className="flex items-center justify-center flex-1">
                 <div className="text-center text-foreground">
                   <p className="text-sm">No appointment trends data available</p>
                 </div>
               </div>
             ) : (
-              <ChartContainer config={appointmentChartConfig} className="h-[250px] w-full sm:h-[280px] lg:h-[320px]">
+              <ChartContainer config={appointmentChartConfig} className="flex-1 w-full h-full min-h-0">
                 <BarChart
                   accessibilityLayer
                   data={appointmentData}
                   onMouseLeave={() => setSelectedBar(null)}
+                  margin={{ top: 0, right: 0, left: -24, bottom: 0 }}
                 >
-                  <rect
-                    x="0"
-                    y="0"
-                    width="100%"
-                    height="85%"
-                    fill="url(#default-multiple-pattern-dots)"
-                  />
                   <defs>
                     <DottedBackgroundPattern />
                   </defs>
@@ -296,7 +290,7 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
                   />
                   <ChartTooltip
                     cursor={false}
-                    content={<ChartTooltipContent indicator="dashed" className="neumorphic-card border-0 shadow-none" />}
+                    content={<ChartTooltipContent indicator="dashed" className="liquid-glass-strong border-0 shadow-none" />}
                   />
                   <Bar dataKey="scheduled" fill="var(--color-chart-1)" radius={4}>
                     {appointmentData.map((_, index) => (
@@ -328,18 +322,18 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
                 </BarChart>
               </ChartContainer>
             )}
-            <CardDescription>
-            {selectedBar ? (
+            <div className="text-sm text-muted-foreground mt-2">
+              {selectedBar ? (
                 <div>
                   {selectedBar} - Scheduled: {appointmentData.find(d => d.day === selectedBar)?.scheduled || 0}, Cancelled: {appointmentData.find(d => d.day === selectedBar)?.cancelled || 0}
                 </div>
-              ) : ""}
-            </CardDescription>
-          </CardContent>
-        </Card>
+              ) : <div className="h-5"></div>}
+            </div>
+          </div>
+        </div>
 
         {/* Patients Overview */}
-        <div className="neumorphic-inset rounded-lg p-4 border-0">
+        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.1)] h-full flex flex-col">
           <div className="">
             <h3 className="text-lg font-semibold">{dashboardConfig.sections.patientsOverview.title}</h3>
             <div className="flex items-center justify-between mt-1">
@@ -390,7 +384,7 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
                           if (active && payload && payload.length) {
                             const data = payload[0].payload;
                             return (
-                              <div className="neumorphic-card rounded-lg p-3">
+                              <div className="liquid-glass-strong rounded-lg p-3">
                                 <p className="font-medium">{data.name}</p>
                                 <p className="text-sm">{data.value} patients</p>
                                 <p className="text-xs mt-1">Click to {selectedPieSlice === data.name ? 'deselect' : 'focus'}</p>
@@ -407,7 +401,7 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
                   {patientAgeData.map((item, index) => (
                     <div
                       key={index}
-                      className={`flex items-center justify-between text-sm cursor-pointer p-2 rounded-md transition-all duration-200 ${selectedPieSlice === item.name ? 'neumorphic-pressed' : 'neumorphic-soft neumorphic-hover neumorphic-active'
+                      className={`flex items-center justify-between text-sm cursor-pointer p-2 rounded-md transition-all duration-200 ${selectedPieSlice === item.name ? 'liquid-glass-strong' : 'liquid-glass-transparent hover:scale-[1.02]'
                         }`}
                       onClick={() => handlePieClick({ name: item.name })}
                     >

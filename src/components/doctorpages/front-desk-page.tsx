@@ -155,16 +155,16 @@ export function FrontDeskPage() {
 
       {/* Front Desk Requests Table */}
       <div className="px-4 lg:px-6">
-        <div className="neumorphic-inset rounded-lg p-4 border-0">
-          <div className="overflow-x-auto max-h-[82vh] overflow-y-auto bg-card rounded-lg">
-            {/* Table Header - Always Visible */}
-            <div className="sticky top-0 z-10 bg-card border-b-2 border-muted/90">
-              <div className="grid grid-cols-4 gap-4 py-3 px-4 bg-muted/10 items-center">
-                <div className="font-medium text-sm">Name</div>
-                <div className="font-medium text-sm">Phone Number</div>
-                <div className="font-medium text-sm">Created At</div>
+        <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+          <div className="overflow-hidden rounded-lg">
+            {/* Fixed Header - Outside scroll container */}
+            <div className="border-b border-white/20">
+              <div className="grid grid-cols-4 gap-4 py-3 px-4 items-center">
+                <div className="font-bold text-sm text-foreground">Name</div>
+                <div className="font-bold text-sm text-foreground">Phone Number</div>
+                <div className="font-bold text-sm text-foreground">Created At</div>
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-sm">Tag</span>
+                  <span className="font-bold text-sm text-foreground">Tag</span>
                   <div className="flex items-center gap-2">
                     <Select value={selectedTag} onValueChange={setSelectedTag}>
                       <SelectTrigger className="h-7 w-[140px] text-xs">
@@ -188,68 +188,70 @@ export function FrontDeskPage() {
               </div>
             </div>
 
-            {/* Table Body or Empty State */}
-            {filteredRequests.length === 0 ? (
-              <div className="flex items-center justify-center h-64">
-                <div className="text-center">
-                  <div className="text-foreground mb-2">
-                    {selectedTag !== "all"
-                      ? `No requests found with tag "${formatTagLabel(selectedTag)}"`
-                      : "No front desk requests found"}
-                  </div>
-                  <div className="text-sm text-foreground">
-                    {selectedTag !== "all"
-                      ? "Try selecting a different tag or view all requests."
-                      : "Requests will appear here when patients contact the front desk."}
+            {/* Scrollable Body */}
+            <div className="overflow-x-auto max-h-[75vh] overflow-y-auto">
+              {filteredRequests.length === 0 ? (
+                <div className="flex items-center justify-center h-64">
+                  <div className="text-center">
+                    <div className="text-foreground mb-2">
+                      {selectedTag !== "all"
+                        ? `No requests found with tag "${formatTagLabel(selectedTag)}"`
+                        : "No front desk requests found"}
+                    </div>
+                    <div className="text-sm text-foreground">
+                      {selectedTag !== "all"
+                        ? "Try selecting a different tag or view all requests."
+                        : "Requests will appear here when patients contact the front desk."}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ) : (
-              <Accordion type="single" collapsible className="w-full">
-                {filteredRequests.map((request, index) => (
-                  <AccordionItem
-                    key={request.id || index}
-                    value={`item-${request.id || index}`}
-                    className="border-b border-muted/50"
-                  >
-                    <AccordionTrigger className="hover:bg-muted/30 hover:rounded-none px-4 py-0 hover:no-underline [&>svg]:my-auto">
-                      <div className="grid grid-cols-4 gap-4 w-full py-3 text-left items-center">
-                        <div className="flex items-center gap-2 font-medium text-sm">
-                          <IconUserCircle className="w-5 h-5 flex-shrink-0" />
-                          <span className="truncate">{request.name}</span>
+              ) : (
+                <Accordion type="single" collapsible className="w-full">
+                  {filteredRequests.map((request, index) => (
+                    <AccordionItem
+                      key={request.id || index}
+                      value={`item-${request.id || index}`}
+                      className="border-b border-white/10"
+                    >
+                      <AccordionTrigger className="hover:bg-white/10 hover:rounded-none px-4 py-0 hover:no-underline [&>svg]:my-auto transition-colors">
+                        <div className="grid grid-cols-4 gap-4 w-full py-3 text-left items-center">
+                          <div className="flex items-center gap-2 font-medium text-sm">
+                            <IconUserCircle className="w-5 h-5 flex-shrink-0" />
+                            <span className="truncate">{request.name}</span>
+                          </div>
+                          <div className="text-sm">{request.phone_number}</div>
+                          <div className="text-sm">{formatDate(request.created_at)}</div>
+                          <div className="text-sm">
+                            {request.tag ? (
+                              <span
+                                className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${tagStyles[request.tag] ?? "bg-muted text-foreground border border-muted"}`}
+                              >
+                                {formatTagLabel(request.tag)}
+                              </span>
+                            ) : (
+                              "—"
+                            )}
+                          </div>
                         </div>
-                        <div className="text-sm">{request.phone_number}</div>
-                        <div className="text-sm">{formatDate(request.created_at)}</div>
-                        <div className="text-sm">
-                          {request.tag ? (
-                            <span
-                              className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${tagStyles[request.tag] ?? "bg-muted text-foreground border border-muted"}`}
-                            >
-                              {formatTagLabel(request.tag)}
-                            </span>
-                          ) : (
-                            "—"
-                          )}
+                      </AccordionTrigger>
+                      <AccordionContent className="px-4 pb-4">
+                        <div className="rounded-lg p-4">
+                          <div className="text-xs font-medium text-foreground mb-2 uppercase tracking-wide">
+                            Message
+                          </div>
+                          <div
+                            className="text-sm text-foreground"
+                            style={{ whiteSpace: 'pre-line', wordBreak: 'break-word' }}
+                          >
+                            {request.message || "No message provided."}
+                          </div>
                         </div>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="px-4 pb-4">
-                      <div className="rounded-lg p-4">
-                        <div className="text-xs font-medium text-foreground mb-2 uppercase tracking-wide">
-                          Message
-                        </div>
-                        <div
-                          className="text-sm text-foreground"
-                          style={{ whiteSpace: 'pre-line', wordBreak: 'break-word' }}
-                        >
-                          {request.message || "No message provided."}
-                        </div>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            )}
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              )}
+            </div>
           </div>
         </div>
       </div>

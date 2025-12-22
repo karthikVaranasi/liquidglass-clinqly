@@ -43,12 +43,12 @@ function DashboardLayoutContent({
         userData={userData}
         userType={userType}
       />
-      <main className="flex-1">
-        <AppHeader 
-          currentPage={currentPage} 
-          userType={userType} 
-          doctorsCount={doctorsCount ?? undefined} 
-          userData={userData} 
+      <main className="flex-1 min-h-screen theme-transition">
+        <AppHeader
+          currentPage={currentPage}
+          userType={userType}
+          doctorsCount={doctorsCount ?? undefined}
+          userData={userData}
         />
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col my-2">
@@ -73,7 +73,7 @@ export function DashboardLayout({ handleLogout, clinicData, userData, userType }
   return (
     <NavigationProvider userType={userType}>
       <CountsProvider>
-        <Suspense fallback={<div className="min-h-screen bg-background" />}>
+        <Suspense fallback={<div className="min-h-screen liquid-glass-environment" />}>
           <DashboardLayoutContent
             handleLogout={handleLogout}
             clinicData={clinicData}

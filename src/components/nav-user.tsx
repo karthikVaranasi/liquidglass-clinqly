@@ -53,7 +53,7 @@ export function NavUser({
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:neumorphic-pressed data-[state=open]:text-sidebar-accent-foreground neumorphic-soft neumorphic-hover neumorphic-active"
+              className="data-[state=open]:bg-primary/20 data-[state=open]:text-sidebar-accent-foreground liquid-glass rounded-xl text-black dark:text-white"
             >
               <Avatar className="h-8 w-8 rounded-lg grayscale">
                 <AvatarImage src={user.avatar} alt={user.name} />
@@ -71,13 +71,13 @@ export function NavUser({
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-64 rounded-lg neumorphic-card"
+            className="w-(--radix-dropdown-menu-trigger-width) min-w-64 rounded-xl liquid-glass-strong"
             side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}
           >
             <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-3 px-2 py-3 text-left text-sm neumorphic-soft rounded-t-lg">
+              <div className="flex items-center gap-3 px-2 py-3 text-left text-sm liquid-glass rounded-t-lg dark:text-white">
                 <Avatar className="h-10 w-10 rounded-lg">
                   <AvatarImage src={user.avatar} alt={user.name} />
                   <AvatarFallback className="rounded-lg">

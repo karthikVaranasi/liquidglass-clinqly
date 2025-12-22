@@ -373,55 +373,59 @@ export function LogsPage() {
 
       {/* Call Logs Table */}
       <div className="-mt-2 px-4 lg:px-6">
-        <div className="neumorphic-inset rounded-lg p-4 border-0">
-
-          {/* Table */}
-          <div className="overflow-x-auto max-h-[78vh] overflow-y-auto bg-card rounded-lg">
+        <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+          <div className="overflow-hidden rounded-lg">
+            {/* Fixed Header */}
             <table className="w-full text-sm">
-              <thead className="sticky top-0 z-10 bg-card">
-                <tr className="border-b-2 border-muted/90 bg-muted/10">
+              <thead>
+                <tr className="border-b border-white/20">
                   {tableHeaders.map((header) => (
-                    <th key={header.key} className="text-left font-medium py-3 px-4">
+                    <th key={header.key} className="text-left font-bold py-3 px-4 text-foreground">
                       {header.label}
                     </th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y-2 divide-muted/90">
-                {filteredLogs.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="py-8 text-center text-foreground">
-                      No logs found.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredLogs.map((log, index) => (
-                    <tr key={index} className="hover:bg-muted/30 transition-colors">
-                      <td className="py-3 px-4">
-                        <span className="text-sm font-medium">{log.from_phone}</span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="text-sm">{formatDate(log.start_time)}</span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="text-sm">{calculateDuration(log.start_time, log.end_time)}</span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <SentimentRating rating={log.sentiment_score || 0} />
-                      </td>
-                      <td className="py-3 px-4">
-                        <Button
-                          onClick={() => handleViewTranscript(log)}
-                          className="neumorphic-button-primary"
-                        >
-                          View Conversation
-                        </Button>
+            </table>
+            {/* Scrollable Body */}
+            <div className="overflow-x-auto max-h-[70vh] overflow-y-auto">
+              <table className="w-full text-sm">
+                <tbody className="divide-y divide-white/10">
+                  {filteredLogs.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="py-8 text-center text-foreground">
+                        No logs found.
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    filteredLogs.map((log, index) => (
+                      <tr key={index} className="hover:bg-white/10 transition-colors">
+                        <td className="py-3 px-4">
+                          <span className="text-sm font-medium">{log.from_phone}</span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="text-sm">{formatDate(log.start_time)}</span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="text-sm">{calculateDuration(log.start_time, log.end_time)}</span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <SentimentRating rating={log.sentiment_score || 0} />
+                        </td>
+                        <td className="py-3 px-4">
+                          <Button
+                            onClick={() => handleViewTranscript(log)}
+                            className="neumorphic-button-primary"
+                          >
+                            View Conversation
+                          </Button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>

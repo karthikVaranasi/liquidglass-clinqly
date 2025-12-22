@@ -1,56 +1,49 @@
 @import "tailwindcss";
 
-/* Custom sidebar menu button styling - pure black text */
-[data-sidebar="menu-button"] {
-  color: #000000 !important;
-}
-
-[data-sidebar="menu-button"] span {
-  color: #000000 !important;
-}
-
+/* Sidebar text color control based on theme */
+[data-sidebar="menu-button"],
+[data-sidebar="menu-button"] span,
 [data-sidebar="menu-button"] svg {
-  color: #000000 !important;
+  /* Use the variable calling for standard behavior, or force black only in light mode explicitly if needed */
+  color: var(--sidebar-foreground);
 }
 
-/* Hover states - keep text black */
-[data-sidebar="menu-button"]:hover {
-  color: #000000 !important;
+/* Explicitly force black in light mode if variables aren't catching for some reason, but scoped to NOT dark */
+:root:not(.dark) [data-sidebar="menu-button"],
+:root:not(.dark) [data-sidebar="menu-button"] span,
+:root:not(.dark) [data-sidebar="menu-button"] svg {
+  color: #000000;
 }
 
-[data-sidebar="menu-button"]:hover span {
-  color: #000000 !important;
+/* Dark Mode Overrides for Sidebar - Comprehensive Fix */
+.dark [data-sidebar="sidebar"],
+.dark [data-sidebar="content"],
+.dark [data-sidebar="header"],
+.dark [data-sidebar="footer"],
+.dark [data-sidebar="menu-button"],
+.dark [data-sidebar="menu-button"] span,
+.dark [data-sidebar="menu-button"] svg,
+.dark .sidebar-section-header,
+.dark [data-sidebar="group-label"],
+.dark [data-sidebar="menu-action"] {
+  color: #ffffff !important;
 }
 
-[data-sidebar="menu-button"]:hover svg {
-  color: #000000 !important;
+/* Ensure hover states also stay white in dark mode */
+.dark [data-sidebar="menu-button"]:hover,
+.dark [data-sidebar="menu-button"]:hover span,
+.dark [data-sidebar="menu-button"]:hover svg,
+.dark [data-sidebar="menu-button"][data-active="true"],
+.dark [data-sidebar="menu-button"][data-active="true"] span,
+.dark [data-sidebar="menu-button"][data-active="true"] svg,
+.dark [data-sidebar="menu-button"][data-active="true"]:hover,
+.dark [data-sidebar="menu-button"][data-active="true"]:hover span,
+.dark [data-sidebar="menu-button"][data-active="true"]:hover svg {
+  color: #ffffff !important;
 }
 
-/* Active state styling */
-[data-sidebar="menu-button"][data-active="true"] {
-  /* Background removed - using custom bar indicator from nav-main.tsx instead */
-  background-color: transparent !important;
-  color: #000000 !important;
-  border-radius: 6px !important;
-}
-
-[data-sidebar="menu-button"][data-active="true"] span {
-  color: #000000 !important;
-}
-
-[data-sidebar="menu-button"][data-active="true"] svg {
-  color: #000000 !important;
-}
-
-/* Active hover state */
-[data-sidebar="menu-button"][data-active="true"]:hover {
-  color: #000000 !important;
-}
-
-[data-sidebar="menu-button"][data-active="true"]:hover span {
-  color: #000000 !important;
-}
-
-[data-sidebar="menu-button"][data-active="true"]:hover svg {
-  color: #000000 !important;
+/* Force icons to white/current color in dark mode sidebar */
+.dark [data-sidebar="sidebar"] svg {
+  color: #ffffff !important;
+  fill: currentColor;
 }

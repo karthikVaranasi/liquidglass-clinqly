@@ -167,12 +167,12 @@ export function AppSidebar({
               asChild
               className="data-[slot=sidebar-menu-button]:!p-3 hover:bg-transparent focus:bg-transparent active:bg-transparent"
             >
-              <a href="#" className="flex items-center -mt-2 gap-2 min-h-[3rem]">
+              <a href="#" className="flex items-center -mt-2 gap-2 min-h-[3rem] text-black dark:text-white">
                 {userType === 'admin' ? (
                   // For admin users, always show app branding
                   <>
-                    <img src="/logo.svg" alt="EzMedTech Logo" className="w-6 h-6 object-contain" />
-                    <div className="text-lg font-semibold flex-1 min-w-0 max-w-[12rem] !truncate-0 min-h-[2rem] flex flex-col justify-center">EzMedTech</div>
+                    <img src="/collapse.jpg" alt="EzMedTech Logo" className="w-6 h-6 object-contain dark:brightness-0 dark:invert rounded-full" />
+                    <div className="text-lg font-semibold flex-1 min-w-0 max-w-[12rem] !truncate-0 min-h-[2rem] flex flex-col justify-center text-black dark:text-white">EzMedTech</div>
                   </>
                 ) : (
                   // For doctor users, show clinic branding if available
@@ -181,17 +181,17 @@ export function AppSidebar({
                       <img
                         src={clinicData.logo_url}
                         alt={`${clinicData.name || 'Clinic'} Logo`}
-                        className="w-6 h-6 object-contain"
+                        className="w-6 h-6 object-contain dark:brightness-0 dark:invert rounded-full"
                         onError={(e) => {
                           // Fallback to default logo if clinic logo fails to load
-                          e.currentTarget.src = "/logo.svg"
+                          e.currentTarget.src = "/collapse.jpg"
                         }}
                       />
                     ) : (
-                      <img src="/logo.svg" alt="EzMedTech Logo" className="w-6 h-6 object-contain" />
+                      <img src="/collapse.jpg" alt="EzMedTech Logo" className="w-6 h-6 object-contain dark:brightness-0 dark:invert rounded-full" />
                     )}
                     <div
-                      className={`${brandTextSizeClass} font-semibold leading-tight flex-1 min-w-0 max-w-[20rem] break-words`}
+                      className={`${brandTextSizeClass} font-semibold leading-tight flex-1 min-w-0 max-w-[20rem] break-words text-black dark:text-white`}
                       style={{
                         display: "-webkit-box",
                         WebkitLineClamp: 2,

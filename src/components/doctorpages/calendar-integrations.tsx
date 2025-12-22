@@ -168,11 +168,11 @@ export function CalendarIntegrations() {
 
   // Render account card
   const renderAccountCard = (account: CalendarAccount, provider: 'google' | 'microsoft') => (
-    <div key={account.id} className="flex items-center justify-between my-4 p-3 neumorphic-inset rounded-lg">
+    <div key={account.id} className="flex items-center justify-between my-3 p-4 bg-white/40 dark:bg-slate-700/40 backdrop-blur-sm border border-white/30 dark:border-slate-600/30 rounded-xl shadow-sm">
       <div className="flex items-center gap-3">
         <div>
-          <p className="text-sm font-medium" style={{ textTransform: 'none' }}>{account.email}</p>
-          <div className="text-xs text-foreground">
+          <p className="text-sm font-semibold text-foreground" style={{ textTransform: 'none' }}>{account.email}</p>
+          <div className="text-xs text-muted-foreground">
             Connected: {formatDate(account.created_at)}
           </div>
         </div>
@@ -260,13 +260,15 @@ export function CalendarIntegrations() {
       <div className="px-4 lg:px-6">
         <div className="grid grid-cols-1 gap-6 @xl/main:grid-cols-2">
           {/* Google Calendars */}
-          <div className="neumorphic-pressed p-6 rounded-lg">
-            <div className="flex items-center justify-between">
+          <div className="bg-white/30 dark:bg-slate-800/50 backdrop-blur-md rounded-xl p-6 border border-white/30 shadow-lg">
+            <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <GoogleCalendarIcon className="w-8 h-8" />
+                <div className="w-12 h-12 flex items-center justify-center bg-white/50 dark:bg-white/20 rounded-xl shadow-sm">
+                  <GoogleCalendarIcon className="w-8 h-8" />
+                </div>
                 <div>
-                  <h3 className="text-lg font-semibold">Google Calendar ({googleAccounts.length})</h3>
-                  <p className="text-sm">Sync with Google Calendar</p>
+                  <h3 className="text-lg font-bold text-foreground">Google Calendar ({googleAccounts.length})</h3>
+                  <p className="text-sm text-muted-foreground">Sync with Google Calendar</p>
                 </div>
               </div>
               <Button
@@ -284,21 +286,23 @@ export function CalendarIntegrations() {
                 .sort((a, b) => (b.is_primary ? 1 : 0) - (a.is_primary ? 1 : 0))
                 .map((account) => renderAccountCard(account, "google"))
             ) : (
-              <div className="p-4 text-center mt-4 neumorphic-inset rounded-lg">
-                <p className="text-sm">No Google calendars connected</p>
-                <p className="text-xs text-foreground">Connect your Google calendar to sync appointments</p>
+              <div className="p-4 text-center mt-4 bg-white/20 dark:bg-slate-700/30 rounded-lg border border-white/20">
+                <p className="text-sm font-medium text-foreground">No Google calendars connected</p>
+                <p className="text-xs text-muted-foreground mt-1">Connect your Google calendar to sync appointments</p>
               </div>
             )}
           </div>
 
           {/* Microsoft Calendars */}
-          <div className="neumorphic-pressed p-6 rounded-lg">
-            <div className="flex items-center justify-between mb-3">
+          <div className="bg-white/30 dark:bg-slate-800/50 backdrop-blur-md rounded-xl p-6 border border-white/30 shadow-lg">
+            <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <MicrosoftCalendarIcon className="w-8 h-8" />
+                <div className="w-12 h-12 flex items-center justify-center bg-white/50 dark:bg-white/20 rounded-xl shadow-sm">
+                  <MicrosoftCalendarIcon className="w-8 h-8" />
+                </div>
                 <div>
-                  <h3 className="text-lg font-semibold">Microsoft Outlook ({microsoftAccounts.length})</h3>
-                  <p className="text-sm">Sync with Outlook Calendar</p>
+                  <h3 className="text-lg font-bold text-foreground">Microsoft Outlook ({microsoftAccounts.length})</h3>
+                  <p className="text-sm text-muted-foreground">Sync with Outlook Calendar</p>
                 </div>
               </div>
               <Button
@@ -316,18 +320,18 @@ export function CalendarIntegrations() {
                 .sort((a, b) => (b.is_primary ? 1 : 0) - (a.is_primary ? 1 : 0))
                 .map((account) => renderAccountCard(account, "microsoft"))
             ) : (
-              <div className="p-4 text-center neumorphic-inset rounded-lg">
-                <p className="text-sm">No Microsoft calendars connected</p>
-                <p className="text-xs text-foreground">Connect your Outlook calendar to sync appointments</p>
+              <div className="p-4 text-center bg-white/20 dark:bg-slate-700/30 rounded-lg border border-white/20">
+                <p className="text-sm font-medium text-foreground">No Microsoft calendars connected</p>
+                <p className="text-xs text-muted-foreground mt-1">Connect your Outlook calendar to sync appointments</p>
               </div>
             )}
           </div>
         </div>
 
         {/* Warning Message */}
-        <div className="neumorphic-inset p-4 mt-6 rounded-lg">
-          <p className="text-sm font-medium">
-            Disconnecting will stop syncing appointments with that calendar
+        <div className="max-w-md mx-auto sm:mx-0 bg-amber-50/80 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700/50 p-3 sm:p-4 mt-6 rounded-lg">
+          <p className="text-xs sm:text-sm font-medium text-amber-800 dark:text-amber-200 text-center sm:text-left">
+            ⚠️ Disconnecting will stop syncing appointments with that calendar
           </p>
         </div>
       </div>

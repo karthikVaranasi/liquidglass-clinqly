@@ -54,43 +54,114 @@
   --pale-mint: #E8F8F7;
   --midnight-green: #003533;
 
-  /* Clean Medical Dashboard Base - Bright & Airy */
-  --background: #f4f8fa;
-  --foreground: #000000;
-  --card: #f7fafc;
-  --card-foreground: #000000;
-  --popover: #ffffff;
-  --popover-foreground: #000000;
+  /* Theme transition */
+  --theme-transition: 0.3s ease-in-out;
+
+  /* Glass properties - Light Mode (Ultra Transparent like VisionOS) */
+  --glass-blur: 32px;
+  --glass-blur-strong: 52px;
+  --glass-bg: rgba(255, 255, 255, 0.25);
+  --glass-bg-strong: rgba(255, 255, 255, 0.35);
+  --glass-bg-subtle: rgba(255, 255, 255, 0.15);
+  --glass-border: rgba(255, 255, 255, 0.35);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --glass-shadow-elevated: 0 16px 48px rgba(0, 0, 0, 0.18);
+  --glass-highlight: inset 0 1px 2px rgba(255, 255, 255, 0.6);
+  --glass-glow: rgba(14, 165, 163, 0.25);
+
+  /* Clean Medical Dashboard Base - Transparent for Background Images */
+  --background: transparent;
+  --foreground: #020617;
+  --card: rgba(255, 255, 255, 0.4);
+  --card-foreground: #020617;
+  --popover: rgba(255, 255, 255, 0.85);
+  --popover-foreground: #020617;
   /* Primary palette - Fresh Teal */
   --primary: #0EA5A3;
   --primary-foreground: #ffffff;
-  --secondary: #e8f0f5;
-  --secondary-foreground: #000000;
-  --muted: #e2eaef;
-  --muted-foreground: #4a6670;
+  --secondary: rgba(232, 240, 245, 0.5);
+  --secondary-foreground: #020617;
+  --muted: rgba(226, 234, 239, 0.4);
+  --muted-foreground: #334155;
   /* Accent & Destructive */
-  --accent: #FF8A50;
+  --accent: #0EA5A3;
   --accent-foreground: #ffffff;
-  --destructive: #FF8A50;
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: rgba(14, 165, 163, 0.1);
-  --input: #e8f0f5;
-  --ring: #0EA5A3;
+  --border: rgba(255, 255, 255, 0.3);
+  --input: rgba(255, 255, 255, 0.5);
+  --ring: rgba(14, 165, 163, 0.4);
   /* Charts in fresh teal ramp */
   --chart-1: #0EA5A3;
   --chart-2: #26C6C0;
   --chart-3: #007A78;
   --chart-4: #4DD9D5;
   --chart-5: #00A89D;
-  /* Sidebar tokens - Clean medical style */
-  --sidebar: #f0f5f8;
-  --sidebar-foreground: #000000;
+  /* Sidebar tokens - Frosted glass (more transparent) */
+  --sidebar: rgba(255, 255, 255, 0.4);
+  --sidebar-foreground: #020617;
   --sidebar-primary: #0EA5A3;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #e8f0f5;
-  --sidebar-accent-foreground: #000000;
-  --sidebar-border: rgba(14, 165, 163, 0.08);
-  --sidebar-ring: #0EA5A3;
+  --sidebar-accent: rgba(14, 165, 163, 0.15);
+  --sidebar-accent-foreground: #020617;
+  --sidebar-border: rgba(255, 255, 255, 0.4);
+  --sidebar-ring: rgba(14, 165, 163, 0.4);
+}
+
+/* ========================================
+   DARK THEME - Same UI, Dark Background Only
+   ======================================== */
+.dark {
+  /* Glass properties - Same as Light Mode */
+  --glass-blur: 32px;
+  --glass-blur-strong: 52px;
+  --glass-bg: rgba(255, 255, 255, 0.25);
+  --glass-bg-strong: rgba(255, 255, 255, 0.35);
+  --glass-bg-subtle: rgba(255, 255, 255, 0.15);
+  --glass-border: rgba(255, 255, 255, 0.35);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --glass-shadow-elevated: 0 16px 48px rgba(0, 0, 0, 0.18);
+  --glass-highlight: inset 0 1px 2px rgba(255, 255, 255, 0.6);
+  --glass-glow: rgba(14, 165, 163, 0.25);
+
+  /* Only background changes - UI elements stay the same */
+  --background: #0d1117;
+  --foreground: #ffffff;
+  --card: rgba(255, 255, 255, 0.4);
+  --card-foreground: #ffffff;
+  --popover: rgba(255, 255, 255, 0.85);
+  --popover-foreground: #1a1a2e;
+  /* Keep popover light bg/dark text if popover bg stays white */
+  /* Primary palette - Same as Light */
+  --primary: #0EA5A3;
+  --primary-foreground: #ffffff;
+  --secondary: rgba(232, 240, 245, 0.5);
+  --secondary-foreground: #ffffff;
+  --muted: rgba(226, 234, 239, 0.4);
+  --muted-foreground: #cbd5e1;
+  /* Accent & Destructive - Same as Light */
+  --accent: #0EA5A3;
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: rgba(255, 255, 255, 0.3);
+  --input: rgba(255, 255, 255, 0.5);
+  --ring: rgba(14, 165, 163, 0.4);
+  /* Charts - Same as Light */
+  --chart-1: #0EA5A3;
+  --chart-2: #26C6C0;
+  --chart-3: #007A78;
+  --chart-4: #4DD9D5;
+  --chart-5: #00A89D;
+  /* Sidebar - Same as Light */
+  --sidebar: rgba(255, 255, 255, 0.4);
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #0EA5A3;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgba(14, 165, 163, 0.15);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.4);
+  --sidebar-ring: rgba(14, 165, 163, 0.4);
 }
 
 @layer base {
@@ -116,6 +187,36 @@
     @apply bg-background text-foreground;
     font-family: 'Nunito Sans', sans-serif;
     text-transform: capitalize;
+    position: relative;
+    /* Ensure body is relative for absolute children */
+    overflow-x: hidden;
+  }
+
+  /* Blurred Background Image for All Themes */
+  body::before {
+    content: "";
+    position: fixed;
+    top: -20px;
+    left: -20px;
+    right: -20px;
+    bottom: -20px;
+    z-index: -1;
+    background-image: url('/image.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: blur(25px);
+    opacity: 1;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  /* Ensure background stays visible in dark mode, but maybe dimmed if needed. 
+     User said "use this as background image for all pages", implying consistency. */
+  .dark body::before {
+    opacity: 0.8;
+    filter: blur(50px);
+    /* Much more blur in dark mode for better readability */
   }
 
   /* Medical Dashboard Scrollbars - Clean & Fresh */
@@ -146,6 +247,404 @@
     background-clip: padding-box;
   }
 
+}
+
+/* ========================================
+   LIQUID GLASS DESIGN SYSTEM
+   Apple iOS/VisionOS-Inspired True Liquid Glass
+   With Inner Glow, Depth, and Frosted Effect
+   ======================================== */
+@layer utilities {
+
+  /* Primary Liquid Glass Panel - iOS Widget Style */
+  .liquid-glass {
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 100%),
+      var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.12),
+      0 2px 8px rgba(0, 0, 0, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.6),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.1),
+      inset 1px 0 0 rgba(255, 255, 255, 0.2),
+      inset -1px 0 0 rgba(255, 255, 255, 0.2);
+    border-radius: 1.25rem;
+    transition: all var(--theme-transition) cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .liquid-glass:hover {
+    box-shadow:
+      0 16px 48px rgba(0, 0, 0, 0.18),
+      0 4px 16px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.7),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.15),
+      inset 1px 0 0 rgba(255, 255, 255, 0.3),
+      inset -1px 0 0 rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+  }
+
+  /* Subtle Glass (for backgrounds) */
+  .liquid-glass-subtle {
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.05) 100%),
+      var(--glass-bg-subtle);
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow:
+      0 4px 16px rgba(0, 0, 0, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    border-radius: 1rem;
+    transition: all var(--theme-transition);
+  }
+
+  /* Strong Glass (for cards & panels) - More Prominent Frost */
+  .liquid-glass-strong {
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.15) 100%),
+      var(--glass-bg-strong);
+    backdrop-filter: blur(var(--glass-blur-strong)) saturate(200%);
+    -webkit-backdrop-filter: blur(var(--glass-blur-strong)) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow:
+      0 16px 48px rgba(0, 0, 0, 0.15),
+      0 4px 16px rgba(0, 0, 0, 0.08),
+      inset 0 2px 0 rgba(255, 255, 255, 0.7),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.2);
+    border-radius: 1.25rem;
+    transition: all var(--theme-transition);
+  }
+
+  /* Liquid Glass Table Container - iOS Widget Card Style */
+  .liquid-glass-table {
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.1) 100%),
+      var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    box-shadow:
+      0 20px 60px rgba(0, 0, 0, 0.15),
+      0 8px 20px rgba(0, 0, 0, 0.1),
+      inset 0 2px 0 rgba(255, 255, 255, 0.6),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+    border-radius: 1.75rem;
+    transition: all var(--theme-transition);
+    overflow: hidden;
+  }
+
+  /* Liquid Glass Row */
+  .liquid-glass-row {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .liquid-glass-row:hover {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+    box-shadow:
+      0 4px 16px rgba(0, 0, 0, 0.08),
+      0 0 24px var(--glass-glow);
+    transform: translateY(-1px);
+  }
+
+  /* Liquid Glass Header - Top Frosted Bar */
+  .liquid-glass-header {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%),
+      var(--glass-bg-strong);
+    backdrop-filter: blur(var(--glass-blur-strong)) saturate(200%);
+    -webkit-backdrop-filter: blur(var(--glass-blur-strong)) saturate(200%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow:
+      0 4px 24px rgba(0, 0, 0, 0.08),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.2);
+    transition: all var(--theme-transition);
+  }
+
+  /* Liquid Glass Sidebar - Much Transparent */
+  .liquid-glass-sidebar {
+    background: rgba(255, 255, 255, 0.05);
+    /* Very transparent */
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow:
+      20px 0 40px rgba(0, 0, 0, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+    transition: all var(--theme-transition);
+    color: #1a1a2e;
+    border-top-right-radius: 24px;
+    border-bottom-right-radius: 24px;
+    margin-right: 12px;
+  }
+
+  /* New Utility Class for Extra Transparent Cards */
+  .liquid-glass-transparent {
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(30px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(30px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.1), 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* Sidebar text colors - Light mode: black, Dark mode: white */
+  .liquid-glass-sidebar * {
+    color: #000000;
+  }
+
+  .liquid-glass-sidebar svg {
+    stroke: #000000;
+    opacity: 0.8;
+  }
+
+  /* Dark mode: white text */
+  .dark .liquid-glass-sidebar *,
+  .dark .liquid-glass-sidebar svg {
+    color: #ffffff !important;
+    stroke: #ffffff !important;
+  }
+
+  .liquid-glass-sidebar [data-active="true"] {
+    background: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+  }
+
+  /* Light mode active state: black text */
+  .liquid-glass-sidebar [data-active="true"] * {
+    color: #000000;
+    font-weight: 600;
+  }
+
+  /* Dark mode active state: white text */
+  .dark .liquid-glass-sidebar [data-active="true"] * {
+    color: #ffffff !important;
+    font-weight: 600;
+  }
+
+  /* Reset margin for mobile usually, but keeping float for now as requested "look like this" */
+
+  /* Global Transparent Tables - EXCEPT sticky headers */
+  table {
+    background: transparent;
+  }
+
+  /* Allow sticky thead to have its own background */
+  thead:not(.sticky) {
+    background: transparent;
+  }
+
+  tbody {
+    background: transparent;
+  }
+
+  /* Table rows - transparent unless in sticky header */
+  tbody tr {
+    background: transparent;
+  }
+
+  tbody tr:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  th,
+  td {
+    background: transparent;
+  }
+
+  /* Dark mode: sticky table header should be black */
+  .dark thead.sticky,
+  .dark thead[class*="sticky"] {
+    background: #000000 !important;
+  }
+
+  .dark thead.sticky th,
+  .dark thead[class*="sticky"] th {
+    background: #000000 !important;
+  }
+
+  /* Liquid Glass Input */
+  .liquid-glass-input {
+    background: var(--input);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s ease;
+    color: var(--foreground);
+  }
+
+  .liquid-glass-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--glass-glow), inset 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+
+  /* Liquid Glass Button */
+  .liquid-glass-btn {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: 9999px;
+    box-shadow: var(--glass-shadow), var(--glass-highlight);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--foreground);
+  }
+
+  .liquid-glass-btn:hover {
+    background: var(--glass-bg-strong);
+    box-shadow: var(--glass-shadow-elevated), 0 0 24px var(--glass-glow);
+    transform: translateY(-2px) scale(1.02);
+  }
+
+  .liquid-glass-btn:active {
+    transform: translateY(0) scale(0.98);
+  }
+
+  /* Primary Glass Button (CTA) */
+  .liquid-glass-btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--chart-2));
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 9999px;
+    box-shadow: 0 4px 16px rgba(14, 165, 163, 0.3), var(--glass-highlight);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--primary-foreground);
+  }
+
+  .liquid-glass-btn-primary:hover {
+    box-shadow: 0 8px 32px rgba(14, 165, 163, 0.4), 0 0 32px var(--glass-glow);
+    transform: translateY(-2px) scale(1.02);
+  }
+
+  /* Liquid Glass Badge/Tag */
+  .liquid-glass-badge {
+    background: var(--glass-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--glass-border);
+    border-radius: 9999px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: all var(--theme-transition);
+  }
+
+  /* Liquid Glass Avatar */
+  .liquid-glass-avatar {
+    background: linear-gradient(135deg, var(--glass-bg), var(--glass-bg-strong));
+    border: 2px solid var(--glass-border);
+    border-radius: 9999px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), var(--glass-highlight);
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .liquid-glass-avatar:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 0 20px var(--glass-glow);
+    transform: scale(1.05);
+  }
+
+  /* Background Environment */
+  .liquid-glass-environment {
+    background:
+      radial-gradient(ellipse at 20% 30%, rgba(14, 165, 163, 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 70%, rgba(38, 198, 192, 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(77, 217, 213, 0.04) 0%, transparent 70%),
+      var(--background);
+  }
+
+  .dark .liquid-glass-environment {
+    background:
+      radial-gradient(ellipse at 20% 30%, rgba(38, 198, 192, 0.1) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 70%, rgba(14, 165, 163, 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(0, 212, 170, 0.05) 0%, transparent 70%),
+      var(--background);
+  }
+
+  /* Shimmer Effect for Glass */
+  .liquid-glass-shimmer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+        transparent,
+        rgba(255, 255, 255, 0.15),
+        transparent);
+    transition: left 0.6s ease;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .liquid-glass-shimmer:hover::before {
+    left: 100%;
+  }
+
+  /* Floating Effect */
+  .liquid-float {
+    animation: liquidFloat 6s ease-in-out infinite;
+  }
+
+  @keyframes liquidFloat {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  /* Theme Transition Container */
+  .theme-transition {
+    transition:
+      background-color var(--theme-transition),
+      color var(--theme-transition),
+      border-color var(--theme-transition),
+      box-shadow var(--theme-transition);
+  }
+
+  /* App Background - Theme Aware */
+  .liquid-glass-app-bg {
+    background-image: url('/image.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    transition: background-image 0.5s ease-in-out;
+  }
+
+  .dark .liquid-glass-app-bg,
+  .liquid-glass-app-bg.dark {
+    background-image: url('/bg-dark-mode.png');
+  }
+
+  /* Login Page Background */
+  .liquid-glass-login-bg {
+    background-image: url('/image.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+  }
+
+  .dark .liquid-glass-login-bg {
+    background-image: url('/image.png');
+    /* Optional: add an overlay if needed for contrast, but user asked for "this image" */
+  }
 }
 
 /* Neumorphism Utility Classes - Medical Dashboard Theme */

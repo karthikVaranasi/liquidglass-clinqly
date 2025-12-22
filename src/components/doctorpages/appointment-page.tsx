@@ -97,19 +97,19 @@ export function AppointmentPage() {
     return calendar
   }
 
-  // Get status styling based on appointment status (gradient colors)
+  // Get status styling based on appointment status (liquid glass badges)
   const getStatusStyle = (status: string) => {
     switch (status?.toLowerCase()) {
       case 'completed':
-        return 'bg-gradient-to-r from-emerald-50 to-green-100 neumorphic-inset text-emerald-700 border border-emerald-200/50'
+        return 'bg-emerald-100/60 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-300/40 dark:border-emerald-400/30 backdrop-blur-sm'
       case 'in progress':
-        return 'bg-gradient-to-r from-amber-50 to-yellow-100 neumorphic-inset text-amber-700 border border-amber-200/50'
+        return 'bg-amber-100/60 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-300/40 dark:border-amber-400/30 backdrop-blur-sm'
       case 'scheduled':
-        return 'bg-gradient-to-r from-blue-50 to-indigo-100 neumorphic-inset text-blue-700 border border-blue-200/50'
+        return 'bg-blue-100/60 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 border border-blue-300/40 dark:border-blue-400/30 backdrop-blur-sm'
       case 'cancelled':
-        return 'bg-gradient-to-r from-rose-50 to-red-100 neumorphic-inset text-rose-700 border border-rose-200/50'
+        return 'bg-rose-100/60 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-300/40 dark:border-rose-400/30 backdrop-blur-sm'
       default:
-        return 'bg-gradient-to-r from-slate-50 to-gray-100 neumorphic-inset text-slate-700 border border-slate-200/50'
+        return 'bg-slate-100/60 dark:bg-slate-500/20 text-slate-700 dark:text-slate-300 border border-slate-300/40 dark:border-slate-400/30 backdrop-blur-sm'
     }
   }
 
@@ -311,22 +311,6 @@ export function AppointmentPage() {
     <div
       className="space-y-6 px-4 lg:px-6 relative"
     >
-      {/* Welcome Banner */}
-      <div className="">
-        <span className="text-base sm:text-lg font-bold">
-          Welcome,{" "}
-          <span className="font-bold">
-            {(() => {
-              if (doctor) {
-                const name = doctor.name || `${doctor.first_name || ''} ${doctor.last_name || ''}`.trim()
-                const title = doctor.department ? `Dr. ${name}` : name
-                return title || 'User'
-              }
-              return 'User'
-            })()}
-          </span>
-        </span>
-      </div>
 
       {/* Today's Appointments Section */}
       <div
@@ -338,18 +322,18 @@ export function AppointmentPage() {
 
         {todaysAppointments.length > 0 ? (
           <div className="space-y-4">
-            {/* Appointments Grid - responsive: 1 per row on small, 2 on medium, 3 on very wide screens */}
-            <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
+            {/* Appointments Grid - responsive: 1 per row on small, 2 on medium, 3 on large screens */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {todaysAppointments.map((apt: any, index: number) => {
                 const isMorning = isMorningAppointment(apt.appointment_time)
 
-                // Simple border color based on time of day
-                const borderClass = isMorning ? "border-emerald-300" : "border-blue-300"
+                // Consistent liquid glass style matching the table below
+                // Using liquid-glass class, primary border, and cyan glow
 
                 return (
                   <div
                     key={index}
-                    className={`p-4 transition-all duration-200 cursor-pointer rounded-lg hover:scale-102 border-2 ${borderClass} neumorphic-inset focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2`}
+                    className={`p-5 transition-all duration-300 cursor-pointer rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2 relative overflow-hidden group`}
                     onClick={() => handleAppointmentCardClick(apt)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
@@ -361,32 +345,29 @@ export function AppointmentPage() {
                     role="button"
                     aria-label={`View profile for ${apt.patient?.first_name} ${apt.patient?.last_name}`}
                   >
-                    <div className="flex items-start justify-between gap-3 flex-wrap">
-                      <div className="flex items-center gap-3 min-w-0 flex-1">
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          <span className="font-medium text-sm whitespace-nowrap">
-                            {new Date(apt.appointment_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </span>
-                          {/* Time indicator */}
-                          {/* <div className={`w-2 h-2 rounded-full ${isMorning ? 'bg-emerald-500' : 'bg-blue-500'}`} /> */}
-                        </div>
-                        <div className="w-px h-6 bg-muted/90 flex-shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <span className="font-medium text-sm truncate">
-                            {apt.patient?.first_name} {apt.patient?.last_name}
-                          </span>
-                          <p className="text-sm text-foreground truncate">
-                            {apt.reason_for_visit || "No reason provided"}
-                          </p>
-                          {/* <p className="text-xs font-medium">Patient ID: {apt.patient_id}</p> */}
-                          {/* <p className="text-xs font-medium">{apt.doctor_name}</p> */}
-                        </div>
+                    <div className="flex flex-col gap-2">
+                      {/* Time */}
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-lg">
+                          {new Date(apt.appointment_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-sm font-medium ${getStatusStyle(apt.status)}`}
+                        >
+                          {apt.status}
+                        </span>
                       </div>
-                      <span
-                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusStyle(apt.status)} flex-shrink-0 mt-2 md:mt-0`}
-                      >
-                        {apt.status}
-                      </span>
+                      {/* Patient Name */}
+                      <div className="font-bold text-lg">
+                        {apt.patient?.first_name} {apt.patient?.last_name}
+                      </div>
+                      {/* Reason */}
+                      <p className="text-sm text-foreground/90 font-medium truncate relative z-10">
+                        {apt.reason_for_visit || "No reason provided"}
+                      </p>
+
+                      {/* Glass Shine Effect */}
+                      <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                     </div>
                   </div>
                 )
@@ -396,7 +377,7 @@ export function AppointmentPage() {
           </div>
         ) : (
           <div
-            className="neumorphic-inset p-6 rounded-lg text-center"
+            className="liquid-glass p-6 rounded-xl text-center"
           >
             <div
             >
@@ -453,25 +434,29 @@ export function AppointmentPage() {
 
                 {selectedDateAppointments.length > 0 ? (
                   <div
-                    className="neumorphic-inset rounded-lg p-4 border-0 flex flex-col"
+                    className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.1)] flex flex-col"
                   >
-                    <div className="overflow-x-auto flex-1">
-                      <div className="max-h-[70vh] overflow-y-auto bg-card rounded-lg">
+                    <div className="overflow-hidden rounded-xl flex-1 flex flex-col">
+                      {/* Fixed Header */}
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-white/20">
+                            <th className="text-left font-bold py-3 px-2 text-foreground">Time</th>
+                            <th className="text-left font-bold py-3 px-2 text-foreground">Patient</th>
+                            <th className="text-left font-bold py-3 px-2 text-foreground">Reason for Visit</th>
+                            <th className="text-left font-bold py-3 px-2 text-foreground">Doctor</th>
+                            <th className="text-left font-bold py-3 px-2 text-foreground">Status</th>
+                          </tr>
+                        </thead>
+                      </table>
+                      {/* Scrollable Body */}
+                      <div className="overflow-x-auto max-h-[60vh] overflow-y-auto flex-1">
                         <table className="w-full text-sm">
-                          <thead className="sticky top-0 z-10 bg-card">
-                            <tr className="border-b-2 border-muted/90 bg-muted/10">
-                              <th className="text-left font-medium py-3 px-2">Time</th>
-                              <th className="text-left font-medium py-3 px-2">Patient</th>
-                              <th className="text-left font-medium py-3 px-2">Reason for Visit</th>
-                              <th className="text-left font-medium py-3 px-2">Doctor</th>
-                              <th className="text-left font-medium py-3 px-2">Status</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y-2 divide-muted/90">
+                          <tbody className="divide-y divide-white/10">
                             {selectedDateAppointments.map((apt: any, index: number) => (
                               <tr
                                 key={index}
-                                className="hover:bg-muted/30 transition-colors cursor-pointer"
+                                className="bg-transparent hover:bg-white/10 transition-colors cursor-pointer"
                                 onClick={() => handleAppointmentCardClick(apt)}
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter' || e.key === ' ') {
@@ -483,21 +468,21 @@ export function AppointmentPage() {
                                 role="button"
                                 aria-label={`View profile for ${apt.patient?.first_name} ${apt.patient?.last_name}`}
                               >
-                                <td className="py-3 px-2 font-medium text-sm">
+                                <td className="py-3 px-2 font-bold text-sm text-foreground">
                                   {new Date(apt.appointment_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 </td>
                                 <td className="py-3 px-2">
-                                  <div className="flex items-center gap-1">
-                                    <IconUserCircle className="w-5 h-5" />
-                                    <span className="font-medium text-sm">{apt.patient?.first_name} {apt.patient?.last_name}</span>
+                                  <div className="flex items-center gap-1 text-foreground">
+                                    <IconUserCircle className="w-5 h-5 text-foreground/80" />
+                                    <span className="font-bold text-sm">{apt.patient?.first_name} {apt.patient?.last_name}</span>
                                   </div>
                                 </td>
-                                <td className="py-3 px-2 text-foreground">
+                                <td className="py-3 px-2 text-foreground/90 font-medium">
                                   <span className="truncate block">
                                     {apt.reason_for_visit || "No reason provided"}
                                   </span>
                                 </td>
-                                <td className="py-3 px-2 text-sm">{apt.doctor?.name}</td>
+                                <td className="py-3 px-2 text-sm text-foreground">{apt.doctor?.name}</td>
                                 <td className="py-3 px-2">
                                   <span
                                     className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusStyle(apt.status)}`}
@@ -514,9 +499,9 @@ export function AppointmentPage() {
                   </div>
                 ) : (
                   <div
-                    className="neumorphic-inset rounded-lg p-8 border-0 flex flex-col items-center justify-center text-center"
+                    className="liquid-glass rounded-xl p-8 border-0 flex flex-col items-center justify-center text-center"
                   >
-                    <div>
+                    <div className="text-muted-foreground">
                       <IconCalendar className="w-12 h-12 mb-4" />
                     </div>
                     <h3
@@ -532,7 +517,7 @@ export function AppointmentPage() {
                 className="flex-1 flex flex-col"
               >
                 <div
-                  className="neumorphic-inset rounded-lg p-8 border-0 flex flex-col items-center justify-center text-center"
+                  className="liquid-glass rounded-xl p-8 border-0 flex flex-col items-center justify-center text-center"
                 >
                   <div
                   >
@@ -559,7 +544,7 @@ export function AppointmentPage() {
           >
             {/* Calendar Content */}
             <div
-              className="p-2 sm:p-3 md:p-4 items-center justify-center neumorphic-pressed rounded-lg overflow-hidden w-full min-h-[280px] sm:min-h-[320px] md:min-h-[360px] flex flex-col"
+              className="p-2 sm:p-3 md:p-3 items-center justify-center bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.1)] overflow-hidden w-full min-h-[240px] sm:min-h-[260px] md:min-h-[280px] flex flex-col"
             >
               <div
                 className="flex items-center gap-1 sm:gap-2 mb-1.5 sm:mb-2 px-6 w-full justify-center"
@@ -601,7 +586,7 @@ export function AppointmentPage() {
                   {weekDays.map((day) => (
                     <div
                       key={day}
-                      className="text-center text-[10px] sm:text-xs md:text-[11px] font-medium neumorphic-inset px-0.5 py-0.5 sm:py-1 rounded min-w-0"
+                      className="text-center text-[10px] sm:text-xs md:text-[11px] font-medium text-muted-foreground px-0.5 py-0.5 sm:py-1 rounded min-w-0"
                     >
                       <span className="hidden sm:inline">{day}</span>
                       <span className="sm:hidden">{day.charAt(0)}</span>
@@ -620,31 +605,24 @@ export function AppointmentPage() {
                       onClick={() => day.isCurrentMonth ? handleDateClick(day.date, day.isCurrentMonth) : undefined}
                       className={`
                           calendar-cell relative rounded-lg cursor-pointer
-                          w-full min-h-0 flex flex-col justify-center items-center
+                          w-full min-h-0 flex flex-col justify-center items-center transition-all duration-300
                           ${day.isCurrentMonth
                           ? selectedDate === day.date
-                            ? 'neumorphic-pressed shadow-inner border-1 border-primary bg-gradient-to-br from-blue-100/80 via-indigo-50/60 to-purple-100/80'
+                            ? 'bg-primary text-white shadow-lg ring-2 ring-primary scale-110 z-10'
                             : day.isToday
-                              ? 'neumorphic ring-2 ring-primary ring-inset bg-gradient-to-br from-amber-100/70 via-yellow-50/50 to-orange-100/70'
+                              ? 'bg-white ring-2 ring-primary text-black'
                               : day.hasAppointments
-                                ? 'neumorphic bg-gradient-to-br from-emerald-50/60 via-green-50/40 to-teal-50/60'
-                                : 'neumorphic bg-gradient-to-br from-slate-50/40 via-gray-50/30 to-zinc-50/40'
-                          : 'neumorphic-inset opacity-50 cursor-not-allowed bg-gradient-to-br from-gray-100/20 via-slate-50/15 to-neutral-50/20'
+                                ? 'bg-white hover:scale-105 text-black shadow-sm'
+                                : 'bg-white/90 hover:bg-white text-black'
+                          : 'bg-white/40 opacity-40 cursor-not-allowed text-gray-500'
                         }
                         `}
                       style={{ aspectRatio: '1' }}
                     >
                       <div
                         className={`
-                            text-sm font-bold text-center leading-tight
-                            ${day.isCurrentMonth
-                            ? selectedDate === day.date
-                              ? 'font-bold'
-                              : day.isToday
-                                ? 'font-bold'
-                                : ''
-                            : ''
-                          }
+                            font-semibold text-center leading-tight transition-all duration-300
+                            ${day.isCurrentMonth && selectedDate === day.date ? 'text-white text-base' : 'text-black text-sm'}
                           `}
                       >
                         {day.date}
@@ -654,7 +632,10 @@ export function AppointmentPage() {
                       {day.appointments.length > 0 && day.isCurrentMonth && (
                         <div className="-mt-0.5">
                           <div
-                            className={`appointment-badge inline-flex items-center justify-center text-[8px] sm:text-[10px] font-medium rounded-full px-0.5 sm:px-1 neumorphic-inset bg-gradient-to-r from-emerald-200/80 to-green-300/60 border border-emerald-300/40 text-emerald-800`}
+                            className={`appointment-badge inline-flex items-center justify-center text-[8px] sm:text-[10px] font-medium rounded-full px-0.5 sm:px-1 ${selectedDate === day.date
+                              ? 'bg-white/20 text-white border border-white/50'
+                              : 'bg-primary/20 dark:bg-primary/40 text-primary dark:text-white border border-primary/30'
+                              }`}
                           >
                             {day.appointments.length}
                           </div>

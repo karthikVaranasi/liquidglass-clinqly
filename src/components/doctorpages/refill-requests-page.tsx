@@ -142,75 +142,74 @@ export function RefillRequestsPage() {
 
       {/* Refill Requests Table */}
       <div className="px-4 lg:px-6">
-        <div className="neumorphic-inset rounded-lg p-4 border-0">
-          <div className="overflow-x-auto max-h-[84vh] overflow-y-auto bg-card rounded-lg">
-            {requests.length === 0 ? (
-              <div className="flex items-center justify-center h-64">
-                <div className="text-center">
-                  <div className="text-foreground mb-2">No refill requests found</div>
-                  <div className="text-sm text-foreground">Prescription refill requests will appear here.</div>
-                </div>
+        <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+          {requests.length === 0 ? (
+            <div className="flex items-center justify-center h-64">
+              <div className="text-center">
+                <div className="text-foreground mb-2">No refill requests found</div>
+                <div className="text-sm text-foreground">Prescription refill requests will appear here.</div>
               </div>
-            ) : (
+            </div>
+          ) : (
+            <div className="overflow-hidden rounded-lg">
+              {/* Fixed Header */}
               <table className="w-full text-sm">
-                <thead className="sticky top-0 z-10 bg-card">
-                  <tr className="border-b-2 border-muted/90 bg-muted/10">
-                    {/* <th className="text-left font-medium py-3 px-1.5 min-w-[90px]">Patient ID</th> */}
-                    <th className="text-left font-medium py-3 px-1.5 min-w-[125px]">Patient Name</th>
-                    <th className="text-left font-medium py-3 px-1.5 min-w-[115px]">Patient Phone</th>
-                    <th className="text-left font-medium py-3 px-1.5 min-w-[120px]">Guardian Name</th>
-                    <th className="text-left font-medium py-3 px-1.5 min-w-[70px]">Relationship</th>
-                    <th className="text-left font-medium py-3 px-1.5 min-w-[205px]">Details</th>
-                    <th className="text-left font-medium py-3 px-1.5 min-w-[150px]">Pharmacy Name</th>
-                    <th className="text-left font-medium py-3 px-1.5 min-w-[175px]">Pharmacy Location</th>
-                    <th className="text-left font-medium py-3 px-1.5 min-w-[100px]">Created At</th>
+                <thead>
+                  <tr className="border-b border-white/20">
+                    <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[125px]">Patient Name</th>
+                    <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[115px]">Patient Phone</th>
+                    <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[120px]">Guardian Name</th>
+                    <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[70px]">Relationship</th>
+                    <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[205px]">Details</th>
+                    <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[150px]">Pharmacy Name</th>
+                    <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[175px]">Pharmacy Location</th>
+                    <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[100px]">Created At</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y-2 divide-muted/90">
-                  {requests.map((request, index) => (
-                    <tr key={request.id || index} className="hover:bg-muted/30 transition-colors">
-                      {/* <td className="py-3 px-1.5 text-sm font-medium">{getPatientId(request)}</td> */}
-                      <td className="py-3 px-1.5 font-medium text-sm">
-                        <div className="flex items-center gap-1">
-                          {/* <IconUserCircle className="w-5 h-5" /> */}
-                          {getPatientName(request)}
-                        </div>
-                      </td>
-                      <td className="py-3 px-1.5 text-sm">{getPatientPhone(request)}</td>
-                      <td className="py-3 px-1.5 text-sm">{request.caller_name}</td>
-                      <td className="py-3 px-1.5 text-sm">{getRelationship(request)}</td>
-                      <td className="py-3 px-1.5 text-sm max-w-xs">
-                        <div className="line-clamp-2" title={getDetails(request)}>
-                          {getDetails(request)}
-                        </div>
-                      </td>
-                      <td className="py-3 px-1.5 text-sm">{request.pharmacy_name}</td>
-                      <td className="py-3 px-1.5 text-sm max-w-xs">
-                        <span
-                          className="flex items-center gap-1 underline cursor-pointer line-clamp-2"
-                          title={`Open ${request.pharmacy_location} in Google Maps`}
-                          onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(request.pharmacy_location)}`, '_blank')}
-                        >
-                          <IconMapPin className="w-4 h-4 flex-shrink-0" />
-                          {request.pharmacy_location}
-                        </span>
-                      </td>
-                      <td className="py-3 px-1.5 text-sm">
-                        {(() => {
-                          const dateValue = getCreatedAt(request)
-                          // Debug: Show raw value temporarily to help identify the field
-                          if (!dateValue) {
-                            // console.log(`Request ID ${request.id}: No date found. All fields:`, Object.keys(request))
-                          }
-                          return formatDate(dateValue)
-                        })()}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
               </table>
-            )}
-          </div>
+              {/* Scrollable Body */}
+              <div className="overflow-x-auto max-h-[75vh] overflow-y-auto">
+                <table className="w-full text-sm">
+                  <tbody className="divide-y divide-white/10">
+                    {requests.map((request, index) => (
+                      <tr key={request.id || index} className="hover:bg-white/10 transition-colors">
+                        <td className="py-3 px-1.5 font-medium text-sm min-w-[125px]">
+                          <div className="flex items-center gap-1">
+                            {getPatientName(request)}
+                          </div>
+                        </td>
+                        <td className="py-3 px-1.5 text-sm min-w-[115px]">{getPatientPhone(request)}</td>
+                        <td className="py-3 px-1.5 text-sm min-w-[120px]">{request.caller_name}</td>
+                        <td className="py-3 px-1.5 text-sm min-w-[70px]">{getRelationship(request)}</td>
+                        <td className="py-3 px-1.5 text-sm max-w-xs min-w-[205px]">
+                          <div className="line-clamp-2" title={getDetails(request)}>
+                            {getDetails(request)}
+                          </div>
+                        </td>
+                        <td className="py-3 px-1.5 text-sm min-w-[150px]">{request.pharmacy_name}</td>
+                        <td className="py-3 px-1.5 text-sm max-w-xs min-w-[175px]">
+                          <span
+                            className="flex items-center gap-1 underline cursor-pointer line-clamp-2"
+                            title={`Open ${request.pharmacy_location} in Google Maps`}
+                            onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(request.pharmacy_location)}`, '_blank')}
+                          >
+                            <IconMapPin className="w-4 h-4 flex-shrink-0" />
+                            {request.pharmacy_location}
+                          </span>
+                        </td>
+                        <td className="py-3 px-1.5 text-sm min-w-[100px]">
+                          {(() => {
+                            const dateValue = getCreatedAt(request)
+                            return formatDate(dateValue)
+                          })()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

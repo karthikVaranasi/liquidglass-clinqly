@@ -4,6 +4,7 @@ import { useCounts } from "@/contexts/counts-context"
 import { AuthStorage } from "@/api/auth"
 import { useAuth } from "@/hooks/use-auth"
 import { callLogoutEndpoint } from "@/api/shared/http"
+import { ThemeToggle } from "@/components/ThemeToggle"
 
 // Static app config
 const app = {
@@ -67,7 +68,7 @@ export function AppHeader({ currentPage, userType = 'doctor', doctorsCount, user
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-background">
+    <header className="sticky top-0 z-50 backdrop-blur-md theme-transition bg-transparent">
       {/* Admin Impersonation Banner */}
       {AuthStorage.isAdminImpersonating() && userType === 'doctor' && userData && (
         <div className="px-4 pt-2 text-center text-sm font-medium">
@@ -85,7 +86,7 @@ export function AppHeader({ currentPage, userType = 'doctor', doctorsCount, user
                 window.location.reload()
               }}
               size="sm"
-              className="rounded-full text-xs font-medium transition-colors"
+              className="liquid-glass-btn-primary rounded-full text-xs font-medium transition-colors px-4"
             >
               Exit Impersonation
             </Button>
@@ -93,14 +94,17 @@ export function AppHeader({ currentPage, userType = 'doctor', doctorsCount, user
         </div>
       )}
 
-      <div className="flex h-16 shrink-0 items-center justify-between gap-2 px-4">
+      <div className="flex h-16 shrink-0 items-center justify-between gap-2 px-4 bg-transparent">
         <div className="flex items-center gap-2">
-          <SidebarTrigger className="-ml-1" />
+          <SidebarTrigger className="-ml-1 liquid-glass-btn w-9 h-9" />
           <span className="text-lg font-semibold">
             {currentPage ? getPageTitle(currentPage) : (userType === 'admin' ? "EzMedTech" : app.name)}
           </span>
         </div>
         <div className="flex items-center gap-4">
+          {/* Theme Toggle */}
+          <ThemeToggle />
+
           {/* Branding - Powered by EzMedTech */}
           <div className="flex items-center gap-2">
             <img
@@ -109,7 +113,7 @@ export function AppHeader({ currentPage, userType = 'doctor', doctorsCount, user
               className="w-6 h-6 object-contain"
             />
             <div className="flex flex-col">
-              <span className="text-xs font-medium leading-tight">
+              <span className="text-xs font-medium leading-tight text-muted-foreground">
                 Powered by
               </span>
               <span className="text-sm font-semibold text-foreground leading-tight">

@@ -71,13 +71,13 @@ export function NavUser({
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-64 rounded-xl liquid-glass-strong"
+            className="w-(--radix-dropdown-menu-trigger-width) min-w-64 rounded-xl bg-white dark:bg-gray-900 shadow-xl border border-gray-200 dark:border-gray-700"
             side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}
           >
             <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-3 px-3 py-3 text-left text-sm bg-white/80 dark:bg-gray-800/90 rounded-t-lg">
+              <div className="flex items-center gap-3 px-3 py-3 text-left text-sm bg-gray-50 dark:bg-gray-800 rounded-t-lg border-b border-gray-100 dark:border-gray-700">
                 <Avatar className="h-10 w-10 rounded-lg">
                   <AvatarImage src={user.avatar} alt={user.name} />
                   <AvatarFallback className="rounded-lg">

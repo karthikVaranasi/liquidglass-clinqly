@@ -523,12 +523,12 @@ export function SettingsPage() {
                   <div className="overflow-hidden rounded-lg">
                     {/* Fixed Header - Outside scroll container */}
                     <Table>
-                      <TableHeader className="bg-transparent">
-                        <TableRow className="bg-transparent hover:bg-transparent">
-                          <TableHead className="w-[200px] text-sm sm:text-base bg-transparent">Date(s)</TableHead>
-                          <TableHead className="w-[120px] text-sm sm:text-base bg-transparent">Time Range</TableHead>
-                          <TableHead className="text-sm sm:text-base bg-transparent">Reason</TableHead>
-                          <TableHead className="w-[120px] text-right text-sm sm:text-base bg-transparent">Actions</TableHead>
+                      <TableHeader className="!bg-transparent dark:!bg-transparent border-b border-white/20">
+                        <TableRow className="!bg-transparent dark:!bg-transparent hover:!bg-transparent border-0">
+                          <TableHead className="w-[200px] text-sm sm:text-base !bg-transparent dark:!bg-transparent text-foreground font-bold">Date(s)</TableHead>
+                          <TableHead className="w-[120px] text-sm sm:text-base !bg-transparent dark:!bg-transparent text-foreground font-bold">Time Range</TableHead>
+                          <TableHead className="text-sm sm:text-base !bg-transparent dark:!bg-transparent text-foreground font-bold">Reason</TableHead>
+                          <TableHead className="w-[120px] text-right text-sm sm:text-base !bg-transparent dark:!bg-transparent text-foreground font-bold">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                     </Table>
@@ -630,12 +630,12 @@ export function SettingsPage() {
                   <div className="overflow-hidden rounded-lg">
                     {/* Fixed Header - Outside scroll container */}
                     <Table>
-                      <TableHeader className="bg-transparent">
-                        <TableRow className="bg-transparent hover:bg-transparent">
-                          <TableHead className="w-[200px] text-sm sm:text-base bg-transparent">Date(s)</TableHead>
-                          <TableHead className="w-[120px] text-sm sm:text-base bg-transparent">Time Range</TableHead>
-                          <TableHead className="text-sm sm:text-base bg-transparent">Reason</TableHead>
-                          <TableHead className="w-[120px] text-right text-sm sm:text-base bg-transparent">Actions</TableHead>
+                      <TableHeader className="!bg-transparent dark:!bg-transparent border-b border-white/20">
+                        <TableRow className="!bg-transparent dark:!bg-transparent hover:!bg-transparent border-0">
+                          <TableHead className="w-[200px] text-sm sm:text-base !bg-transparent dark:!bg-transparent text-foreground font-bold">Date(s)</TableHead>
+                          <TableHead className="w-[120px] text-sm sm:text-base !bg-transparent dark:!bg-transparent text-foreground font-bold">Time Range</TableHead>
+                          <TableHead className="text-sm sm:text-base !bg-transparent dark:!bg-transparent text-foreground font-bold">Reason</TableHead>
+                          <TableHead className="w-[120px] text-right text-sm sm:text-base !bg-transparent dark:!bg-transparent text-foreground font-bold">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                     </Table>

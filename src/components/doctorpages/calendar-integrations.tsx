@@ -168,7 +168,7 @@ export function CalendarIntegrations() {
 
   // Render account card
   const renderAccountCard = (account: CalendarAccount, provider: 'google' | 'microsoft') => (
-    <div key={account.id} className="flex items-center justify-between my-3 p-4 bg-white/40 dark:bg-slate-700/40 backdrop-blur-sm border border-white/30 dark:border-slate-600/30 rounded-xl shadow-sm">
+    <div key={account.id} className="flex items-center justify-between my-3 p-4 bg-white/50 dark:bg-gradient-to-r dark:from-slate-800/60 dark:to-slate-700/40 backdrop-blur-sm border border-white/30 dark:border-white/10 rounded-xl shadow-sm dark:shadow-[0_0_15px_rgba(255,255,255,0.05)]">
       <div className="flex items-center gap-3">
         <div>
           <p className="text-sm font-semibold text-foreground" style={{ textTransform: 'none' }}>{account.email}</p>
@@ -260,10 +260,10 @@ export function CalendarIntegrations() {
       <div className="px-4 lg:px-6">
         <div className="grid grid-cols-1 gap-6 @xl/main:grid-cols-2">
           {/* Google Calendars */}
-          <div className="bg-white/30 dark:bg-slate-800/50 backdrop-blur-md rounded-xl p-6 border border-white/30 shadow-lg">
+          <div className="bg-white/40 dark:bg-gradient-to-br dark:from-slate-800/70 dark:via-slate-800/50 dark:to-slate-900/60 backdrop-blur-md rounded-xl p-6 border border-white/30 dark:border-white/10 shadow-lg dark:shadow-[0_0_20px_rgba(255,255,255,0.05)]">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 flex items-center justify-center bg-white/50 dark:bg-white/20 rounded-xl shadow-sm">
+                <div className="w-12 h-12 flex items-center justify-center bg-white/60 dark:bg-white/15 rounded-xl shadow-sm dark:shadow-[0_0_10px_rgba(255,255,255,0.1)]">
                   <GoogleCalendarIcon className="w-8 h-8" />
                 </div>
                 <div>
@@ -286,7 +286,7 @@ export function CalendarIntegrations() {
                 .sort((a, b) => (b.is_primary ? 1 : 0) - (a.is_primary ? 1 : 0))
                 .map((account) => renderAccountCard(account, "google"))
             ) : (
-              <div className="p-4 text-center mt-4 bg-white/20 dark:bg-slate-700/30 rounded-lg border border-white/20">
+              <div className="p-4 text-center mt-4 bg-white/30 dark:bg-white/5 rounded-lg border border-white/20 dark:border-white/10">
                 <p className="text-sm font-medium text-foreground">No Google calendars connected</p>
                 <p className="text-xs text-muted-foreground mt-1">Connect your Google calendar to sync appointments</p>
               </div>
@@ -294,10 +294,10 @@ export function CalendarIntegrations() {
           </div>
 
           {/* Microsoft Calendars */}
-          <div className="bg-white/30 dark:bg-slate-800/50 backdrop-blur-md rounded-xl p-6 border border-white/30 shadow-lg">
+          <div className="bg-white/40 dark:bg-gradient-to-br dark:from-slate-800/70 dark:via-slate-800/50 dark:to-slate-900/60 backdrop-blur-md rounded-xl p-6 border border-white/30 dark:border-white/10 shadow-lg dark:shadow-[0_0_20px_rgba(255,255,255,0.05)]">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 flex items-center justify-center bg-white/50 dark:bg-white/20 rounded-xl shadow-sm">
+                <div className="w-12 h-12 flex items-center justify-center bg-white/60 dark:bg-white/15 rounded-xl shadow-sm dark:shadow-[0_0_10px_rgba(255,255,255,0.1)]">
                   <MicrosoftCalendarIcon className="w-8 h-8" />
                 </div>
                 <div>
@@ -320,7 +320,7 @@ export function CalendarIntegrations() {
                 .sort((a, b) => (b.is_primary ? 1 : 0) - (a.is_primary ? 1 : 0))
                 .map((account) => renderAccountCard(account, "microsoft"))
             ) : (
-              <div className="p-4 text-center bg-white/20 dark:bg-slate-700/30 rounded-lg border border-white/20">
+              <div className="p-4 text-center bg-white/30 dark:bg-white/5 rounded-lg border border-white/20 dark:border-white/10">
                 <p className="text-sm font-medium text-foreground">No Microsoft calendars connected</p>
                 <p className="text-xs text-muted-foreground mt-1">Connect your Outlook calendar to sync appointments</p>
               </div>

@@ -152,42 +152,39 @@ export function RefillRequestsPage() {
             </div>
           ) : (
             <div className="overflow-hidden rounded-lg">
-              {/* Fixed Header */}
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-white/20">
-                    <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[125px]">Patient Name</th>
-                    <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[115px]">Patient Phone</th>
-                    <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[120px]">Guardian Name</th>
-                    <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[70px]">Relationship</th>
-                    <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[205px]">Details</th>
-                    <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[150px]">Pharmacy Name</th>
-                    <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[175px]">Pharmacy Location</th>
-                    <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[100px]">Created At</th>
-                  </tr>
-                </thead>
-              </table>
-              {/* Scrollable Body */}
+              {/* Single table with sticky header */}
               <div className="overflow-x-auto max-h-[75vh] overflow-y-auto">
                 <table className="w-full text-sm">
+                  <thead className="sticky top-0 bg-white/30 dark:bg-transparent backdrop-blur-md z-10">
+                    <tr className="border-b border-white/20">
+                      <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[125px] text-xs sm:text-sm">Patient Name</th>
+                      <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[115px] text-xs sm:text-sm">Patient Phone</th>
+                      <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[120px] text-xs sm:text-sm hidden md:table-cell">Guardian Name</th>
+                      <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[70px] text-xs sm:text-sm hidden lg:table-cell">Relationship</th>
+                      <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[205px] text-xs sm:text-sm hidden md:table-cell">Details</th>
+                      <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[150px] text-xs sm:text-sm hidden lg:table-cell">Pharmacy Name</th>
+                      <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[175px] text-xs sm:text-sm hidden xl:table-cell">Pharmacy Location</th>
+                      <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[100px] text-xs sm:text-sm">Created At</th>
+                    </tr>
+                  </thead>
                   <tbody className="divide-y divide-white/10">
                     {requests.map((request, index) => (
                       <tr key={request.id || index} className="hover:bg-white/10 transition-colors">
-                        <td className="py-3 px-1.5 font-medium text-sm min-w-[125px]">
+                        <td className="py-3 px-1.5 font-semibold text-sm sm:text-base min-w-[125px]">
                           <div className="flex items-center gap-1">
                             {getPatientName(request)}
                           </div>
                         </td>
-                        <td className="py-3 px-1.5 text-sm min-w-[115px]">{getPatientPhone(request)}</td>
-                        <td className="py-3 px-1.5 text-sm min-w-[120px]">{request.caller_name}</td>
-                        <td className="py-3 px-1.5 text-sm min-w-[70px]">{getRelationship(request)}</td>
-                        <td className="py-3 px-1.5 text-sm max-w-xs min-w-[205px]">
+                        <td className="py-3 px-1.5 text-xs sm:text-sm min-w-[115px]">{getPatientPhone(request)}</td>
+                        <td className="py-3 px-1.5 text-xs sm:text-sm min-w-[120px] hidden md:table-cell">{request.caller_name}</td>
+                        <td className="py-3 px-1.5 text-xs sm:text-sm min-w-[70px] hidden lg:table-cell">{getRelationship(request)}</td>
+                        <td className="py-3 px-1.5 text-xs sm:text-sm max-w-xs min-w-[205px] hidden md:table-cell">
                           <div className="line-clamp-2" title={getDetails(request)}>
                             {getDetails(request)}
                           </div>
                         </td>
-                        <td className="py-3 px-1.5 text-sm min-w-[150px]">{request.pharmacy_name}</td>
-                        <td className="py-3 px-1.5 text-sm max-w-xs min-w-[175px]">
+                        <td className="py-3 px-1.5 text-xs sm:text-sm min-w-[150px] hidden lg:table-cell">{request.pharmacy_name}</td>
+                        <td className="py-3 px-1.5 text-xs sm:text-sm max-w-xs min-w-[175px] hidden xl:table-cell">
                           <span
                             className="flex items-center gap-1 underline cursor-pointer line-clamp-2"
                             title={`Open ${request.pharmacy_location} in Google Maps`}
@@ -197,7 +194,7 @@ export function RefillRequestsPage() {
                             {request.pharmacy_location}
                           </span>
                         </td>
-                        <td className="py-3 px-1.5 text-sm min-w-[100px]">
+                        <td className="py-3 px-1.5 text-xs sm:text-sm min-w-[100px]">
                           {(() => {
                             const dateValue = getCreatedAt(request)
                             return formatDate(dateValue)

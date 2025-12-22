@@ -398,15 +398,18 @@
   }
 
   .liquid-glass-sidebar svg {
-    stroke: #000000;
-    opacity: 0.8;
+    color: #000000;
+    opacity: 0.85;
   }
 
-  /* Dark mode: white text */
-  .dark .liquid-glass-sidebar *,
+  /* Dark mode: white text and icons */
+  .dark .liquid-glass-sidebar * {
+    color: #ffffff !important;
+  }
+
   .dark .liquid-glass-sidebar svg {
     color: #ffffff !important;
-    stroke: #ffffff !important;
+    opacity: 0.9;
   }
 
   .liquid-glass-sidebar [data-active="true"] {
@@ -666,6 +669,17 @@
     box-shadow:
       inset 3px 3px 7px rgba(166, 187, 200, 0.3),
       inset -3px -3px 7px rgba(255, 255, 255, 0.9);
+  }
+
+  /* Dark mode: make neumorphic-inset cards transparent */
+  .dark .neumorphic-inset {
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow:
+      inset 0 0 20px rgba(255, 255, 255, 0.05),
+      0 4px 20px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   .neumorphic-pressed {

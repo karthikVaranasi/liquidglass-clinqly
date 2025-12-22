@@ -1145,7 +1145,7 @@ export function PatientsPage() {
       <>
         <div className="min-h-screen">
           {/* Navigation Bar */}
-          <div className="sticky top-0 z-40 backdrop-blur-md bg-background/90">
+          <div className="sticky top-0 z-40">
             <div className="px-4 lg:px-6 py-3">
               <div className="max-w-6xl mx-auto flex items-center justify-between">
                 <Button

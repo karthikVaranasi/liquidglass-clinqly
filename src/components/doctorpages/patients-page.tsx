@@ -1587,40 +1587,38 @@ export function PatientsPage() {
             <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
               {filteredPatients.length > 0 ? (
                 <div className="overflow-hidden rounded-lg">
-                  {/* Fixed Header - Outside scroll container */}
-                  <table className="w-full text-sm table-fixed">
-                    <thead>
-                      <tr className="border-b border-white/20">
-                        <th className="text-left font-bold py-3 px-4 w-1/5 text-foreground">Patient Name</th>
-                        <th className="text-left font-bold py-3 px-4 w-1/5 text-foreground">DOB</th>
-                        <th className="text-left font-bold py-3 px-4 w-1/5 text-foreground">Contact</th>
-                        <th className="text-left font-bold py-3 px-4 w-1/5 text-foreground">Actions</th>
-                      </tr>
-                    </thead>
-                  </table>
-                  {/* Scrollable Body - Separate scroll container */}
+                  {/* Single table with sticky header for proper alignment */}
                   <div className="overflow-x-auto max-h-[70vh] overflow-y-auto">
-                    <table className="w-full text-sm table-fixed">
+                    <table className="w-full text-sm">
+                      <thead className="sticky top-0 bg-white/30 dark:bg-white/10 backdrop-blur-md z-10">
+                        <tr className="border-b border-white/20">
+                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-foreground text-xs sm:text-sm whitespace-nowrap">Patient Name</th>
+                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-foreground text-xs sm:text-sm whitespace-nowrap hidden sm:table-cell">DOB</th>
+                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-foreground text-xs sm:text-sm whitespace-nowrap">Contact</th>
+                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-foreground text-xs sm:text-sm whitespace-nowrap">Actions</th>
+                        </tr>
+                      </thead>
                       <tbody className="divide-y divide-white/10">
                         {filteredPatients.map((patient) => (
                           <tr key={patient.id} className="hover:bg-white/10 transition-all duration-200">
-                            <td className="py-3 px-4 w-1/5">
+                            <td className="py-3 px-3 sm:px-4">
                               <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-chart-2/20 flex items-center justify-center">
-                                  <IconUserCircle className="w-5 h-5 text-primary flex-shrink-0" />
+                                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-primary/20 to-chart-2/20 flex items-center justify-center flex-shrink-0">
+                                  <IconUserCircle className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                                 </div>
-                                <span className="font-medium text-sm truncate">{`${patient.first_name} ${patient.last_name}`}</span>
+                                <span className="font-medium text-xs sm:text-sm truncate max-w-[100px] sm:max-w-none">{`${patient.first_name} ${patient.last_name}`}</span>
                               </div>
                             </td>
-                            <td className="py-3 px-4 text-sm w-1/5">{formatDate(patient.dob)}</td>
-                            <td className="py-3 px-4 text-sm w-1/5">{patient.phone_number}</td>
-                            <td className="py-3 px-4 w-1/5">
+                            <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm hidden sm:table-cell whitespace-nowrap">{formatDate(patient.dob)}</td>
+                            <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm whitespace-nowrap">{patient.phone_number}</td>
+                            <td className="py-3 px-3 sm:px-4">
                               <Button
                                 onClick={() => handleViewProfile(patient)}
-                                className="neumorphic-button-primary text-xs"
+                                className="neumorphic-button-primary text-[10px] sm:text-xs px-2 sm:px-3"
                                 size="sm"
                               >
-                                View Profile
+                                <span className="hidden sm:inline">View Profile</span>
+                                <span className="sm:hidden">View</span>
                               </Button>
                             </td>
                           </tr>

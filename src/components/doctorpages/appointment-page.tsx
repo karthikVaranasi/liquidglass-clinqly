@@ -113,6 +113,22 @@ export function AppointmentPage() {
     }
   }
 
+  // Get card status styling for transparency and visibility
+  const getCardStatusStyle = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case 'scheduled':
+        return 'bg-blue-50/30 dark:bg-blue-500/15 border-blue-400/40 dark:border-blue-400/40 shadow-[0_0_15px_rgba(59,130,246,0.15)]'
+      case 'cancelled':
+        return 'bg-rose-50/30 dark:bg-rose-500/15 border-rose-400/40 dark:border-rose-400/40 shadow-[0_0_15px_rgba(244,63,94,0.15)]'
+      case 'completed':
+        return 'bg-emerald-50/20 dark:bg-emerald-500/10 border-emerald-400/30 dark:border-emerald-400/30 shadow-[0_0_15px_rgba(16,185,129,0.1)]'
+      case 'in progress':
+        return 'bg-amber-50/30 dark:bg-amber-500/15 border-amber-400/40 dark:border-amber-400/40 shadow-[0_0_15px_rgba(245,158,11,0.15)]'
+      default:
+        return 'bg-white/10 border-white/20'
+    }
+  }
+
   // Set next day's date as default on component mount (today handled separately above)
   useEffect(() => {
     const today = getCurrentDateInNY()
@@ -333,7 +349,7 @@ export function AppointmentPage() {
                 return (
                   <div
                     key={index}
-                    className={`p-5 transition-all duration-300 cursor-pointer rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2 relative overflow-hidden group`}
+                    className={`p-5 transition-all duration-300 cursor-pointer rounded-2xl backdrop-blur-sm border ${getCardStatusStyle(apt.status)} hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2 relative overflow-hidden group`}
                     onClick={() => handleAppointmentCardClick(apt)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {

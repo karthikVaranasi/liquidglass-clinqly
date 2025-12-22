@@ -142,13 +142,13 @@ export function LoginPage({ onLogin }: LoginPageProps) {
               value={userType}
               onValueChange={(value) => setUserType(value as 'admin' | 'doctor')}
             >
-              <TabsList className="-p-2.5 w-full bg-gray-100 rounded-full p-1">
-                <TabsTrigger value="admin" className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-xs sm:text-sm rounded-full data-[state=active]:bg-primary data-[state=active]:text-white transition-all">
+              <TabsList className="-p-2.5 w-full bg-white rounded-full p-1 shadow-sm border border-gray-200">
+                <TabsTrigger value="admin" className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-xs sm:text-sm rounded-full text-gray-900 data-[state=active]:bg-primary data-[state=active]:text-white transition-all">
                   <IconShield className="w-4 h-4" />
                   <span className="hidden sm:inline">Admin</span>
                   <span className="sm:hidden">Admin</span>
                 </TabsTrigger>
-                <TabsTrigger value="doctor" className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-xs sm:text-sm rounded-full data-[state=active]:bg-primary data-[state=active]:text-white transition-all">
+                <TabsTrigger value="doctor" className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-xs sm:text-sm rounded-full text-gray-900 data-[state=active]:bg-primary data-[state=active]:text-white transition-all">
                   <IconStethoscope className="w-4 h-4" />
                   <span className="hidden sm:inline">Doctor</span>
                   <span className="sm:hidden">Doctor</span>

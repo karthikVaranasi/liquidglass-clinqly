@@ -523,12 +523,12 @@ export function SettingsPage() {
                   <div className="overflow-hidden rounded-lg">
                     {/* Fixed Header - Outside scroll container */}
                     <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-[200px]">Date(s)</TableHead>
-                          <TableHead className="w-[120px]">Time Range</TableHead>
-                          <TableHead>Reason</TableHead>
-                          <TableHead className="w-[120px] text-right">Actions</TableHead>
+                      <TableHeader className="bg-transparent">
+                        <TableRow className="bg-transparent hover:bg-transparent">
+                          <TableHead className="w-[200px] text-sm sm:text-base bg-transparent">Date(s)</TableHead>
+                          <TableHead className="w-[120px] text-sm sm:text-base bg-transparent">Time Range</TableHead>
+                          <TableHead className="text-sm sm:text-base bg-transparent">Reason</TableHead>
+                          <TableHead className="w-[120px] text-right text-sm sm:text-base bg-transparent">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                     </Table>
@@ -548,13 +548,13 @@ export function SettingsPage() {
                           ) : (
                             offDays.map((entry) => (
                               <TableRow key={entry.id}>
-                                <TableCell className="text-sm font-medium w-[200px]">
+                                <TableCell className="text-sm sm:text-base font-medium w-[200px]">
                                   {formatOffDayDateRange(entry)}
                                 </TableCell>
-                                <TableCell className="text-sm w-[120px]">
+                                <TableCell className="text-sm sm:text-base w-[120px]">
                                   {getOffDayTimeRangeLabel(entry)}
                                 </TableCell>
-                                <TableCell className="text-sm">
+                                <TableCell className="text-sm sm:text-base">
                                   {entry.reason && entry.reason.trim().length > 0
                                     ? entry.reason
                                     : "No reason provided"}
@@ -630,12 +630,12 @@ export function SettingsPage() {
                   <div className="overflow-hidden rounded-lg">
                     {/* Fixed Header - Outside scroll container */}
                     <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-[200px]">Date(s)</TableHead>
-                          <TableHead className="w-[120px]">Time Range</TableHead>
-                          <TableHead>Reason</TableHead>
-                          <TableHead className="w-[120px] text-right">Actions</TableHead>
+                      <TableHeader className="bg-transparent">
+                        <TableRow className="bg-transparent hover:bg-transparent">
+                          <TableHead className="w-[200px] text-sm sm:text-base bg-transparent">Date(s)</TableHead>
+                          <TableHead className="w-[120px] text-sm sm:text-base bg-transparent">Time Range</TableHead>
+                          <TableHead className="text-sm sm:text-base bg-transparent">Reason</TableHead>
+                          <TableHead className="w-[120px] text-right text-sm sm:text-base bg-transparent">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                     </Table>
@@ -655,13 +655,13 @@ export function SettingsPage() {
                           ) : (
                             publicHolidays.map((entry) => (
                               <TableRow key={entry.id}>
-                                <TableCell className="text-sm font-medium w-[200px]">
+                                <TableCell className="text-sm sm:text-base font-medium w-[200px]">
                                   {formatOffDayDateRange(entry)}
                                 </TableCell>
-                                <TableCell className="text-sm w-[120px]">
+                                <TableCell className="text-sm sm:text-base w-[120px]">
                                   {getOffDayTimeRangeLabel(entry)}
                                 </TableCell>
-                                <TableCell className="text-sm">
+                                <TableCell className="text-sm sm:text-base">
                                   {entry.reason && entry.reason.trim().length > 0
                                     ? entry.reason
                                     : "No reason provided"}

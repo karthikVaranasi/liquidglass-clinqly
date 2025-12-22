@@ -632,18 +632,21 @@
     background-image: url('/bg-dark-mode.png');
   }
 
-  /* Login Page Background */
+  /* Login Page Background - Always Light Theme */
   .liquid-glass-login-bg {
     background-image: url('/image.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     min-height: 100vh;
+    color-scheme: light !important;
   }
 
-  .dark .liquid-glass-login-bg {
+  /* Ensure login page stays light even when dark mode is set */
+  .dark .liquid-glass-login-bg,
+  .liquid-glass-login-bg[data-theme="light"] {
     background-image: url('/image.png');
-    /* Optional: add an overlay if needed for contrast, but user asked for "this image" */
+    color-scheme: light !important;
   }
 }
 

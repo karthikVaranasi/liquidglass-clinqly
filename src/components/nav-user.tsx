@@ -77,7 +77,7 @@ export function NavUser({
             sideOffset={4}
           >
             <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-3 px-2 py-3 text-left text-sm liquid-glass rounded-t-lg dark:text-white">
+              <div className="flex items-center gap-3 px-3 py-3 text-left text-sm bg-white/80 dark:bg-gray-800/90 rounded-t-lg">
                 <Avatar className="h-10 w-10 rounded-lg">
                   <AvatarImage src={user.avatar} alt={user.name} />
                   <AvatarFallback className="rounded-lg">
@@ -85,19 +85,19 @@ export function NavUser({
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{userType === 'doctor' ? `Dr. ${user.name}` : user.name}</span>
-                  <span className="truncate text-xs flex items-center gap-1" style={{ textTransform: 'none' }}>
+                  <span className="truncate font-semibold text-gray-900 dark:text-white">{userType === 'doctor' ? `Dr. ${user.name}` : user.name}</span>
+                  <span className="truncate text-xs flex items-center gap-1 text-gray-700 dark:text-gray-300" style={{ textTransform: 'none' }}>
                     <IconMail className="w-3 h-3" />
                     {user.email || "null"}
                   </span>
                   {user.role && (
-                    <span className="truncate text-xs flex items-center gap-1">
+                    <span className="truncate text-xs flex items-center gap-1 text-gray-700 dark:text-gray-300">
                       <IconStethoscope className="w-3 h-3" />
                       {user.role.replace(/^Dr\.\s*/i, '')}
                     </span>
                   )}
                   {user.phone && (
-                    <span className="truncate text-xs flex items-center gap-1">
+                    <span className="truncate text-xs flex items-center gap-1 text-gray-700 dark:text-gray-300">
                       <IconPhone className="w-3 h-3" />
                       {user.phone}
                     </span>

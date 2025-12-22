@@ -171,7 +171,7 @@ export function AppSidebar({
                 {userType === 'admin' ? (
                   // For admin users, always show app branding
                   <>
-                    <img src="/collapse.jpg" alt="EzMedTech Logo" className="w-6 h-6 object-contain  rounded-full" />
+                    <img src="/logo.png" alt="EzMedTech Logo" className="w-7 h-7 object-contain rounded-full bg-white p-0.5 shadow-sm" />
                     <div className="text-lg font-semibold flex-1 min-w-0 max-w-[12rem] !truncate-0 min-h-[2rem] flex flex-col justify-center text-black dark:text-white">EzMedTech</div>
                   </>
                 ) : (
@@ -181,14 +181,14 @@ export function AppSidebar({
                       <img
                         src={clinicData.logo_url}
                         alt={`${clinicData.name || 'Clinic'} Logo`}
-                        className="w-6 h-6 object-contain dark:brightness-0 dark:invert rounded-full"
+                        className="w-7 h-7 object-contain rounded-full bg-white p-0.5 shadow-sm"
                         onError={(e) => {
                           // Fallback to default logo if clinic logo fails to load
-                          e.currentTarget.src = "/collapse.jpg"
+                          e.currentTarget.src = "/logo.png"
                         }}
                       />
                     ) : (
-                      <img src="/collapse.jpg" alt="EzMedTech Logo" className="w-6 h-6 object-contain dark:brightness-0 dark:invert rounded-full" />
+                      <img src="/logo.png" alt="EzMedTech Logo" className="w-7 h-7 object-contain rounded-full bg-white p-0.5 shadow-sm" />
                     )}
                     <div
                       className={`${brandTextSizeClass} font-semibold leading-tight flex-1 min-w-0 max-w-[20rem] break-words text-black dark:text-white`}

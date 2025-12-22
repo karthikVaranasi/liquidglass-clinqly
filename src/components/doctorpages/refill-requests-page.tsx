@@ -155,7 +155,7 @@ export function RefillRequestsPage() {
               {/* Single table with sticky header */}
               <div className="overflow-x-auto max-h-[75vh] overflow-y-auto">
                 <table className="w-full text-sm">
-                  <thead className="sticky top-0 backdrop-blur-sm z-10">
+                  <thead className="sticky top-0 bg-white/30 dark:bg-transparent backdrop-blur-md z-10">
                     <tr className="border-b border-white/20">
                       <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[125px] text-xs sm:text-sm">Patient Name</th>
                       <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[115px] text-xs sm:text-sm">Patient Phone</th>

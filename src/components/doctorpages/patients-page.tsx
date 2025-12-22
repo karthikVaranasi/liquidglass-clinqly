@@ -1589,29 +1589,29 @@ export function PatientsPage() {
                 <div className="overflow-hidden rounded-lg">
                   {/* Single table with sticky header for proper alignment */}
                   <div className="overflow-x-auto max-h-[70vh] overflow-y-auto">
-                    <table className="w-full text-sm">
-                      <thead className="sticky top-0 backdrop-blur-sm z-10">
+                    <table className="w-full text-sm table-fixed">
+                      <thead className="sticky top-0 bg-white/20 dark:bg-white/5 backdrop-blur-md z-10">
                         <tr className="border-b border-white/20">
-                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-foreground text-xs sm:text-sm whitespace-nowrap">Patient Name</th>
-                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-foreground text-xs sm:text-sm whitespace-nowrap hidden sm:table-cell">DOB</th>
-                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-foreground text-xs sm:text-sm whitespace-nowrap">Contact</th>
-                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-foreground text-xs sm:text-sm whitespace-nowrap">Actions</th>
+                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-foreground text-xs sm:text-sm w-1/4">Patient Name</th>
+                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-foreground text-xs sm:text-sm w-1/4 hidden sm:table-cell">DOB</th>
+                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-foreground text-xs sm:text-sm w-1/4">Contact</th>
+                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-foreground text-xs sm:text-sm w-1/4">Actions</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/10">
                         {filteredPatients.map((patient) => (
                           <tr key={patient.id} className="hover:bg-white/10 transition-all duration-200">
-                            <td className="py-3 px-3 sm:px-4">
+                            <td className="py-3 px-3 sm:px-4 w-1/4">
                               <div className="flex items-center gap-2">
                                 <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-primary/20 to-chart-2/20 flex items-center justify-center flex-shrink-0">
                                   <IconUserCircle className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                                 </div>
-                                <span className="font-semibold text-sm sm:text-base truncate max-w-[100px] sm:max-w-none">{`${patient.first_name} ${patient.last_name}`}</span>
+                                <span className="font-semibold text-sm sm:text-base truncate">{`${patient.first_name} ${patient.last_name}`}</span>
                               </div>
                             </td>
-                            <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm hidden sm:table-cell whitespace-nowrap">{formatDate(patient.dob)}</td>
-                            <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm whitespace-nowrap">{patient.phone_number}</td>
-                            <td className="py-3 px-3 sm:px-4">
+                            <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm hidden sm:table-cell w-1/4">{formatDate(patient.dob)}</td>
+                            <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm w-1/4">{patient.phone_number}</td>
+                            <td className="py-3 px-3 sm:px-4 w-1/4">
                               <Button
                                 onClick={() => handleViewProfile(patient)}
                                 className="neumorphic-button-primary text-[10px] sm:text-xs px-2 sm:px-3"

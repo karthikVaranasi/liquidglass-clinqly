@@ -117,15 +117,15 @@ export function AppointmentPage() {
   const getCardStatusStyle = (status: string) => {
     switch (status?.toLowerCase()) {
       case 'scheduled':
-        return 'bg-blue-50/30 dark:bg-blue-500/15 border-blue-400/40 dark:border-blue-400/40 shadow-[0_0_15px_rgba(59,130,246,0.15)]'
+        return 'bg-blue-50/15 dark:bg-blue-500/10 border-blue-400/40 dark:border-blue-400/40 shadow-[0_0_15px_rgba(59,130,246,0.15)]'
       case 'cancelled':
-        return 'bg-rose-50/30 dark:bg-rose-500/15 border-rose-400/40 dark:border-rose-400/40 shadow-[0_0_15px_rgba(244,63,94,0.15)]'
+        return 'bg-rose-50/15 dark:bg-rose-500/10 border-rose-400/40 dark:border-rose-400/40 shadow-[0_0_15px_rgba(244,63,94,0.15)]'
       case 'completed':
-        return 'bg-emerald-50/20 dark:bg-emerald-500/10 border-emerald-400/30 dark:border-emerald-400/30 shadow-[0_0_15px_rgba(16,185,129,0.1)]'
+        return 'bg-emerald-50/10 dark:bg-emerald-500/5 border-emerald-400/30 dark:border-emerald-400/30 shadow-[0_0_15px_rgba(16,185,129,0.1)]'
       case 'in progress':
-        return 'bg-amber-50/30 dark:bg-amber-500/15 border-amber-400/40 dark:border-amber-400/40 shadow-[0_0_15px_rgba(245,158,11,0.15)]'
+        return 'bg-amber-50/15 dark:bg-amber-500/10 border-amber-400/40 dark:border-amber-400/40 shadow-[0_0_15px_rgba(245,158,11,0.15)]'
       default:
-        return 'bg-white/10 border-white/20'
+        return 'bg-white/5 border-white/20'
     }
   }
 

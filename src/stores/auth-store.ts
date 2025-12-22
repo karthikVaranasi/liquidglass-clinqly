@@ -118,7 +118,7 @@ export const useAuthStore = create<AuthStore>()(
 
     setAccessToken: (token: string | null) => {
       set({ accessToken: token })
-      
+
       // Sync with AuthStorage for backward compatibility (only for decodeToken usage in other parts)
       // Use try-catch to avoid initialization issues
       try {
@@ -139,7 +139,7 @@ export const useAuthStore = create<AuthStore>()(
       if (options?.skipBootstrap) {
         set({ skipBootstrap: true })
       }
-      
+
       get().setAccessToken(null)
       set({
         role: null,
@@ -156,7 +156,7 @@ export const useAuthStore = create<AuthStore>()(
 
     loadProfile: async () => {
       const token = get().accessToken
-      
+
       if (!token) {
         if (!get().bootstrapAttempted) {
           // Bootstrap will try to refresh using cookie; keep loading state
@@ -246,7 +246,7 @@ export const useAuthStore = create<AuthStore>()(
 
     bootstrapRefresh: async () => {
       const state = get()
-      
+
       if (state.accessToken || state.bootstrapAttempted || state.skipBootstrap) {
         return
       }
@@ -285,10 +285,27 @@ if (typeof window !== 'undefined') {
   setTimeout(() => {
     // Reset skipBootstrap flag on page load
     useAuthStore.setState({ skipBootstrap: false })
-    
-    // Run bootstrap refresh if needed (only once)
+
+    // First, try to load token from localStorage
+    const storedToken = AuthStorage.getToken()
     const state = useAuthStore.getState()
-    if (!state.accessToken && !state.bootstrapAttempted && !state.skipBootstrap) {
+
+    if (storedToken && !state.accessToken) {
+      // We have a stored token, validate and use it
+      const decoded = AuthStorage.decodeToken(storedToken)
+      if (decoded) {
+        // Token is valid and not expired, set it in state
+        useAuthStore.setState({ accessToken: storedToken, bootstrapAttempted: true })
+        useAuthStore.getState().loadProfile()
+      } else {
+        // Token is invalid or expired, clear it and attempt refresh
+        AuthStorage.removeToken()
+        if (!state.bootstrapAttempted && !state.skipBootstrap) {
+          useAuthStore.getState().bootstrapRefresh()
+        }
+      }
+    } else if (!state.accessToken && !state.bootstrapAttempted && !state.skipBootstrap) {
+      // No stored token and no state token, attempt refresh
       useAuthStore.getState().bootstrapRefresh()
     }
 

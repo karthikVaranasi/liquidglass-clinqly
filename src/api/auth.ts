@@ -131,20 +131,33 @@ export interface DecodedToken {
 
 // Auth token storage utilities
 export class AuthStorage {
-  private static memoryToken: string | null = null
+  private static readonly TOKEN_KEY = 'access_token'
   private static readonly ADMIN_IMPERSONATING_KEY = 'admin_impersonating'
 
-  // Token management
+  // Token management - now persisted to localStorage
   static setToken(token: string): void {
-    this.memoryToken = token
+    try {
+      localStorage.setItem(this.TOKEN_KEY, token)
+    } catch (err) {
+      console.warn('Failed to save token to localStorage:', err)
+    }
   }
 
   static getToken(): string | null {
-    return this.memoryToken
+    try {
+      return localStorage.getItem(this.TOKEN_KEY)
+    } catch (err) {
+      console.warn('Failed to get token from localStorage:', err)
+      return null
+    }
   }
 
   static removeToken(): void {
-    this.memoryToken = null
+    try {
+      localStorage.removeItem(this.TOKEN_KEY)
+    } catch (err) {
+      console.warn('Failed to remove token from localStorage:', err)
+    }
   }
 
   // JWT Decoding helpers

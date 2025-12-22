@@ -529,7 +529,7 @@ export function SettingsPage() {
                             <TableHead className="w-1/4 font-bold py-3 px-4 text-foreground">Date(s)</TableHead>
                             <TableHead className="w-1/4 font-bold py-3 px-4 text-foreground">Time Range</TableHead>
                             <TableHead className="w-1/4 font-bold py-3 px-4 text-foreground">Reason</TableHead>
-                            <TableHead className="w-1/4 font-bold py-3 px-4 text-right">Actions</TableHead>
+                            <TableHead className="w-1/4 font-bold py-3 px-4 text-right text-foreground">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody className="divide-y divide-white/10">
@@ -633,7 +633,7 @@ export function SettingsPage() {
                             <TableHead className="w-1/4 font-bold py-3 px-4 text-foreground">Date(s)</TableHead>
                             <TableHead className="w-1/4 font-bold py-3 px-4 text-foreground">Time Range</TableHead>
                             <TableHead className="w-1/4 font-bold py-3 px-4 text-foreground">Reason</TableHead>
-                            <TableHead className="w-1/4 font-bold py-3 px-4 text-right">Actions</TableHead>
+                            <TableHead className="w-1/4 font-bold py-3 px-4 text-right text-foreground">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody className="divide-y divide-white/10">

@@ -378,7 +378,7 @@ export function LogsPage() {
             {/* Single table with fixed columns for alignment */}
             <div className="overflow-x-auto max-h-[70vh] overflow-y-auto">
               <table className="w-full text-sm table-fixed">
-                <thead>
+                <thead className="sticky top-0 z-10 bg-white/20 dark:bg-black/40 backdrop-blur-md">
                   <tr className="border-b border-white/20">
                     <th className="text-left font-bold py-3 px-4 text-foreground w-1/5">From</th>
                     <th className="text-left font-bold py-3 px-4 text-foreground w-1/5">Start Time</th>

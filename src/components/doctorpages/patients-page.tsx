@@ -1590,7 +1590,7 @@ export function PatientsPage() {
                   {/* Single table with sticky header for proper alignment */}
                   <div className="overflow-x-auto max-h-[70vh] overflow-y-auto">
                     <table className="w-full text-sm table-fixed">
-                      <thead className="sticky top-0 bg-white/20 dark:bg-white/5 backdrop-blur-md z-10">
+                      <thead className="sticky top-0 bg-white/20 dark:bg-transparent backdrop-blur-md z-10">
                         <tr className="border-b border-white/20">
                           <th className="text-left font-bold py-3 px-3 sm:px-4 text-foreground text-xs sm:text-sm w-1/4">Patient Name</th>
                           <th className="text-left font-bold py-3 px-3 sm:px-4 text-foreground text-xs sm:text-sm w-1/4 hidden sm:table-cell">DOB</th>

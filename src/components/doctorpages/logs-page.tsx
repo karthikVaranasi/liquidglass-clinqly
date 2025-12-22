@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { DoctorLogsAPI } from "@/api/doctor/logs"
 import type { CallLog, TranscriptTurn } from "@/api/shared/types"
+import { Table, TableHeader, TableRow, TableHead } from "@/components/ui/table"
 
 // Sentiment Analysis Component
 const SentimentRating = ({ rating }: { rating: number }) => {
@@ -378,15 +379,15 @@ export function LogsPage() {
             {/* Single table with fixed columns for alignment */}
             <div className="overflow-x-auto max-h-[70vh] overflow-y-auto">
               <table className="w-full text-sm table-fixed">
-                <thead className="sticky top-0 z-10 bg-white/20 dark:bg-black/40 backdrop-blur-md">
-                  <tr className="border-b border-white/20">
-                    <th className="text-left font-bold py-3 px-4 text-foreground w-1/5">From</th>
-                    <th className="text-left font-bold py-3 px-4 text-foreground w-1/5">Start Time</th>
-                    <th className="text-left font-bold py-3 px-4 text-foreground w-1/5">Call Duration</th>
-                    <th className="text-left font-bold py-3 px-4 text-foreground w-1/5">Sentiment</th>
-                    <th className="text-left font-bold py-3 px-4 text-foreground w-1/5">Actions</th>
-                  </tr>
-                </thead>
+                <TableHeader className="sticky top-0 z-10 !bg-transparent dark:!bg-transparent backdrop-blur-md">
+                  <TableRow className="border-b border-white/20">
+                    <TableHead className="text-left font-bold py-3 px-4 text-foreground w-1/5">From</TableHead>
+                    <TableHead className="text-left font-bold py-3 px-4 text-foreground w-1/5">Start Time</TableHead>
+                    <TableHead className="text-left font-bold py-3 px-4 text-foreground w-1/5">Call Duration</TableHead>
+                    <TableHead className="text-left font-bold py-3 px-4 text-foreground w-1/5">Sentiment</TableHead>
+                    <TableHead className="text-left font-bold py-3 px-4 text-foreground w-1/5">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
                 <tbody className="divide-y divide-white/10">
                   {filteredLogs.length === 0 ? (
                     <tr>

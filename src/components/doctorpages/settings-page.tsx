@@ -524,7 +524,7 @@ export function SettingsPage() {
                     {/* Single table with fixed columns for perfect alignment */}
                     <div className="overflow-x-auto max-h-[60vh] overflow-y-auto">
                       <Table className="w-full text-sm table-fixed">
-                        <TableHeader className="sticky top-0 z-10 bg-white/20 dark:bg-black/40 backdrop-blur-md">
+                        <TableHeader className="sticky top-0 z-10 !bg-transparent dark:!bg-transparent backdrop-blur-md">
                           <TableRow className="border-b border-white/20">
                             <TableHead className="w-1/4 font-bold py-3 px-4 text-foreground">Date(s)</TableHead>
                             <TableHead className="w-1/4 font-bold py-3 px-4 text-foreground">Time Range</TableHead>
@@ -628,7 +628,7 @@ export function SettingsPage() {
                     {/* Single table with fixed columns for perfect alignment */}
                     <div className="overflow-x-auto max-h-[60vh] overflow-y-auto">
                       <Table className="w-full text-sm table-fixed">
-                        <TableHeader className="sticky top-0 z-10 bg-white/20 dark:bg-black/40 backdrop-blur-md">
+                        <TableHeader className="sticky top-0 z-10 !bg-transparent dark:!bg-transparent backdrop-blur-md">
                           <TableRow className="border-b border-white/20">
                             <TableHead className="w-1/4 font-bold py-3 px-4 text-foreground">Date(s)</TableHead>
                             <TableHead className="w-1/4 font-bold py-3 px-4 text-foreground">Time Range</TableHead>

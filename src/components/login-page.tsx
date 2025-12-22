@@ -111,7 +111,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
           <div className="flex-1 flex flex-col justify-center">
             <h2 className="text-4xl mb-6 leading-tight font-bold text-slate-800">Effortlessly manage your medical practice.</h2>
-            <p className="text-lg leading-relaxed text-slate-700">
+            <p className="text-lg leading-relaxed text-black">
               Manage Patients Information, Appointments, and more.
             </p>
           </div>
@@ -235,7 +235,8 @@ export function LoginPage({ onLogin }: LoginPageProps) {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-primary via-emerald-500 to-cyan-500 hover:from-primary hover:via-emerald-400 hover:to-cyan-400 text-white rounded-xl py-3 font-semibold shadow-[0_0_20px_rgba(38,198,192,0.5)] hover:shadow-[0_0_30px_rgba(38,198,192,0.7)] transition-all duration-300"
+                className="w-full text-white rounded-xl py-3 font-semibold shadow-[0_0_20px_rgba(38,198,192,0.5)] hover:shadow-[0_0_30px_rgba(38,198,192,0.7)] transition-all duration-300"
+                style={{ backgroundColor: '#0ea5a3' }}
               >
                 {isLoading ? (
                   <>

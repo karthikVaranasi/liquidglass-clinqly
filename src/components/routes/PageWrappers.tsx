@@ -40,8 +40,10 @@ export function NotFoundPageWrapper() {
   const { role } = useAuth()
   const userType = (role as 'admin' | 'doctor') || 'doctor'
   return (
-    <Suspense fallback={<div className="min-h-screen bg-background" />}>
-      <NotFoundPage userType={userType} />
+    <Suspense fallback={<div className="min-h-screen liquid-glass-app-bg" />}>
+      <div className="liquid-glass-app-bg min-h-screen">
+        <NotFoundPage userType={userType} />
+      </div>
     </Suspense>
   )
 }

@@ -206,7 +206,7 @@ function AppRouter() {
 
 export default function App() {
   return (
-    <div className="min-h-screen liquid-glass-app-bg">
+    <div className="min-h-screen">
       <BrowserRouter>
         {/* Avoid white flash on refresh by using a neutral, background-matched fallback */}
         <Suspense fallback={<div className="min-h-screen" />}>

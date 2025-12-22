@@ -399,6 +399,7 @@
 
   .liquid-glass-sidebar svg {
     color: #000000;
+    stroke: currentColor;
     opacity: 0.85;
   }
 
@@ -409,7 +410,9 @@
 
   .dark .liquid-glass-sidebar svg {
     color: #ffffff !important;
-    opacity: 0.9;
+    stroke: #ffffff !important;
+    stroke-width: 1.5;
+    opacity: 0.95;
   }
 
   .liquid-glass-sidebar [data-active="true"] {

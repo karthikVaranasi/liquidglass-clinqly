@@ -373,7 +373,7 @@ export function LogsPage() {
 
       {/* Call Logs Table */}
       <div className="-mt-2 px-4 lg:px-6">
-        <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+        <div className="bg-white/20 dark:bg-transparent backdrop-blur-sm rounded-xl p-4 border border-white/20 dark:border-white/10 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
           <div className="overflow-hidden rounded-lg">
             {/* Single table with fixed columns for alignment */}
             <div className="overflow-x-auto max-h-[70vh] overflow-y-auto">

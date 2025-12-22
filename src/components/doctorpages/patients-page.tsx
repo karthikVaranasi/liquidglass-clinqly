@@ -1606,7 +1606,7 @@ export function PatientsPage() {
                                 <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-primary/20 to-chart-2/20 flex items-center justify-center flex-shrink-0">
                                   <IconUserCircle className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                                 </div>
-                                <span className="font-medium text-xs sm:text-sm truncate max-w-[100px] sm:max-w-none">{`${patient.first_name} ${patient.last_name}`}</span>
+                                <span className="font-semibold text-sm sm:text-base truncate max-w-[100px] sm:max-w-none">{`${patient.first_name} ${patient.last_name}`}</span>
                               </div>
                             </td>
                             <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm hidden sm:table-cell whitespace-nowrap">{formatDate(patient.dob)}</td>

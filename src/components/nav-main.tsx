@@ -48,15 +48,15 @@ export function NavMain({
         <SidebarMenu>
           {items.map((item, index) => (
             <SidebarMenuItem key={item.title} ref={(el) => { menuRefs.current[index] = el; }}>
-           <SidebarMenuButton
-  tooltip={item.title}
-  onClick={() => item.page && onPageChange?.(item.page)}
-  isActive={currentPage === item.page}
-  className="transition-colors"
->
-  {item.icon && <item.icon />}
-  <span>{item.title}</span>
-</SidebarMenuButton>
+              <SidebarMenuButton
+                tooltip={item.title}
+                onClick={() => item.page && onPageChange?.(item.page)}
+                isActive={currentPage === item.page}
+                className="transition-colors"
+              >
+                {item.icon && <item.icon />}
+                <span className="font-medium">{item.title}</span>
+              </SidebarMenuButton>
 
             </SidebarMenuItem>
           ))}

@@ -1584,13 +1584,13 @@ export function PatientsPage() {
 
           {/* Patients Table */}
           {!loading && !initialProfileLoad && (
-            <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+            <div className="bg-white/20 dark:bg-transparent backdrop-blur-sm rounded-xl p-4 border border-white/20 dark:border-white/10 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
               {filteredPatients.length > 0 ? (
                 <div className="overflow-hidden rounded-lg">
                   {/* Single table with sticky header for proper alignment */}
                   <div className="overflow-x-auto max-h-[70vh] overflow-y-auto">
                     <table className="w-full text-sm table-fixed">
-                      <thead className="sticky top-0 bg-white/20 dark:bg-transparent backdrop-blur-md z-10">
+                      <thead>
                         <tr className="border-b border-white/20">
                           <th className="text-left font-bold py-3 px-3 sm:px-4 text-foreground text-xs sm:text-sm w-1/4">Patient Name</th>
                           <th className="text-left font-bold py-3 px-3 sm:px-4 text-foreground text-xs sm:text-sm w-1/4 hidden sm:table-cell">DOB</th>

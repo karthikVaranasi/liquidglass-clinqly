@@ -40,7 +40,7 @@ export function AppointmentPage() {
   // Scroll carousel left
   const scrollCarouselLeft = () => {
     if (carouselRef.current) {
-      const cardWidth = 200 // approx width of card + gap
+      const cardWidth = 250 // approx width of card + gap
       carouselRef.current.scrollBy({ left: -cardWidth, behavior: 'smooth' })
     }
   }
@@ -48,7 +48,7 @@ export function AppointmentPage() {
   // Scroll carousel right
   const scrollCarouselRight = () => {
     if (carouselRef.current) {
-      const cardWidth = 200 // approx width of card + gap
+      const cardWidth = 250 // approx width of card + gap
       carouselRef.current.scrollBy({ left: cardWidth, behavior: 'smooth' })
     }
   }
@@ -393,7 +393,7 @@ export function AppointmentPage() {
                 return (
                   <div
                     key={index}
-                    className="flex-shrink-0 w-[180px] sm:w-[200px] p-3 transition-all duration-300 cursor-pointer rounded-xl bg-white/80 dark:bg-white/20 backdrop-blur-xl border border-white/50 shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-white/50 relative overflow-hidden group snap-start"
+                    className="flex-shrink-0 w-[220px] sm:w-[250px] p-3 transition-all duration-300 cursor-pointer rounded-xl bg-white/80 dark:bg-white/20 backdrop-blur-xl border border-white/50 shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-white/50 relative overflow-hidden group snap-start"
                     onClick={() => handleAppointmentCardClick(apt)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {

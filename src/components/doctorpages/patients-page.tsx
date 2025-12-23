@@ -12,7 +12,8 @@ import {
   IconCalendarEvent,
   IconHistory,
   IconX,
-  IconChartBar
+  IconChartBar,
+  IconExclamationCircle
 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { DatePicker } from "@/components/ui/date-picker"
@@ -1202,28 +1203,31 @@ export function PatientsPage() {
                   <div
                     className={`col-span-12 ${(selectedPatient?.guardians?.length ?? 0) > 0 ? 'lg:col-span-4' : 'lg:col-span-6'}`}
                   >
-                    <div className="neumorphic-inset rounded-2xl p-5 border-2 border-emerald-300 bg-gradient-to-br from-emerald-50/40 via-transparent to-teal-50/30 flex flex-col lg:h-[220px]">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
-                          <IconUserCircle className="w-4 h-4 text-emerald-700" />
+                    <div className="relative bg-gradient-to-br from-[#9a8ea2]/80 to-[#b0a4b2]/60 dark:from-[#4a4257]/80 dark:to-[#5a5267]/60 backdrop-blur-xl rounded-xl p-5 border-[3px] border-[#e8a855]/70 dark:border-[#a87832]/60 shadow-[0_0_30px_rgba(232,168,85,0.5),0_0_60px_rgba(232,168,85,0.2),0_8px_32px_rgba(150,130,160,0.25),inset_0_1px_0_rgba(255,255,255,0.4)] dark:shadow-[0_0_20px_rgba(168,120,50,0.4),0_8px_32px_rgba(50,40,60,0.3)] flex flex-col lg:h-[220px] overflow-hidden group">
+                      {/* Glossy Top Highlight */}
+                      <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-white/25 via-white/10 to-transparent dark:from-white/15 dark:via-white/8 dark:to-transparent rounded-t-xl pointer-events-none" />
+
+                      <div className="flex items-center gap-2 mb-3 relative z-10">
+                        <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-md border border-white/30 shadow-inner">
+                          <IconUserCircle className="w-5 h-5 text-white" />
                         </div>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-foreground/60">Patient</p>
+                        <p className="text-xs font-bold uppercase tracking-wide text-white drop-shadow-sm">Patient</p>
                       </div>
 
-                      <div className="space-y-3 flex-1">
+                      <div className="space-y-3 flex-1 relative z-10">
                         <div>
-                          <p className="text-[10px] font-medium text-foreground/50 uppercase tracking-wide">Name</p>
-                          <p className="text-sm font-semibold text-foreground">
+                          <p className="text-[10px] font-bold text-white/70 uppercase tracking-wide mb-0.5">Name</p>
+                          <p className="text-sm font-bold text-white tracking-wide shadow-black/10 drop-shadow-sm">
                             {`${selectedPatient.first_name} ${selectedPatient.last_name}`}
                           </p>
                         </div>
                         <div>
-                          <p className="text-[10px] font-medium text-foreground/50 uppercase tracking-wide">Date of Birth</p>
-                          <p className="text-sm font-semibold text-foreground">{formatDate(selectedPatient.dob)}</p>
+                          <p className="text-[10px] font-bold text-white/70 uppercase tracking-wide mb-0.5">Date of Birth</p>
+                          <p className="text-sm font-bold text-white tracking-wide shadow-black/10 drop-shadow-sm">{formatDate(selectedPatient.dob)}</p>
                         </div>
                         <div>
-                          <p className="text-[10px] font-medium text-foreground/50 uppercase tracking-wide">Phone</p>
-                          <p className="text-sm font-semibold text-foreground break-all">{selectedPatient.phone_number}</p>
+                          <p className="text-[10px] font-bold text-white/70 uppercase tracking-wide mb-0.5">Phone</p>
+                          <p className="text-sm font-bold text-white tracking-wide shadow-black/10 drop-shadow-sm break-all">{selectedPatient.phone_number}</p>
                         </div>
                       </div>
                     </div>
@@ -1232,33 +1236,36 @@ export function PatientsPage() {
                   {/* Guardian (skip entirely if none) */}
                   {(selectedPatient?.guardians?.length ?? 0) > 0 && (
                     <div className="col-span-12 lg:col-span-4">
-                      <div className="neumorphic-inset rounded-2xl p-5 border-2 border-violet-300 bg-gradient-to-br from-violet-50/40 via-transparent to-purple-50/30 flex flex-col lg:h-[220px]">
-                        <div className="flex items-center gap-2 mb-3">
-                          <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center">
-                            <IconUsers className="w-4 h-4 text-violet-700" />
+                      <div className="relative bg-gradient-to-br from-[#9a8ea2]/80 to-[#b0a4b2]/60 dark:from-[#4a4257]/80 dark:to-[#5a5267]/60 backdrop-blur-xl rounded-xl p-5 border-[3px] border-[#b8a0d4]/70 dark:border-[#8e7cc3]/60 shadow-[0_0_30px_rgba(184,160,212,0.4),0_0_60px_rgba(184,160,212,0.2),inset_0_1px_0_rgba(255,255,255,0.4)] flex flex-col lg:h-[220px] overflow-hidden group">
+                        {/* Glossy Top Highlight */}
+                        <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-white/25 via-white/10 to-transparent dark:from-white/15 dark:via-white/8 dark:to-transparent rounded-t-xl pointer-events-none" />
+
+                        <div className="flex items-center gap-2 mb-3 relative z-10">
+                          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-md border border-white/30 shadow-inner">
+                            <IconUsers className="w-5 h-5 text-white" />
                           </div>
-                          <p className="text-xs font-semibold uppercase tracking-wide text-foreground/60">
+                          <p className="text-xs font-bold uppercase tracking-wide text-white drop-shadow-sm">
                             Guardian{(selectedPatient?.guardians?.length ?? 0) > 1 ? ` (${selectedPatient.guardians?.length})` : ''}
                           </p>
                         </div>
 
-                        <div className="divide-y divide-violet-200/40 flex-1 min-h-0 overflow-y-auto pr-1 -mr-1">
+                        <div className="divide-y divide-white/20 flex-1 min-h-0 overflow-y-auto pr-1 -mr-1 relative z-10 custom-scrollbar">
                           {selectedPatient.guardians?.map((g) => (
                             <div key={g.id} className="py-3 first:pt-0 last:pb-0">
                               <div className="space-y-3">
                                 <div>
-                                  <p className="text-[10px] font-medium text-foreground/50 uppercase tracking-wide">Name</p>
-                                  <p className="text-sm font-semibold text-foreground">
+                                  <p className="text-[10px] font-bold text-white/70 uppercase tracking-wide mb-0.5">Name</p>
+                                  <p className="text-sm font-bold text-white tracking-wide shadow-black/10 drop-shadow-sm">
                                     {`${g.first_name} ${g.last_name}`}
                                   </p>
                                 </div>
                                 <div>
-                                  <p className="text-[10px] font-medium text-foreground/50 uppercase tracking-wide">Date of Birth</p>
-                                  <p className="text-sm font-semibold text-foreground">{formatDate(g.dob)}</p>
+                                  <p className="text-[10px] font-bold text-white/70 uppercase tracking-wide mb-0.5">Date of Birth</p>
+                                  <p className="text-sm font-bold text-white tracking-wide shadow-black/10 drop-shadow-sm">{formatDate(g.dob)}</p>
                                 </div>
                                 <div>
-                                  <p className="text-[10px] font-medium text-foreground/50 uppercase tracking-wide">Relationship</p>
-                                  <p className="text-sm font-semibold text-foreground capitalize">{g.relationship_to_patient}</p>
+                                  <p className="text-[10px] font-bold text-white/70 uppercase tracking-wide mb-0.5">Relationship</p>
+                                  <p className="text-sm font-bold text-white tracking-wide shadow-black/10 drop-shadow-sm capitalize">{g.relationship_to_patient}</p>
                                 </div>
                               </div>
                             </div>
@@ -1272,46 +1279,49 @@ export function PatientsPage() {
                   <div
                     className={`col-span-12 ${(selectedPatient?.guardians?.length ?? 0) > 0 ? 'lg:col-span-4' : 'lg:col-span-6'}`}
                   >
-                    <div className="neumorphic-inset rounded-2xl p-5 border-2 border-amber-300 bg-gradient-to-br from-amber-50/40 via-transparent to-orange-50/30 flex flex-col lg:h-[220px]">
-                      <h3 className="text-base font-semibold mb-4 flex items-center gap-2 text-foreground">
-                        <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center">
-                          <IconFileText className="w-4 h-4 text-amber-600" />
+                    <div className="relative bg-gradient-to-br from-[#9a8ea2]/80 to-[#b0a4b2]/60 dark:from-[#4a4257]/80 dark:to-[#5a5267]/60 backdrop-blur-xl rounded-xl p-5 border-[3px] border-[#7eb8f0]/70 dark:border-[#5a9bd6]/60 shadow-[0_0_30px_rgba(126,184,240,0.4),0_0_60px_rgba(126,184,240,0.2),inset_0_1px_0_rgba(255,255,255,0.4)] flex flex-col lg:h-[220px] overflow-hidden group">
+                      {/* Glossy Top Highlight */}
+                      <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-white/25 via-white/10 to-transparent dark:from-white/15 dark:via-white/8 dark:to-transparent rounded-t-xl pointer-events-none" />
+
+                      <h3 className="text-base font-bold mb-4 flex items-center gap-2 text-white relative z-10">
+                        <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-md border border-white/30 shadow-inner">
+                          <IconFileText className="w-5 h-5 text-white" />
                         </div>
                         Documents
                         {(selectedPatient?.documents?.length ?? 0) > 0 && (
-                          <span className="ml-auto px-2 py-0.5 rounded-full bg-amber-100 text-amber-600 text-xs font-semibold">
+                          <span className="ml-auto px-2 py-0.5 rounded-full bg-white/20 text-white text-xs font-bold border border-white/20">
                             {selectedPatient?.documents?.length ?? 0}
                           </span>
                         )}
                       </h3>
 
-                      <div className="flex-1 min-h-0">
+                      <div className="flex-1 min-h-0 relative z-10">
                         {(selectedPatient?.documents?.length ?? 0) > 0 ? (
-                          <div className="space-y-3 h-full overflow-y-auto pr-1 -mr-1">
+                          <div className="space-y-3 h-full overflow-y-auto pr-1 -mr-1 custom-scrollbar">
                             {selectedPatient.documents?.map((doc, index) => {
                               const docId = doc.document_id || doc.id || index
                               const isDownloading = downloadingDoc === docId
                               const isViewing = viewingDoc === docId
 
                               return (
-                                <div key={index} className="p-3 rounded-xl bg-white/50 border border-amber-100/50 transition-all duration-200 hover:shadow-md hover:scale-[1.02]">
+                                <div key={index} className="p-3 rounded-xl bg-white/10 border border-white/20 transition-all duration-200 hover:bg-white/20 hover:scale-[1.01] group/doc">
                                   <div className="flex items-center gap-2 mb-2">
-                                    <span className="font-semibold text-foreground text-sm truncate flex-1">
+                                    <span className="font-bold text-white text-sm truncate flex-1 drop-shadow-sm">
                                       {doc.type}
                                     </span>
-                                    <span className="px-2 py-0.5 rounded-full bg-amber-100/80 text-amber-700 text-[10px] font-semibold uppercase">
+                                    <span className="px-2 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-bold uppercase tracking-wider border border-white/10">
                                       Doc
                                     </span>
                                   </div>
                                   {doc.title && (
-                                    <p className="text-xs text-foreground/60 mb-2 truncate">{doc.title}</p>
+                                    <p className="text-xs text-white/80 mb-2 truncate font-medium">{doc.title}</p>
                                   )}
                                   <div className="flex gap-2">
                                     <Button
                                       onClick={() => handleViewDocument(doc)}
                                       disabled={isViewing}
                                       size="sm"
-                                      className="flex-1 neumorphic-button-primary text-xs"
+                                      className="flex-1 bg-white/20 hover:bg-white/30 text-white border-none text-xs font-semibold h-7"
                                     >
                                       {isViewing ? <IconLoader2 className="w-3 h-3 animate-spin" /> : 'View'}
                                     </Button>
@@ -1319,7 +1329,7 @@ export function PatientsPage() {
                                       onClick={() => handleDownloadDocument(doc)}
                                       disabled={isDownloading}
                                       size="sm"
-                                      className="flex-1 neumorphic-button-primary text-xs"
+                                      className="flex-1 bg-white/20 hover:bg-white/30 text-white border-none text-xs font-semibold h-7"
                                     >
                                       {isDownloading ? <IconLoader2 className="w-3 h-3 animate-spin" /> : 'Download'}
                                     </Button>
@@ -1330,10 +1340,10 @@ export function PatientsPage() {
                           </div>
                         ) : (
                           <div className="h-full flex flex-col items-center justify-center text-center">
-                            <div className="w-12 h-12 rounded-full bg-amber-100/50 flex items-center justify-center mx-auto mb-3">
-                              <IconFileText className="w-6 h-6 text-amber-400" />
+                            <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-3 border border-white/10">
+                              <IconFileText className="w-6 h-6 text-white/60" />
                             </div>
-                            <p className="text-sm font-medium text-foreground/70">No Documents</p>
+                            <p className="text-sm font-bold text-white drop-shadow-sm">No Documents</p>
                           </div>
                         )}
                       </div>
@@ -1344,22 +1354,26 @@ export function PatientsPage() {
                   <div className="col-span-12 space-y-6">
 
                     {/* Upcoming Appointments */}
-                    <div className="neumorphic-inset rounded-2xl p-5 border-2 border-blue-300 bg-gradient-to-br from-blue-50/40 via-transparent to-indigo-50/30">
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-base font-semibold flex items-center gap-2 text-foreground">
-                          <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                            <IconCalendarEvent className="w-4 h-4 text-blue-600" />
+                    {/* Upcoming Appointments */}
+                    <div className="relative bg-gradient-to-br from-[#9a8ea2]/80 to-[#b0a4b2]/60 dark:from-[#4a4257]/80 dark:to-[#5a5267]/60 backdrop-blur-xl rounded-xl p-5 border-[3px] border-[#e8a855]/70 dark:border-[#a87832]/60 shadow-[0_0_30px_rgba(232,168,85,0.5),0_0_60px_rgba(232,168,85,0.2),inset_0_1px_0_rgba(255,255,255,0.4)] overflow-hidden">
+                      {/* Glossy Top Highlight */}
+                      <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-white/25 via-white/10 to-transparent dark:from-white/15 dark:via-white/8 dark:to-transparent rounded-t-xl pointer-events-none" />
+
+                      <div className="flex items-center justify-between mb-4 relative z-10">
+                        <h3 className="text-base font-bold flex items-center gap-2 text-white">
+                          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-md border border-white/30 shadow-inner">
+                            <IconCalendarEvent className="w-5 h-5 text-white" />
                           </div>
                           Upcoming Appointments
                           {(selectedPatient?.appointments?.upcoming?.length ?? 0) > 0 && (
-                            <span className="ml-2 px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 text-xs font-semibold">
+                            <span className="ml-2 px-2 py-0.5 rounded-full bg-white/20 text-white text-xs font-bold border border-white/20">
                               {selectedPatient?.appointments?.upcoming?.length ?? 0}
                             </span>
                           )}
                         </h3>
                         <Button
                           onClick={handleSchedule}
-                          className="neumorphic-button-primary text-xs"
+                          className="neumorphic-button-primary text-xs bg-[#e8a855] text-white hover:bg-[#d69645] border-none shadow-md"
                           size="sm"
                         >
                           <IconCalendarEvent className="w-4 h-4 mr-1" />
@@ -1368,26 +1382,26 @@ export function PatientsPage() {
                       </div>
 
                       {(selectedPatient?.appointments?.upcoming?.length ?? 0) > 0 ? (
-                        <div className="space-y-3">
+                        <div className="space-y-3 relative z-10">
                           {selectedPatient.appointments?.upcoming?.map((appointment, index) => (
                             <div
                               key={index}
-                              className="rounded-xl bg-white/60 border-2 border-blue-100/80 shadow-sm hover:shadow-lg transition-all duration-200 overflow-hidden"
+                              className="rounded-xl bg-white/10 border border-white/20 shadow-sm hover:bg-white/15 transition-all duration-200 overflow-hidden group/appt"
                             >
                               <div className="flex items-center gap-4 p-4">
                                 {/* Date block */}
-                                <div className="flex flex-col items-center justify-center px-4 py-2 rounded-xl bg-gradient-to-br from-blue-100 to-indigo-100 min-w-[70px]">
-                                  <span className="text-[10px] font-bold uppercase tracking-wide text-blue-600">
+                                <div className="flex flex-col items-center justify-center px-4 py-2 rounded-xl bg-white/20 border border-white/20 min-w-[70px]">
+                                  <span className="text-[10px] font-bold uppercase tracking-wide text-white">
                                     {formatDateUSShort(appointment.date).split(' ')[0]}
                                   </span>
-                                  <span className="text-2xl font-bold leading-tight text-blue-700">
+                                  <span className="text-2xl font-bold leading-tight text-white shadow-black/10 drop-shadow-sm">
                                     {new Date(appointment.date).getDate()}
                                   </span>
                                 </div>
 
                                 {/* Time */}
                                 <div className="flex-1">
-                                  <span className="text-lg font-bold text-foreground">{appointment.time}</span>
+                                  <span className="text-lg font-bold text-white drop-shadow-sm">{appointment.time}</span>
                                 </div>
 
                                 {/* Actions */}
@@ -1395,34 +1409,34 @@ export function PatientsPage() {
                                   <Button
                                     onClick={() => handleRescheduleAppointment(appointment.appointment_id)}
                                     size="sm"
-                                    className="neumorphic-button-primary text-xs"
+                                    className="bg-white/20 hover:bg-white/30 text-white border-none text-xs font-semibold h-8"
                                   >
                                     Reschedule
                                   </Button>
                                   <Button
                                     onClick={() => handleCancelAppointment(appointment.appointment_id)}
                                     size="sm"
-                                    className="neumorphic-button-destructive text-xs"
+                                    className="bg-red-500/20 hover:bg-red-500/30 text-white border-none text-xs font-semibold h-8"
                                   >
                                     Cancel
                                   </Button>
                                 </div>
                               </div>
-                              <div className="border-t border-blue-100/50 bg-blue-50/30">
+                              <div className="border-t border-white/10 bg-white/5">
                                 <Accordion type="multiple" className="w-full">
                                   <AccordionItem value={`reason-${appointment.appointment_id}`} className="border-b-0">
-                                    <AccordionTrigger className="px-4 py-2 text-sm font-medium hover:no-underline text-foreground">
+                                    <AccordionTrigger className="px-4 py-2 text-sm font-medium hover:no-underline text-white/90">
                                       Reason for Visit
                                     </AccordionTrigger>
-                                    <AccordionContent className="px-4 pb-3 text-sm text-foreground">
+                                    <AccordionContent className="px-4 pb-3 text-sm text-white">
                                       {appointment.reason_for_visit || 'Not provided'}
                                     </AccordionContent>
                                   </AccordionItem>
                                   <AccordionItem value={`notes-${appointment.appointment_id}`} className="border-b-0">
-                                    <AccordionTrigger className="px-4 py-2 text-sm font-medium hover:no-underline text-foreground">
+                                    <AccordionTrigger className="px-4 py-2 text-sm font-medium hover:no-underline text-white/90">
                                       Appointment Notes
                                     </AccordionTrigger>
-                                    <AccordionContent className="px-4 pb-3 text-sm text-foreground">
+                                    <AccordionContent className="px-4 pb-3 text-sm text-white">
                                       {appointment.appointment_note || 'No notes added'}
                                     </AccordionContent>
                                   </AccordionItem>
@@ -1432,26 +1446,30 @@ export function PatientsPage() {
                           ))}
                         </div>
                       ) : (
-                        <div className="text-center py-10">
-                          <div className="w-14 h-14 rounded-full bg-blue-100/50 flex items-center justify-center mx-auto mb-3">
-                            <IconCalendarEvent className="w-7 h-7 text-blue-400" />
+                        <div className="text-center py-10 relative z-10">
+                          <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-3 border border-white/10">
+                            <IconCalendarEvent className="w-7 h-7 text-white/60" />
                           </div>
-                          <p className="text-sm font-medium text-foreground/70">No upcoming appointments</p>
-                          <p className="text-xs text-foreground/50">Click "Schedule Appointment" to book one</p>
+                          <p className="text-base font-bold text-white drop-shadow-sm mb-1">No upcoming appointments</p>
+                          <p className="text-xs text-white/70 font-medium">Click "Schedule Appointment" to book one</p>
                         </div>
                       )}
                     </div>
 
                     {/* Past Appointments */}
-                    <div className="neumorphic-inset rounded-2xl p-5 border-2 border-orange-300 bg-gradient-to-br from-orange-50/40 via-transparent to-amber-50/30">
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-base font-semibold flex items-center gap-2 text-foreground">
-                          <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center">
-                            <IconHistory className="w-4 h-4 text-orange-600" />
+                    {/* Past Appointments */}
+                    <div className="relative bg-gradient-to-br from-[#9a8ea2]/80 to-[#b0a4b2]/60 dark:from-[#4a4257]/80 dark:to-[#5a5267]/60 backdrop-blur-xl rounded-xl p-5 border-[3px] border-[#b8a0d4]/70 dark:border-[#8e7cc3]/60 shadow-[0_0_30px_rgba(184,160,212,0.5),0_0_60px_rgba(184,160,212,0.2),inset_0_1px_0_rgba(255,255,255,0.4)] overflow-hidden">
+                      {/* Glossy Top Highlight */}
+                      <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-white/25 via-white/10 to-transparent dark:from-white/15 dark:via-white/8 dark:to-transparent rounded-t-xl pointer-events-none" />
+
+                      <div className="flex items-center justify-between mb-4 relative z-10">
+                        <h3 className="text-base font-bold flex items-center gap-2 text-white">
+                          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-md border border-white/30 shadow-inner">
+                            <IconHistory className="w-5 h-5 text-white" />
                           </div>
                           Past Appointments
                           {(selectedPatient?.appointments?.past?.length ?? 0) > 0 && (
-                            <span className="ml-2 px-2 py-0.5 rounded-full bg-orange-100 text-orange-600 text-xs font-semibold">
+                            <span className="ml-2 px-2 py-0.5 rounded-full bg-white/20 text-white text-xs font-bold border border-white/20">
                               {selectedPatient?.appointments?.past?.length ?? 0}
                             </span>
                           )}
@@ -1459,45 +1477,45 @@ export function PatientsPage() {
                       </div>
 
                       {(selectedPatient?.appointments?.past?.length ?? 0) > 0 ? (
-                        <div className="space-y-3">
+                        <div className="space-y-3 relative z-10">
                           {selectedPatient.appointments?.past?.map((appointment, index) => (
-                            <div key={index} className="p-4 rounded-xl bg-white/50 border-2 border-orange-100/80 transition-all duration-200 hover:shadow-md">
+                            <div key={index} className="p-4 rounded-xl bg-white/10 border border-white/20 transition-all duration-200 hover:bg-white/15">
                               <div className="flex items-center justify-between flex-wrap gap-2">
                                 <div className="flex items-center gap-3">
-                                  <span className="font-semibold text-foreground">
+                                  <span className="font-bold text-white drop-shadow-sm">
                                     {formatDateUSShort(appointment.date)}
                                   </span>
-                                  <span className="text-sm text-foreground/70">{appointment.time}</span>
+                                  <span className="text-sm text-white/90 font-medium">{appointment.time}</span>
                                   {appointment.duration && (
-                                    <span className="px-2 py-0.5 rounded-md bg-orange-100 text-orange-600 text-xs">
+                                    <span className="px-2 py-0.5 rounded-md bg-white/20 text-white text-xs font-semibold border border-white/10">
                                       {appointment.duration} mins
                                     </span>
                                   )}
                                 </div>
-                                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${appointment.status?.toLowerCase() === 'completed'
-                                  ? 'bg-green-100 text-green-700 active-success-scale'
+                                <span className={`px-3 py-1 rounded-full text-xs font-bold border ${appointment.status?.toLowerCase() === 'completed'
+                                  ? 'bg-green-500/20 text-green-100 border-green-500/30'
                                   : appointment.status?.toLowerCase() === 'cancelled'
-                                    ? 'bg-red-100 text-red-700 active-destructive-scale'
-                                    : 'bg-orange-100 text-orange-600'
+                                    ? 'bg-red-500/20 text-red-100 border-red-500/30'
+                                    : 'bg-white/20 text-white border-white/30'
                                   }`}>
                                   {appointment.status}
                                 </span>
                               </div>
-                              <div className="mt-2 border-t border-orange-100/50 pt-2">
+                              <div className="mt-2 border-t border-white/10 pt-2">
                                 <Accordion type="multiple" className="w-full">
                                   <AccordionItem value={`reason-past-${appointment.appointment_id}`} className="border-b-0">
-                                    <AccordionTrigger className="py-1 text-sm font-medium hover:no-underline text-foreground">
+                                    <AccordionTrigger className="py-1 text-sm font-medium hover:no-underline text-white/90">
                                       Reason for Visit
                                     </AccordionTrigger>
-                                    <AccordionContent className="pb-2 text-sm text-foreground">
+                                    <AccordionContent className="pb-2 text-sm text-white">
                                       {appointment.reason_for_visit || 'Not provided'}
                                     </AccordionContent>
                                   </AccordionItem>
                                   <AccordionItem value={`notes-past-${appointment.appointment_id}`} className="border-b-0">
-                                    <AccordionTrigger className="py-1 text-sm font-medium hover:no-underline text-foreground">
+                                    <AccordionTrigger className="py-1 text-sm font-medium hover:no-underline text-white/90">
                                       Appointment Notes
                                     </AccordionTrigger>
-                                    <AccordionContent className="pb-2 text-sm text-foreground">
+                                    <AccordionContent className="pb-2 text-sm text-white">
                                       {appointment.appointment_note || 'No notes added'}
                                     </AccordionContent>
                                   </AccordionItem>
@@ -1507,12 +1525,11 @@ export function PatientsPage() {
                           ))}
                         </div>
                       ) : (
-                        <div className="text-center py-10">
-                          <div className="w-14 h-14 rounded-full bg-orange-100/50 flex items-center justify-center mx-auto mb-3">
-                            <IconHistory className="w-7 h-7 text-orange-400" />
+                        <div className="text-center py-10 relative z-10">
+                          <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-3 border border-white/10">
+                            <IconHistory className="w-7 h-7 text-white/60" />
                           </div>
-                          <p className="text-sm font-medium text-foreground/70">No past appointments</p>
-                          {/* <p className="text-xs text-foreground/50">No appointment history available</p> */}
+                          <p className="text-base font-bold text-white drop-shadow-sm mb-1">No past appointments</p>
                         </div>
                       )}
                     </div>
@@ -1584,54 +1601,63 @@ export function PatientsPage() {
 
           {/* Patients Table */}
           {!loading && !initialProfileLoad && (
-            <div className="bg-white/20 dark:bg-transparent backdrop-blur-sm rounded-xl p-4 border border-white/20 dark:border-white/10 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
-              {filteredPatients.length > 0 ? (
-                <div className="overflow-hidden rounded-lg">
-                  {/* Single table with sticky header for proper alignment */}
-                  <div className="overflow-x-auto max-h-[70vh] overflow-y-auto">
+            <div className="relative bg-gradient-to-br from-[#9a8ea2]/80 to-[#b0a4b2]/60 dark:from-[#4a4257]/80 dark:to-[#5a5267]/60 backdrop-blur-xl rounded-xl p-4 border-[3px] border-[#e8a855]/70 dark:border-[#a87832]/60 shadow-[0_0_30px_rgba(232,168,85,0.5),0_0_60px_rgba(232,168,85,0.2),0_8px_32px_rgba(150,130,160,0.25),inset_0_1px_0_rgba(255,255,255,0.4)] dark:shadow-[0_0_20px_rgba(168,120,50,0.4),0_8px_32px_rgba(50,40,60,0.3)] flex flex-col overflow-hidden glass-shine">
+              {/* Glossy Top Highlight */}
+              <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-white/25 via-white/10 to-transparent dark:from-white/15 dark:via-white/8 dark:to-transparent rounded-t-xl pointer-events-none" />
+
+              <div className="overflow-hidden rounded-xl flex-1 flex flex-col relative z-10">
+                {filteredPatients.length > 0 ? (
+                  <>
+                    {/* Fixed Header Table */}
                     <table className="w-full text-sm table-fixed">
-                      <thead>
-                        <tr className="border-b border-white/20">
-                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-foreground text-sm sm:text-base w-1/4">Patient Name</th>
-                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-foreground text-sm sm:text-base w-1/4 hidden sm:table-cell">DOB</th>
-                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-foreground text-sm sm:text-base w-1/4">Contact</th>
-                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-foreground text-sm sm:text-base w-1/4">Actions</th>
+                      <thead className="bg-[#9a8ea2] dark:bg-[#4a4257]">
+                        <tr>
+                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-white text-sm sm:text-base w-[22%]">Patient Name</th>
+                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-white text-sm sm:text-base w-[22%] hidden sm:table-cell">DOB</th>
+                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-white text-sm sm:text-base w-[36%]">Contact</th>
+                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-white text-sm sm:text-base w-[20%]">Actions</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-white/10">
-                        {filteredPatients.map((patient) => (
-                          <tr key={patient.id} className="hover:bg-white/10 transition-all duration-200">
-                            <td className="py-3 px-3 sm:px-4 w-1/4">
-                              <div className="flex items-center gap-2">
-                                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-primary/20 to-chart-2/20 flex items-center justify-center flex-shrink-0">
-                                  <IconUserCircle className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                                </div>
-                                <span className="font-normal text-base sm:text-lg truncate">{`${patient.first_name} ${patient.last_name}`}</span>
-                              </div>
-                            </td>
-                            <td className="py-3 px-3 sm:px-4 text-sm sm:text-base hidden sm:table-cell w-1/4">{formatDate(patient.dob)}</td>
-                            <td className="py-3 px-3 sm:px-4 text-sm sm:text-base w-1/4">{patient.phone_number}</td>
-                            <td className="py-3 px-3 sm:px-4 w-1/4">
-                              <Button
-                                onClick={() => handleViewProfile(patient)}
-                                className="neumorphic-button-primary text-xs sm:text-sm px-2 sm:px-3"
-                                size="sm"
-                              >
-                                <span className="hidden sm:inline">View Profile</span>
-                                <span className="sm:hidden">View</span>
-                              </Button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
                     </table>
+
+                    {/* Scrollable Body Container */}
+                    <div className="overflow-x-auto max-h-[70vh] overflow-y-auto flex-1 bg-white/80 dark:bg-white/20 rounded-lg">
+                      <table className="w-full text-sm table-fixed">
+                        <tbody className="divide-y divide-[#9a8ea2]/30">
+                          {filteredPatients.map((patient) => (
+                            <tr key={patient.id} className="bg-transparent hover:bg-white/10 transition-all duration-200">
+                              <td className="py-3 px-3 sm:px-4 w-[22%]">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-primary/20 to-chart-2/20 flex items-center justify-center flex-shrink-0">
+                                    <IconUserCircle className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700 dark:text-gray-200" />
+                                  </div>
+                                  <span className="font-normal text-sm sm:text-base truncate text-black dark:text-white">{`${patient.first_name} ${patient.last_name}`}</span>
+                                </div>
+                              </td>
+                              <td className="py-3 px-3 sm:px-4 text-sm sm:text-base hidden sm:table-cell w-[22%] text-black dark:text-white">{formatDate(patient.dob)}</td>
+                              <td className="py-3 px-3 sm:px-4 text-sm sm:text-base w-[36%] text-black dark:text-white">{patient.phone_number}</td>
+                              <td className="py-3 px-3 sm:px-4 w-[20%]">
+                                <Button
+                                  onClick={() => handleViewProfile(patient)}
+                                  className="neumorphic-button-primary text-xs sm:text-sm px-2 sm:px-3 bg-[#e8a855] text-white hover:bg-[#d69645] border-none shadow-md"
+                                  size="sm"
+                                >
+                                  <span className="hidden sm:inline">View Profile</span>
+                                  <span className="sm:hidden">View</span>
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center py-12">
+                    <p className="text-sm text-black dark:text-white">No patients found</p>
                   </div>
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <p className="text-sm text-foreground">No patients found</p>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -1672,304 +1698,250 @@ export function PatientsPage() {
             }}
           >
             <div
-              className="neumorphic-pressed rounded-lg w-full max-w-xl mx-auto max-h-[90vh] bg-background"
+              className={`relative overflow-hidden w-full max-w-xl mx-auto max-h-[90vh] rounded-2xl p-[2px] bg-gradient-to-br from-[#e8a855]/80 via-[#b8a0d4]/50 to-[#e8a855]/80 shadow-[0_0_50px_rgba(232,168,85,0.3)]`}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-5 overflow-y-auto max-h-[85vh]">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-base font-semibold">Add New Patient</h2>
+              <div className="absolute inset-0 bg-white/10 blur-xl pointer-events-none"></div>
+              <div className="relative bg-[#1a1c24]/95 dark:bg-[#0f1115]/95 backdrop-blur-3xl rounded-2xl w-full h-full p-6 sm:p-8 flex flex-col max-h-[89vh] overflow-hidden">
+                {/* Glossy overlay */}
+                <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-white/10 to-transparent pointer-events-none rounded-t-2xl"></div>
+
+                <div className="flex items-center justify-between mb-6 relative z-10 border-b border-white/10 pb-4">
+                  <div>
+                    <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">Add New Patient</h2>
+                    <p className="text-xs text-white/50 mt-1">Enter patient details below</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setShowAddForm(false)
+                      setSubmitError(null)
+                    }}
+                    className="p-2 rounded-full hover:bg-white/10 text-white/70 hover:text-white transition-colors"
+                  >
+                    <IconX className="w-5 h-5" />
+                  </button>
                 </div>
 
-                {submitError && (
-                  <div className="mb-4 p-3 bg-destructive/10 rounded-lg">
-                    <p className="text-sm text-destructive">{submitError}</p>
-                  </div>
-                )}
-
-                <form onSubmit={handleAddPatient} className="space-y-3">
-                  {/* Name Fields - All in one row */}
-                  <div className="grid grid-cols-3 gap-3">
-                    <div>
-                      <label className="block text-xs font-medium uppercase tracking-wide mb-2">
-                        First Name *
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Enter first name"
-                        value={formData.firstName}
-                        onChange={(e) => {
-                          const { value, error } = validateNameInput(e.target.value)
-                          setFormData({ ...formData, firstName: value })
-                          setFormErrors({ ...formErrors, firstName: error })
-                        }}
-                        className={`w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent ${formErrors.firstName ? 'ring-2 ring-red-500' : ''}`}
-                        required
-                        disabled={submitting}
-                      />
-                      {formErrors.firstName && (
-                        <p className="text-red-500 text-xs mt-1">{formErrors.firstName}</p>
-                      )}
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium uppercase tracking-wide mb-2">
-                        Middle Name
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Enter middle name"
-                        value={formData.middleName}
-                        onChange={(e) => {
-                          const { value, error } = validateNameInput(e.target.value)
-                          setFormData({ ...formData, middleName: value })
-                          setFormErrors({ ...formErrors, middleName: error })
-                        }}
-                        className={`w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent ${formErrors.middleName ? 'ring-2 ring-red-500' : ''}`}
-                        disabled={submitting}
-                      />
-                      {formErrors.middleName && (
-                        <p className="text-red-500 text-xs mt-1">{formErrors.middleName}</p>
-                      )}
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium uppercase tracking-wide mb-2">
-                        Last Name *
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Enter last name"
-                        value={formData.lastName}
-                        onChange={(e) => {
-                          const { value, error } = validateNameInput(e.target.value)
-                          setFormData({ ...formData, lastName: value })
-                          setFormErrors({ ...formErrors, lastName: error })
-                        }}
-                        className={`w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent ${formErrors.lastName ? 'ring-2 ring-red-500' : ''}`}
-                        required
-                        disabled={submitting}
-                      />
-                      {formErrors.lastName && (
-                        <p className="text-red-500 text-xs mt-1">{formErrors.lastName}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* DOB and Phone Number - In one row */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-xs font-medium uppercase tracking-wide mb-2">
-                        Date of Birth *
-                      </label>
-                      <DatePicker
-                        value={formData.dob}
-                        onChange={(value) => setFormData({ ...formData, dob: value })}
-                        placeholder="MM/DD/YYYY"
-                        disabled={submitting}
-                        required
-                        maxDate={new Date()} // Prevent future dates
-                        className="w-full"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium uppercase tracking-wide mb-2">
-                        Phone Number *
-                      </label>
-                      <div className="flex gap-2">
-                        <span className="inline-flex items-center px-3 py-2 text-sm neumorphic-inset rounded-l-md bg-muted/50 border-r border-border">
-                          +1
-                        </span>
-                        <input
-                          type="tel"
-                          placeholder="(XXX) XXX-XXXX"
-                          value={formData.phoneNumber}
-                          onChange={(e) => {
-                            let value = e.target.value.replace(/\D/g, '') // Remove non-digits
-                            if (value.length > 10) value = value.slice(0, 10) // Limit to 10 digits
-
-                            // Format as (XXX) XXX-XXXX
-                            if (value.length >= 6) {
-                              value = `(${value.slice(0, 3)}) ${value.slice(3, 6)}-${value.slice(6)}`
-                            } else if (value.length >= 3) {
-                              value = `(${value.slice(0, 3)}) ${value.slice(3)}`
-                            } else if (value.length > 0) {
-                              value = `(${value}`
-                            }
-
-                            setFormData({ ...formData, phoneNumber: value })
-                          }}
-                          className="flex-1 px-3 py-2 text-sm neumorphic-inset rounded-r-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                          required
-                          disabled={submitting}
-                          maxLength={14} // (XXX) XXX-XXXX = 14 characters
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Guardian Information - shown when patient is under 18 */}
-                  {isPatientMinor(formData.dob) && (
-                    <div className="space-y-2 pt-3 border-t border-border">
-                      <h2 className="mb-4 text-base font-semibold">Guardian Information* (Patient is a minor)</h2>
-
-                      {/* Guardian Name Fields - All in one row */}
-                      <div className="grid grid-cols-3 gap-2">
-                        <div>
-                          <label className="block text-xs font-medium uppercase tracking-wide mb-1">
-                            First Name *
-                          </label>
-                          <input
-                            type="text"
-                            placeholder="Enter first name"
-                            value={formData.guardianFirstName}
-                            onChange={(e) => {
-                              const { value, error } = validateNameInput(e.target.value)
-                              setFormData({ ...formData, guardianFirstName: value })
-                              setFormErrors({ ...formErrors, guardianFirstName: error })
-                            }}
-                            className={`w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent ${formErrors.guardianFirstName ? 'ring-2 ring-red-500' : ''}`}
-                            required={isPatientMinor(formData.dob)}
-                            disabled={submitting}
-                          />
-                          {formErrors.guardianFirstName && (
-                            <p className="text-red-500 text-xs mt-1">{formErrors.guardianFirstName}</p>
-                          )}
-                        </div>
-                        <div>
-                          <label className="block text-xs font-medium uppercase tracking-wide mb-1">
-                            Middle Name
-                          </label>
-                          <input
-                            type="text"
-                            placeholder="Enter middle name"
-                            value={formData.guardianMiddleName}
-                            onChange={(e) => {
-                              const { value, error } = validateNameInput(e.target.value)
-                              setFormData({ ...formData, guardianMiddleName: value })
-                              setFormErrors({ ...formErrors, guardianMiddleName: error })
-                            }}
-                            className={`w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent ${formErrors.guardianMiddleName ? 'ring-2 ring-red-500' : ''}`}
-                            disabled={submitting}
-                          />
-                          {formErrors.guardianMiddleName && (
-                            <p className="text-red-500 text-xs mt-1">{formErrors.guardianMiddleName}</p>
-                          )}
-                        </div>
-                        <div>
-                          <label className="block text-xs font-medium uppercase tracking-wide mb-1">
-                            Last Name *
-                          </label>
-                          <input
-                            type="text"
-                            placeholder="Enter last name"
-                            value={formData.guardianLastName}
-                            onChange={(e) => {
-                              const { value, error } = validateNameInput(e.target.value)
-                              setFormData({ ...formData, guardianLastName: value })
-                              setFormErrors({ ...formErrors, guardianLastName: error })
-                            }}
-                            className={`w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent ${formErrors.guardianLastName ? 'ring-2 ring-red-500' : ''}`}
-                            required={isPatientMinor(formData.dob)}
-                            disabled={submitting}
-                          />
-                          {formErrors.guardianLastName && (
-                            <p className="text-red-500 text-xs mt-1">{formErrors.guardianLastName}</p>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Guardian DOB and Relationship - In one row */}
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="block text-xs font-medium uppercase tracking-wide mb-1">
-                            Guardian Date of Birth *
-                          </label>
-                          <DatePicker
-                            value={formData.guardianDob}
-                            onChange={(value) => setFormData({ ...formData, guardianDob: value })}
-                            placeholder="MM/DD/YYYY"
-                            required={isPatientMinor(formData.dob)}
-                            disabled={submitting}
-                            maxDate={new Date()} // Prevent future dates
-                            className="w-full"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-medium uppercase tracking-wide mb-1">
-                            Relationship to Patient *
-                          </label>
-                          <select
-                            value={formData.guardianRelationship}
-                            onChange={(e) => setFormData({ ...formData, guardianRelationship: e.target.value })}
-                            className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                            required={isPatientMinor(formData.dob)}
-                            disabled={submitting}
-                          >
-                            <option value="">Select relationship</option>
-                            <option value="Parent">Parent</option>
-                            <option value="Spouse">Spouse (Husband/Wife)</option>
-                            <option value="Grandparent">Grandparent</option>
-                            <option value="Sibling">Sibling</option>
-                            <option value="Aunt">Aunt</option>
-                            <option value="Uncle">Uncle</option>
-                            <option value="Cousin">Cousin</option>
-                            <option value="Guardian">Guardian</option>
-                          </select>
-                        </div>
-                      </div>
+                <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar relative z-10">
+                  {submitError && (
+                    <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3">
+                      <IconExclamationCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
+                      <p className="text-sm text-red-200">{submitError}</p>
                     </div>
                   )}
 
-                  <div className="flex gap-3 pt-3">
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        setShowAddForm(false)
-                        setSubmitError(null)
-                        setFormData({
-                          firstName: '',
-                          middleName: '',
-                          lastName: '',
-                          dob: '',
-                          phoneNumber: '',
-                          guardianFirstName: '',
-                          guardianMiddleName: '',
-                          guardianLastName: '',
-                          guardianDob: '',
-                          guardianRelationship: ''
-                        })
-                        setFormErrors({
-                          firstName: '',
-                          middleName: '',
-                          lastName: '',
-                          dob: '',
-                          phoneNumber: '',
-                          guardianFirstName: '',
-                          guardianMiddleName: '',
-                          guardianLastName: '',
-                          guardianDob: '',
-                          guardianRelationship: ''
-                        })
-                      }}
-                      disabled={submitting}
-                      className="flex-1 neumorphic-button-destructive"
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      type="submit"
-                      disabled={submitting}
-                      className="flex-1 neumorphic-button-primary"
-                    >
-                      {submitting ? (
-                        <span className="flex items-center justify-center">
-                          <IconLoader2 className="w-4 h-4 animate-spin mr-1" />
-                          Adding...
-                        </span>
-                      ) : (
-                        'Add Patient'
-                      )}
-                    </Button>
-                  </div>
-                </form>
+                  <form onSubmit={handleAddPatient} className="space-y-6">
+                    {/* Name Fields */}
+                    <div className="space-y-4">
+                      <h3 className="text-xs font-bold text-[#e8a855] uppercase tracking-wider mb-3">Personal Information</h3>
+                      <div className="grid grid-cols-3 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-medium text-white/70 ml-1">First Name *</label>
+                          <input
+                            type="text"
+                            placeholder="First Name"
+                            value={formData.firstName}
+                            onChange={(e) => {
+                              const { value, error } = validateNameInput(e.target.value)
+                              setFormData({ ...formData, firstName: value })
+                              setFormErrors({ ...formErrors, firstName: error })
+                            }}
+                            className={`w-full px-4 py-2.5 bg-white/5 border ${formErrors.firstName ? 'border-red-500/50' : 'border-white/10'} rounded-xl focus:outline-none focus:border-[#e8a855]/70 focus:bg-white/10 text-white placeholder:text-white/20 transition-all text-sm`}
+                            required
+                            disabled={submitting}
+                          />
+                          {formErrors.firstName && <p className="text-red-400 text-[10px] ml-1">{formErrors.firstName}</p>}
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-medium text-white/70 ml-1">Middle</label>
+                          <input
+                            type="text"
+                            placeholder="Middle"
+                            value={formData.middleName}
+                            onChange={(e) => {
+                              const { value, error } = validateNameInput(e.target.value)
+                              setFormData({ ...formData, middleName: value })
+                              setFormErrors({ ...formErrors, middleName: error })
+                            }}
+                            className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-[#e8a855]/70 focus:bg-white/10 text-white placeholder:text-white/20 transition-all text-sm"
+                            disabled={submitting}
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-medium text-white/70 ml-1">Last Name *</label>
+                          <input
+                            type="text"
+                            placeholder="Last Name"
+                            value={formData.lastName}
+                            onChange={(e) => {
+                              const { value, error } = validateNameInput(e.target.value)
+                              setFormData({ ...formData, lastName: value })
+                              setFormErrors({ ...formErrors, lastName: error })
+                            }}
+                            className={`w-full px-4 py-2.5 bg-white/5 border ${formErrors.lastName ? 'border-red-500/50' : 'border-white/10'} rounded-xl focus:outline-none focus:border-[#e8a855]/70 focus:bg-white/10 text-white placeholder:text-white/20 transition-all text-sm`}
+                            required
+                            disabled={submitting}
+                          />
+                          {formErrors.lastName && <p className="text-red-400 text-[10px] ml-1">{formErrors.lastName}</p>}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Contact Info */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-white/70 ml-1">Date of Birth *</label>
+                        <div className="relative">
+                          <DatePicker
+                            value={formData.dob}
+                            onChange={(value) => setFormData({ ...formData, dob: value })}
+                            placeholder="MM/DD/YYYY"
+                            disabled={submitting}
+                            required
+                            maxDate={new Date()}
+                            className="w-full bg-white/5 border-white/10 text-white rounded-xl focus:border-[#e8a855]/70"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-white/70 ml-1">Phone Number *</label>
+                        <div className="flex">
+                          <div className="px-3 py-2.5 bg-white/5 border border-r-0 border-white/10 rounded-l-xl text-white/50 text-sm flex items-center">+1</div>
+                          <input
+                            type="tel"
+                            placeholder="(555) 000-0000"
+                            value={formData.phoneNumber}
+                            onChange={(e) => {
+                              let value = e.target.value.replace(/\D/g, '')
+                              if (value.length > 10) value = value.slice(0, 10)
+                              if (value.length >= 6) {
+                                value = `(${value.slice(0, 3)}) ${value.slice(3, 6)}-${value.slice(6)}`
+                              } else if (value.length >= 3) {
+                                value = `(${value.slice(0, 3)}) ${value.slice(3)}`
+                              } else if (value.length > 0) {
+                                value = `(${value}`
+                              }
+                              setFormData({ ...formData, phoneNumber: value })
+                            }}
+                            className="w-full px-4 py-2.5 bg-white/5 border border-l-0 border-white/10 rounded-r-xl focus:outline-none focus:border-[#e8a855]/70 focus:bg-white/10 text-white placeholder:text-white/20 transition-all text-sm"
+                            required
+                            disabled={submitting}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Guardian Information */}
+                    {isPatientMinor(formData.dob) && (
+                      <div className="space-y-4 pt-4 border-t border-white/10">
+                        <h3 className="text-xs font-bold text-[#e8a855] uppercase tracking-wider mb-2">Guardian Information <span className="text-white/40 font-normal normal-case ml-2">(Required for minors)</span></h3>
+
+                        <div className="grid grid-cols-3 gap-4">
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-medium text-white/70 ml-1">First Name</label>
+                            <input
+                              type="text"
+                              value={formData.guardianFirstName}
+                              onChange={(e) => {
+                                const { value, error } = validateNameInput(e.target.value)
+                                setFormData({ ...formData, guardianFirstName: value })
+                                setFormErrors({ ...formErrors, guardianFirstName: error })
+                              }}
+                              className={`w-full px-4 py-2.5 bg-white/5 border ${formErrors.guardianFirstName ? 'border-red-500/50' : 'border-white/10'} rounded-xl focus:outline-none focus:border-[#e8a855]/70 text-white text-sm`}
+                              required={isPatientMinor(formData.dob)}
+                            />
+                            {formErrors.guardianFirstName && <p className="text-red-400 text-[10px] ml-1">{formErrors.guardianFirstName}</p>}
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-medium text-white/70 ml-1">Middle</label>
+                            <input
+                              type="text"
+                              value={formData.guardianMiddleName}
+                              onChange={(e) => {
+                                const { value, error } = validateNameInput(e.target.value)
+                                setFormData({ ...formData, guardianMiddleName: value })
+                                setFormErrors({ ...formErrors, guardianMiddleName: error })
+                              }}
+                              className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-[#e8a855]/70 text-white text-sm"
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-medium text-white/70 ml-1">Last Name</label>
+                            <input
+                              type="text"
+                              value={formData.guardianLastName}
+                              onChange={(e) => {
+                                const { value, error } = validateNameInput(e.target.value)
+                                setFormData({ ...formData, guardianLastName: value })
+                                setFormErrors({ ...formErrors, guardianLastName: error })
+                              }}
+                              className={`w-full px-4 py-2.5 bg-white/5 border ${formErrors.guardianLastName ? 'border-red-500/50' : 'border-white/10'} rounded-xl focus:outline-none focus:border-[#e8a855]/70 text-white text-sm`}
+                              required={isPatientMinor(formData.dob)}
+                            />
+                            {formErrors.guardianLastName && <p className="text-red-400 text-[10px] ml-1">{formErrors.guardianLastName}</p>}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-medium text-white/70 ml-1">Guardian DOB</label>
+                            <DatePicker
+                              value={formData.guardianDob}
+                              onChange={(value) => setFormData({ ...formData, guardianDob: value })}
+                              required={isPatientMinor(formData.dob)}
+                              maxDate={new Date()}
+                              className="w-full bg-white/5 border-white/10 text-white rounded-xl"
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-medium text-white/70 ml-1">Relationship</label>
+                            <select
+                              value={formData.guardianRelationship}
+                              onChange={(e) => setFormData({ ...formData, guardianRelationship: e.target.value })}
+                              className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-[#e8a855]/70 text-white text-sm appearance-none"
+                              required={isPatientMinor(formData.dob)}
+                            >
+                              <option value="" className="bg-slate-800 text-white">Select...</option>
+                              <option value="Parent" className="bg-slate-800 text-white">Parent</option>
+                              <option value="Spouse" className="bg-slate-800 text-white">Spouse</option>
+                              <option value="Guardian" className="bg-slate-800 text-white">Guardian</option>
+                              <option value="Other" className="bg-slate-800 text-white">Other</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Actions */}
+                    <div className="flex gap-4 pt-4 mt-2">
+                      <Button
+                        type="button"
+                        onClick={() => {
+                          setShowAddForm(false)
+                          setSubmitError(null)
+                        }}
+                        disabled={submitting}
+                        className="flex-1 bg-white/5 hover:bg-white/10 text-white border border-white/10 h-11 rounded-xl"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        type="submit"
+                        disabled={submitting}
+                        className="flex-1 bg-gradient-to-r from-[#e8a855] to-[#d69645] hover:from-[#d69645] hover:to-[#c58534] text-white border-0 h-11 rounded-xl shadow-[0_0_20px_rgba(232,168,85,0.3)] hover:shadow-[0_0_30px_rgba(232,168,85,0.4)] transition-all"
+                      >
+                        {submitting ? (
+                          <span className="flex items-center justify-center">
+                            <IconLoader2 className="w-5 h-5 animate-spin mr-2" />
+                            Adding Patient...
+                          </span>
+                        ) : (
+                          'Add Patient'
+                        )}
+                      </Button>
+                    </div>
+                  </form>
+                </div>
               </div>
             </div>
           </div>

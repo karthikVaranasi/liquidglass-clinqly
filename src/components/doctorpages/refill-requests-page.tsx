@@ -142,71 +142,75 @@ export function RefillRequestsPage() {
 
       {/* Refill Requests Table */}
       <div className="px-4 lg:px-6">
-        <div className="bg-white/20 dark:bg-transparent backdrop-blur-sm rounded-xl p-4 border border-white/20 dark:border-white/10 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
-          {requests.length === 0 ? (
-            <div className="flex items-center justify-center h-64">
-              <div className="text-center">
-                <div className="text-foreground mb-2">No refill requests found</div>
-                <div className="text-sm text-foreground">Prescription refill requests will appear here.</div>
+        <div className="relative bg-gradient-to-br from-[#9a8ea2]/80 to-[#b0a4b2]/60 dark:from-[#4a4257]/80 dark:to-[#5a5267]/60 backdrop-blur-xl rounded-xl p-4 border-[3px] border-[#e8a855]/70 dark:border-[#a87832]/60 shadow-[0_0_30px_rgba(232,168,85,0.5),0_0_60px_rgba(232,168,85,0.2),0_8px_32px_rgba(150,130,160,0.25),inset_0_1px_0_rgba(255,255,255,0.4)] dark:shadow-[0_0_20px_rgba(168,120,50,0.4),0_8px_32px_rgba(50,40,60,0.3)] flex flex-col overflow-hidden glass-shine">
+          {/* Glossy Top Highlight */}
+          <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-white/25 via-white/10 to-transparent dark:from-white/15 dark:via-white/8 dark:to-transparent rounded-t-xl pointer-events-none" />
+
+          <div className="overflow-hidden rounded-xl flex-1 flex flex-col relative z-10">
+            {requests.length === 0 ? (
+              <div className="flex items-center justify-center h-64">
+                <div className="text-center">
+                  <div className="text-black dark:text-white mb-2">No refill requests found</div>
+                  <div className="text-sm text-black dark:text-white">Prescription refill requests will appear here.</div>
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="overflow-hidden rounded-lg">
-              {/* Single table with sticky header */}
-              <div className="overflow-x-auto max-h-[75vh] overflow-y-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-white/20">
-                      <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[125px] text-xs sm:text-sm">Patient Name</th>
-                      <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[115px] text-xs sm:text-sm">Patient Phone</th>
-                      <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[120px] text-xs sm:text-sm hidden md:table-cell">Guardian Name</th>
-                      <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[70px] text-xs sm:text-sm hidden lg:table-cell">Relationship</th>
-                      <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[205px] text-xs sm:text-sm hidden md:table-cell">Details</th>
-                      <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[150px] text-xs sm:text-sm hidden lg:table-cell">Pharmacy Name</th>
-                      <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[175px] text-xs sm:text-sm hidden xl:table-cell">Pharmacy Location</th>
-                      <th className="text-left font-bold text-foreground py-3 px-1.5 min-w-[100px] text-xs sm:text-sm">Created At</th>
+            ) : (
+              <>
+                {/* Fixed Header Table */}
+                <table className="w-full text-sm table-fixed">
+                  <thead className="bg-[#9a8ea2] dark:bg-[#4a4257]">
+                    <tr>
+                      <th className="text-left font-bold text-white py-3 px-3 sm:px-4 w-[16%]">Patient Name</th>
+                      <th className="text-left font-bold text-white py-3 px-3 sm:px-4 w-[12%]">Patient Phone</th>
+                      <th className="text-left font-bold text-white py-3 px-3 sm:px-4 w-[12%] hidden md:table-cell">Guardian</th>
+                      <th className="text-left font-bold text-white py-3 px-3 sm:px-4 w-[10%] hidden lg:table-cell">Rel.</th>
+                      <th className="text-left font-bold text-white py-3 px-3 sm:px-4 w-[20%] hidden md:table-cell">Details</th>
+                      <th className="text-left font-bold text-white py-3 px-3 sm:px-4 w-[15%] hidden lg:table-cell">Pharmacy Name</th>
+                      <th className="text-left font-bold text-white py-3 px-3 sm:px-4 w-[15%] hidden xl:table-cell">Pharmacy Loc.</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/10">
-                    {requests.map((request, index) => (
-                      <tr key={request.id || index} className="hover:bg-white/10 transition-colors">
-                        <td className="py-3 px-1.5 font-semibold text-xs sm:text-sm min-w-[125px]">
-                          <div className="flex items-center gap-1">
-                            {getPatientName(request)}
-                          </div>
-                        </td>
-                        <td className="py-3 px-1.5 text-xs sm:text-sm min-w-[115px]">{getPatientPhone(request)}</td>
-                        <td className="py-3 px-1.5 text-xs sm:text-sm min-w-[120px] hidden md:table-cell">{request.caller_name}</td>
-                        <td className="py-3 px-1.5 text-xs sm:text-sm min-w-[70px] hidden lg:table-cell">{getRelationship(request)}</td>
-                        <td className="py-3 px-1.5 text-xs sm:text-sm max-w-xs min-w-[205px] hidden md:table-cell">
-                          <div className="line-clamp-2" title={getDetails(request)}>
-                            {getDetails(request)}
-                          </div>
-                        </td>
-                        <td className="py-3 px-1.5 text-xs sm:text-sm min-w-[150px] hidden lg:table-cell">{request.pharmacy_name}</td>
-                        <td className="py-3 px-1.5 text-xs sm:text-sm max-w-xs min-w-[175px] hidden xl:table-cell">
-                          <span
-                            className="flex items-center gap-1 underline cursor-pointer line-clamp-2"
-                            title={`Open ${request.pharmacy_location} in Google Maps`}
-                            onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(request.pharmacy_location)}`, '_blank')}
-                          >
-                            <IconMapPin className="w-4 h-4 flex-shrink-0" />
-                            {request.pharmacy_location}
-                          </span>
-                        </td>
-                        <td className="py-3 px-1.5 text-xs sm:text-sm min-w-[100px]">
-                          {(() => {
-                            const dateValue = getCreatedAt(request)
-                            return formatDate(dateValue)
-                          })()}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
                 </table>
-              </div>
-            </div>
-          )}
+
+                {/* Scrollable Body Container */}
+                <div className="overflow-x-auto max-h-[70vh] overflow-y-auto flex-1 bg-white/80 dark:bg-white/20 rounded-lg">
+                  <table className="w-full text-sm table-fixed">
+                    <tbody className="divide-y divide-[#9a8ea2]/30">
+                      {requests.map((request, index) => (
+                        <tr key={request.id || index} className="bg-transparent hover:bg-white/10 transition-colors group">
+                          <td className="py-3 px-3 sm:px-4 font-normal text-xs sm:text-sm text-black dark:text-white w-[16%]">
+                            <div className="flex items-center gap-2">
+                              {getPatientName(request)}
+                            </div>
+                          </td>
+                          <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm text-black dark:text-white w-[12%]">{getPatientPhone(request)}</td>
+                          <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm hidden md:table-cell text-black dark:text-white w-[12%]">{request.caller_name || "—"}</td>
+                          <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm hidden lg:table-cell text-black dark:text-white w-[10%]">{getRelationship(request) || "—"}</td>
+                          <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm hidden md:table-cell text-black dark:text-white w-[20%]">
+                            <div className="line-clamp-2" title={getDetails(request)}>
+                              {getDetails(request) || "—"}
+                            </div>
+                          </td>
+                          <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm hidden lg:table-cell text-black dark:text-white w-[15%]">{request.pharmacy_name || "—"}</td>
+                          <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm hidden xl:table-cell text-black dark:text-white w-[15%]">
+                            {request.pharmacy_location ? (
+                              <span
+                                className="flex items-center gap-1 underline cursor-pointer line-clamp-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                                title={`Open ${request.pharmacy_location} in Google Maps`}
+                                onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(request.pharmacy_location)}`, '_blank')}
+                              >
+                                <IconMapPin className="w-3.5 h-3.5 flex-shrink-0" />
+                                {request.pharmacy_location}
+                              </span>
+                            ) : "—"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

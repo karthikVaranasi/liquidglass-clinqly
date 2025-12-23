@@ -108,15 +108,15 @@ export function AppHeader({ currentPage, userType = 'doctor', doctorsCount, user
           {/* Branding - Powered by EzMedTech */}
           <div className="flex items-center gap-2">
             <img
-              src="/logo.svg"
+              src="/logo.png"
               alt={userType === 'admin' ? "EzMedTech Logo" : "EzMedTech Logo"}
-              className="w-6 h-6 object-contain"
+              className="w-6 h-6 object-contain rounded-full"
             />
             <div className="flex flex-col">
-              <span className="text-xs font-medium leading-tight text-muted-foreground">
+              <span className="text-xs font-medium leading-tight text-muted-foreground dark:text-white/70">
                 Powered by
               </span>
-              <span className="text-sm font-semibold text-foreground leading-tight">
+              <span className="text-sm font-semibold text-foreground leading-tight dark:text-white">
                 {userType === 'admin' ? 'EzMedTech' : 'EzMedTech'}
               </span>
             </div>

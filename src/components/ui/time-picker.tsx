@@ -61,17 +61,20 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-64 sm:w-60 p-0 border border-white/30 shadow-lg bg-white dark:bg-slate-800 rounded-2xl"
+        className="w-64 sm:w-80 p-0 border border-white/40 shadow-[0_0_30px_rgba(100,100,100,0.2)] bg-gradient-to-br from-white/90 to-white/70 dark:from-[#2a2a35] dark:to-[#1a1a20] backdrop-blur-xl rounded-2xl overflow-hidden"
         align="start"
       >
-        <div className="p-4 space-y-2">
+        {/* Glossy Header Effect */}
+        <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-white/30 via-white/10 to-transparent pointer-events-none" />
+
+        <div className="p-4 space-y-2 relative z-10">
           <div className="flex justify-center gap-4 sm:gap-6">
             {/* Hour Section */}
             <div className="flex flex-col items-center">
               <div className="text-xs sm:text-sm font-medium text-foreground mb-2">
                 Hour
               </div>
-              <div className="w-12 sm:w-14 h-40 overflow-y-auto neumorphic-inset rounded-xl p-1 timepicker-scroll">
+              <div className="w-12 sm:w-16 h-40 overflow-y-auto rounded-xl p-1 timepicker-scroll bg-black/5 dark:bg-white/5 border border-white/20">
                 <div className="py-0.5 space-y-1">
                   {hours.map((hour) => (
                     <div
@@ -94,7 +97,7 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
               <div className="text-xs sm:text-sm font-medium text-foreground mb-2">
                 Min
               </div>
-              <div className="w-12 sm:w-14 h-40 overflow-y-auto neumorphic-inset rounded-xl p-1 timepicker-scroll">
+              <div className="w-12 sm:w-16 h-40 overflow-y-auto rounded-xl p-1 timepicker-scroll bg-black/5 dark:bg-white/5 border border-white/20">
                 <div className="py-0.5 space-y-1">
                   {minutes.map((minute) => (
                     <div
@@ -138,7 +141,7 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
           <div className="flex justify-center border-t border-muted/30">
             <Button
               onClick={handleDone}
-              className="neumorphic-button-primary"
+              className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white border-0 shadow-md transition-all duration-300 transform hover:scale-105"
             >
               <IconCheck className="w-3 h-3" />
               Done

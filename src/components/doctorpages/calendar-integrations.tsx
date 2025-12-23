@@ -329,7 +329,7 @@ export function CalendarIntegrations() {
         </div>
 
         {/* Warning Message */}
-        <div className="max-w-md mx-auto sm:mx-0 bg-amber-50/80 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700/50 p-3 sm:p-4 mt-6 rounded-lg">
+        <div className="w-fit mx-auto sm:mx-0 bg-amber-50/80 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700/50 p-3 sm:p-4 mt-6 rounded-lg whitespace-nowrap">
           <p className="text-xs sm:text-sm font-medium text-amber-800 dark:text-amber-200 text-center sm:text-left">
             ⚠️ Disconnecting will stop syncing appointments with that calendar
           </p>

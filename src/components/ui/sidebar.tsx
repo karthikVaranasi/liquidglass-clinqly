@@ -187,7 +187,7 @@ function Sidebar({
           data-sidebar="sidebar"
           data-slot="sidebar"
           data-mobile="true"
-          className="bg-gradient-to-b from-white/50 to-white/35 dark:from-transparent dark:to-transparent dark:bg-white/5 backdrop-blur-2xl backdrop-saturate-150 border-r border-white/30 dark:border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.4)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)] text-sidebar-foreground w-(--sidebar-width)! p-0 [&>button]:hidden"
+          className="bg-gradient-to-br from-white/20 to-white/10 dark:from-white/10 dark:to-white/5 backdrop-blur-md border-r border-white/30 dark:border-white/20 shadow-lg text-sidebar-foreground w-(--sidebar-width)! p-0 [&>button]:hidden group/mobile-sidebar"
           style={
             {
               "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
@@ -200,8 +200,8 @@ function Sidebar({
             <SheetDescription>Displays the mobile sidebar.</SheetDescription>
           </SheetHeader>
           <div className="flex h-full w-full flex-col relative overflow-hidden">
-            {/* Glossy Top Highlight - Glass Effect */}
-            <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-white/30 via-white/10 to-transparent dark:from-white/8 dark:via-white/3 dark:to-transparent pointer-events-none z-0" />
+            {/* Dynamic Sliding Shine Effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover/mobile-sidebar:translate-x-[100%] transition-transform duration-1000 pointer-events-none z-0" />
             {/* Inner content */}
             <div className="relative z-10 flex h-full w-full flex-col">
               {children}
@@ -252,12 +252,15 @@ function Sidebar({
           data-sidebar="sidebar"
           data-slot="sidebar-inner"
           className={cn(
-            "flex h-full w-full flex-col theme-transition dark:text-white relative overflow-hidden glass-shine",
-            variant === "floating" && "rounded-2xl bg-gradient-to-b from-white/50 to-white/35 dark:from-transparent dark:to-transparent dark:bg-white/5 backdrop-blur-2xl backdrop-saturate-150 border-r border-white/30 dark:border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.4)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
+            "flex h-full w-full flex-col theme-transition dark:text-white relative overflow-hidden group/sidebar-inner",
+            "bg-gradient-to-br from-white/20 to-white/10 dark:from-white/10 dark:to-white/5",
+            "backdrop-blur-md border-r border-white/30 dark:border-white/20",
+            "shadow-lg",
+            variant === "floating" && "rounded-2xl border"
           )}
         >
-          {/* Glossy Top Highlight - Glass Effect */}
-          <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-white/30 via-white/10 to-transparent dark:from-white/8 dark:via-white/3 dark:to-transparent rounded-t-2xl pointer-events-none z-0" />
+          {/* Dynamic Sliding Shine Effect - REMOVED per user request to avoid interference */}
+          {/* <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover/sidebar-inner:translate-x-[100%] transition-transform duration-1000 pointer-events-none z-0" /> */}
           {/* Inner content with relative positioning */}
           <div className="relative z-10 flex h-full w-full flex-col">
             {children}

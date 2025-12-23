@@ -181,12 +181,20 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
     }
   ]
 
-  // Light gradient accents per card
+  // Light gradient accents per card (Liquid Glass Style)
   const gradientClasses: Record<string, string> = {
-    totalPatients: "from-emerald-500/25 via-emerald-500/10 to-transparent",
-    totalLogs: "from-amber-500/25 via-amber-500/10 to-transparent",
-    totalAppointments: "from-blue-500/25 via-blue-500/10 to-transparent",
-    todaysAppointments: "from-fuchsia-500/25 via-fuchsia-500/10 to-transparent"
+    totalPatients: "from-[#91b4e8]/80 to-[#a7c4f0]/60 dark:from-[#3a4a5a]/80 dark:to-[#4a5a6a]/60",
+    totalLogs: "from-[#e8a855]/80 to-[#f0c080]/60 dark:from-[#a87832]/80 dark:to-[#c99a4a]/60",
+    totalAppointments: "from-[#b8a0d4]/80 to-[#d0b8e8]/60 dark:from-[#5a3a7a]/80 dark:to-[#7a5a9a]/60",
+    todaysAppointments: "from-[#9a8ea2]/80 to-[#b0a4b2]/60 dark:from-[#4a4257]/80 dark:to-[#5a5267]/60"
+  }
+
+  // Border colors matching the gradients
+  const borderClasses: Record<string, string> = {
+    totalPatients: "border-[#7eb8f0]/50 dark:border-[#5a7a9a]/50",
+    totalLogs: "border-[#e8a855]/50 dark:border-[#a87832]/50",
+    totalAppointments: "border-[#b8a0d4]/50 dark:border-[#7a5a9a]/50",
+    todaysAppointments: "border-[#9a8ea2]/50 dark:border-[#4a4257]/50"
   }
 
   if (loading) {
@@ -230,20 +238,23 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
             return (
               <div
                 key={stat.id}
-                className={`relative overflow-hidden neumorphic-inset p-4 rounded-xl transition-all duration-200 neumorphic-hover ${isClickable ? "cursor-pointer" : ""
-                  }`}
+                className={`relative overflow-hidden rounded-2xl p-4 transition-all duration-300 group
+                  bg-gradient-to-br ${gradientClasses[stat.id]}
+                  backdrop-blur-xl border-2 ${borderClasses[stat.id] || "border-white/50"}
+                  shadow-[0_4px_20px_rgba(0,0,0,0.05)] hover:shadow-[0_0_25px_rgba(255,255,255,0.4)]
+                  hover:scale-[1.02] glass-shine
+                  ${isClickable ? "cursor-pointer" : ""}`}
                 onClick={isClickable ? handleCardClick : undefined}
               >
-                <div
-                  className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${gradientClasses[stat.id] ?? "from-primary/20 via-primary/5 to-transparent"}`}
-                  aria-hidden
-                />
+                {/* Dynamic Sliding Shine Effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 pointer-events-none" />
+
                 <div className="relative space-y-2 z-10">
-                  <div className="flex items-center gap-2 text-sm">
-                    <IconComponent className="size-4" />
+                  <div className="flex items-center gap-2 text-sm font-semibold !text-foreground drop-shadow-sm">
+                    <IconComponent className="size-5" />
                     {stat.label}
                   </div>
-                  <div className="text-3xl font-bold tabular-nums sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl">
+                  <div className="text-3xl font-bold tabular-nums sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl !text-foreground drop-shadow-md">
                     {stat.value}
                   </div>
                 </div>
@@ -257,8 +268,11 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
       {/* Appointment Trends and Patients Overview*/}
       <div className="grid grid-cols-1 gap-3 sm:gap-4 px-4 lg:px-6 xl:grid-cols-[2fr_1fr]">
         {/* Appointment Trends */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.1)] h-full flex flex-col">
-          <div className="mb-4">
+        <div className="relative bg-transparent backdrop-blur-xl rounded-2xl p-5 border border-white/10 shadow-sm h-[40rem] flex flex-col glass-shine overflow-hidden">
+          {/* Glossy Top Highlight */}
+          <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-white/30 via-white/10 to-transparent rounded-t-2xl pointer-events-none" />
+
+          <div className="mb-4 relative z-10">
             <h3 className="text-lg font-semibold">
               {dashboardConfig.sections.appointmentTrends.title}
             </h3>
@@ -276,7 +290,7 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
                   accessibilityLayer
                   data={appointmentData}
                   onMouseLeave={() => setSelectedBar(null)}
-                  margin={{ top: 0, right: 0, left: -24, bottom: 0 }}
+                  margin={{ top: 10, right: 10, left: 0, bottom: 20 }}
                 >
                   <defs>
                     <DottedBackgroundPattern />
@@ -333,7 +347,9 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
         </div>
 
         {/* Patients Overview */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.1)] h-full flex flex-col">
+        <div className="relative bg-transparent backdrop-blur-xl rounded-2xl p-5 border border-white/10 shadow-sm h-[40rem] flex flex-col glass-shine overflow-hidden">
+          {/* Glossy Top Highlight */}
+          <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-white/30 via-white/10 to-transparent rounded-t-2xl pointer-events-none" />
           <div className="">
             <h3 className="text-lg font-semibold">{dashboardConfig.sections.patientsOverview.title}</h3>
             <div className="flex items-center justify-between mt-1">
@@ -397,7 +413,7 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
                     </PieChart>
                   </ChartContainer>
                 </div>
-                <div className="flex-1 space-y-2">
+                <div className="flex-1 space-y-2 overflow-y-auto pr-2 custom-scrollbar">
                   {patientAgeData.map((item, index) => (
                     <div
                       key={index}
@@ -420,7 +436,7 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
 
       </div>
 
-    </div>
+    </div >
   )
 }
 

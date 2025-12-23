@@ -204,7 +204,7 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
       {/* Welcome Banner */}
       <div className="px-4 lg:px-6">
         <span className="text-base sm:text-lg font-bold text-foreground">
-          Welcome Back,{" "}
+          Welcome,{" "}
           <span className="text-foreground font-bold">Admin</span>
         </span>
       </div>
@@ -213,73 +213,86 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
       <div className="px-4 lg:px-6">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <div
-            className="relative overflow-hidden neumorphic-inset p-4 neumorphic-hover transition-all duration-200 cursor-pointer"
+            className="relative overflow-hidden rounded-2xl p-4 transition-all duration-300 group
+              bg-gradient-to-br from-sky-500/20 via-sky-500/10 to-transparent
+              backdrop-blur-xl border-2 border-sky-500/50 dark:border-sky-400/50
+              shadow-[0_4px_20px_rgba(0,0,0,0.05)] hover:shadow-[0_0_25px_rgba(255,255,255,0.4)]
+              hover:scale-[1.02] glass-shine cursor-pointer"
             onClick={handlePatientsClick}
           >
-            <div
-              className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${statGradients.patients}`}
-              aria-hidden
-            />
+            {/* Dynamic Sliding Shine Effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 pointer-events-none" />
+
             <div className="relative space-y-2 z-10">
-              <div className="flex items-center gap-2 text-sm">
+              <div className="flex items-center gap-2 text-sm !text-foreground">
                 <IconUsers className="size-4" />
                 Total Patients
               </div>
-              <div className="text-3xl font-bold tabular-nums sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl">
+              <div className="text-3xl font-bold tabular-nums sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl !text-foreground">
                 {stats?.total_patients?.toLocaleString() || 0}
               </div>
             </div>
           </div>
 
           <div
-            className="relative overflow-hidden neumorphic-inset p-4 neumorphic-hover transition-all duration-200 cursor-pointer"
+            className="relative overflow-hidden rounded-2xl p-4 transition-all duration-300 group
+             bg-gradient-to-br from-emerald-500/20 via-emerald-500/10 to-transparent
+             backdrop-blur-xl border-2 border-emerald-500/50 dark:border-emerald-400/50
+             shadow-[0_4px_20px_rgba(0,0,0,0.05)] hover:shadow-[0_0_25px_rgba(255,255,255,0.4)]
+             hover:scale-[1.02] glass-shine cursor-pointer"
             onClick={handleDoctorsClick}
           >
-            <div
-              className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${statGradients.doctors}`}
-              aria-hidden
-            />
+            {/* Dynamic Sliding Shine Effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 pointer-events-none" />
+
             <div className="relative space-y-2 z-10">
-              <div className="flex items-center gap-2 text-sm">
+              <div className="flex items-center gap-2 text-sm !text-foreground">
                 <IconMedicalCross className="size-4" />
                 Total Doctors
               </div>
-              <div className="text-3xl font-bold tabular-nums sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl">
+              <div className="text-3xl font-bold tabular-nums sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl !text-foreground">
                 {stats?.total_doctors?.toLocaleString() || 0}
               </div>
             </div>
           </div>
 
           <div
-            className="relative overflow-hidden neumorphic-inset p-4 neumorphic-hover transition-all duration-200 cursor-pointer"
+            className="relative overflow-hidden rounded-2xl p-4 transition-all duration-300 group
+            bg-gradient-to-br from-indigo-500/20 via-indigo-500/10 to-transparent
+            backdrop-blur-xl border-2 border-indigo-500/50 dark:border-indigo-400/50
+            shadow-[0_4px_20px_rgba(0,0,0,0.05)] hover:shadow-[0_0_25px_rgba(255,255,255,0.4)]
+            hover:scale-[1.02] glass-shine cursor-pointer"
             onClick={handleAppointmentsClick}
           >
-            <div
-              className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${statGradients.appointments}`}
-              aria-hidden
-            />
+            {/* Dynamic Sliding Shine Effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 pointer-events-none" />
+
             <div className="relative space-y-2 z-10">
-              <div className="flex items-center gap-2 text-sm">
+              <div className="flex items-center gap-2 text-sm !text-foreground">
                 <IconCalendar className="size-4" />
                 Total Appointments
               </div>
-              <div className="text-3xl font-bold tabular-nums sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl">
+              <div className="text-3xl font-bold tabular-nums sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl !text-foreground">
                 {stats?.total_appointments?.toLocaleString() || 0}
               </div>
             </div>
           </div>
 
-          <div className="relative overflow-hidden neumorphic-inset p-4">
-            <div
-              className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${statGradients.upcoming}`}
-              aria-hidden
-            />
+          <div className="relative overflow-hidden rounded-2xl p-4 transition-all duration-300 group
+            bg-gradient-to-br from-purple-500/20 via-purple-500/10 to-transparent
+            backdrop-blur-xl border-2 border-purple-500/50 dark:border-purple-400/50
+            shadow-[0_4px_20px_rgba(0,0,0,0.05)] hover:shadow-[0_0_25px_rgba(255,255,255,0.4)]
+            hover:scale-[1.02] glass-shine"
+          >
+            {/* Dynamic Sliding Shine Effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 pointer-events-none" />
+
             <div className="relative space-y-2 z-10">
-              <div className="flex items-center gap-2 text-sm">
+              <div className="flex items-center gap-2 text-sm !text-foreground">
                 <IconCalendar className="size-4" />
                 Upcoming Appointments
               </div>
-              <div className="text-3xl font-bold tabular-nums sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl">
+              <div className="text-3xl font-bold tabular-nums sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl !text-foreground">
                 {stats?.upcoming_appointments?.toLocaleString() || 0}
               </div>
             </div>

@@ -101,50 +101,52 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
 
   return (
-    <div className="min-h-screen w-full bg-[#dfe6f0] relative flex items-center justify-center overflow-hidden" data-theme="light" style={{ colorScheme: 'light' }}>
-      {/* Soft Background Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#E0E7FF]/40 via-[#EEF2FF]/60 to-[#E0E7FF]/40 pointer-events-none" />
+    <div className="min-h-screen w-full relative flex items-center justify-center overflow-hidden" data-theme="light" style={{ colorScheme: 'light' }}>
 
-      {/* Decorative Blob */}
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-purple-200/20 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-teal-200/20 rounded-full blur-[120px] pointer-events-none" />
+      <div className="w-full flex flex-col lg:flex-row min-h-screen">
 
-      <div className="w-full px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-center justify-center lg:justify-between gap-6 sm:gap-10 lg:gap-20 relative z-10 min-h-screen py-6 lg:py-10">
+        {/* Left Side - Branding with Teal Background (hidden on mobile, visible on tablet+) */}
+        <div className="hidden md:flex flex-1 bg-[#0ea5a3] px-6 lg:px-12 py-10 flex-col justify-between relative overflow-hidden">
+          {/* Decorative Blur Elements */}
+          <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-white/10 rounded-full blur-[100px] pointer-events-none" />
+          <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-teal-900/20 rounded-full blur-[80px] pointer-events-none" />
 
-        {/* Left Side - Branding Text (hidden on mobile, visible on tablet+) */}
-        <div className="hidden md:flex flex-1 w-full flex-col justify-between h-auto lg:h-[90vh]">
           {/* Top: Logo */}
-          <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="EZMedTech Logo" className="w-8 h-8 md:w-10 md:h-10 object-contain" />
-            <span className="text-xl md:text-2xl font-semibold text-slate-800 tracking-tight">EZMedTech</span>
+          <div className="flex items-center gap-3 relative z-10">
+            <img src="/logo.svg" alt="EZMedTech Logo" className="w-8 h-8 md:w-10 md:h-10 object-contain" />
+            <span className="text-xl md:text-2xl font-semibold text-white tracking-tight">EZMedTech</span>
           </div>
 
           {/* Middle: Headlines */}
-          <div className="max-w-2xl mt-8 lg:mt-0">
-            <h1 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-slate-800 leading-[1.1] tracking-tight mb-4 lg:mb-6">
+          <div className="max-w-xl mt-8 lg:mt-0 relative z-10">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white leading-[1.1] tracking-tight mb-4 lg:mb-6">
               Effortlessly Manage Your Medical Practice.
             </h1>
-            <p className="text-base md:text-lg lg:text-xl text-slate-600 font-medium">
+            <p className="text-base md:text-lg lg:text-xl text-white/90 font-medium">
               Manage Patients Information, Appointments, And More.
             </p>
           </div>
 
           {/* Bottom: Footer */}
-          <div className="flex items-center justify-between text-xs sm:text-sm text-slate-500 mt-8 lg:mt-0">
+          <div className="flex items-center justify-between text-xs sm:text-sm text-white/80 mt-8 lg:mt-0 relative z-10">
             <span>© 2025 EZMedTech. All rights reserved.</span>
-            <span className="cursor-pointer hover:text-slate-700 transition-colors">Privacy Policy</span>
+            <span className="cursor-pointer hover:text-white transition-colors">Privacy Policy</span>
           </div>
         </div>
 
-        {/* Mobile Logo (only visible on mobile) */}
-        <div className="flex md:hidden items-center gap-2 mb-2">
-          <img src="/logo.png" alt="EZMedTech Logo" className="w-8 h-8 object-contain" />
-          <span className="text-xl font-semibold text-slate-800 tracking-tight">EZMedTech</span>
-        </div>
+        {/* Right Side - Login Form with Light Background */}
+        <div className="flex-1 bg-[#dfe6f0] px-4 sm:px-6 lg:px-12 py-6 lg:py-10 flex flex-col items-center justify-center relative">
+          {/* Decorative Blob */}
+          <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-200/30 rounded-full blur-[100px] pointer-events-none" />
+          <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-teal-200/30 rounded-full blur-[100px] pointer-events-none" />
 
-        {/* Right Side - Login Form */}
-        <div className="flex-1 w-full flex items-center justify-center">
-          <div className="glass-card w-full max-w-md p-8">
+          {/* Mobile Logo (only visible on mobile) */}
+          <div className="flex md:hidden items-center gap-2 mb-6">
+            <img src="/logo.png" alt="EZMedTech Logo" className="w-8 h-8 object-contain" />
+            <span className="text-xl font-semibold text-slate-800 tracking-tight">EZMedTech</span>
+          </div>
+
+          <div className="glass-card w-full max-w-md p-6 sm:p-8 relative z-10">
 
             {/* Form Internal Structure */}
             <div className="relative z-10">
@@ -154,7 +156,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                 <button
                   onClick={() => setUserType('admin')}
                   className={`flex-1 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 ${userType === 'admin'
-                    ? 'bg-teal-500 text-white shadow-md'
+                    ? 'bg-[#0ea5a3] text-white shadow-md'
                     : 'text-slate-700 hover:text-slate-900 hover:bg-white/30'
                     }`}
                 >
@@ -164,7 +166,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                 <button
                   onClick={() => setUserType('doctor')}
                   className={`flex-1 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 ${userType === 'doctor'
-                    ? 'bg-teal-500 text-white shadow-md'
+                    ? 'bg-[#0ea5a3] text-white shadow-md'
                     : 'text-slate-700 hover:text-slate-900 hover:bg-white/30'
                     }`}
                 >
@@ -237,7 +239,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full text-white rounded-full py-6 font-semibold text-base shadow-[0_10px_25px_-5px_rgba(20,184,166,0.4)] hover:shadow-[0_12px_30px_-5px_rgba(20,184,166,0.5)] transition-all bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 border-none mt-2"
+                  className="w-full text-white rounded-full py-6 font-semibold text-base shadow-[0_10px_25px_-5px_rgba(14,165,163,0.4)] hover:shadow-[0_12px_30px_-5px_rgba(14,165,163,0.5)] transition-all bg-[#0ea5a3] hover:bg-[#0d9593] border-none mt-2"
                 >
                   {isLoading ? (
                     <div className="flex items-center gap-2">

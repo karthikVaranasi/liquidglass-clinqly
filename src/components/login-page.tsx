@@ -109,10 +109,10 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-purple-200/20 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-teal-200/20 rounded-full blur-[120px] pointer-events-none" />
 
-      <div className="w-full px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-20 relative z-10 h-screen py-6 lg:py-10">
+      <div className="w-full px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-center justify-center lg:justify-between gap-6 sm:gap-10 lg:gap-20 relative z-10 min-h-screen py-6 lg:py-10">
 
-        {/* Left Side - Branding Text */}
-        <div className="flex-1 w-full flex flex-col justify-between h-full lg:h-[90vh]">
+        {/* Left Side - Branding Text (hidden on mobile, visible on tablet+) */}
+        <div className="hidden md:flex flex-1 w-full flex-col justify-between h-auto lg:h-[90vh]">
           {/* Top: Logo */}
           <div className="flex items-center gap-3">
             <img src="/logo.png" alt="EZMedTech Logo" className="w-8 h-8 md:w-10 md:h-10 object-contain" />
@@ -120,36 +120,42 @@ export function LoginPage({ onLogin }: LoginPageProps) {
           </div>
 
           {/* Middle: Headlines */}
-          <div className="max-w-2xl mt-12 lg:mt-0">
-            <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-slate-800 leading-[1.1] tracking-tight mb-6">
+          <div className="max-w-2xl mt-8 lg:mt-0">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-slate-800 leading-[1.1] tracking-tight mb-4 lg:mb-6">
               Effortlessly Manage Your Medical Practice.
             </h1>
-            <p className="text-lg lg:text-xl text-slate-600 font-medium">
+            <p className="text-base md:text-lg lg:text-xl text-slate-600 font-medium">
               Manage Patients Information, Appointments, And More.
             </p>
           </div>
 
           {/* Bottom: Footer */}
-          <div className="flex items-center justify-between text-sm text-slate-500 mt-8 lg:mt-0">
+          <div className="flex items-center justify-between text-xs sm:text-sm text-slate-500 mt-8 lg:mt-0">
             <span>© 2025 EZMedTech. All rights reserved.</span>
             <span className="cursor-pointer hover:text-slate-700 transition-colors">Privacy Policy</span>
           </div>
         </div>
 
+        {/* Mobile Logo (only visible on mobile) */}
+        <div className="flex md:hidden items-center gap-2 mb-2">
+          <img src="/logo.png" alt="EZMedTech Logo" className="w-8 h-8 object-contain" />
+          <span className="text-xl font-semibold text-slate-800 tracking-tight">EZMedTech</span>
+        </div>
+
         {/* Right Side - Login Form */}
-        <div className="flex-1 w-full flex items-center justify-center lg:justify-start">
-          <div className="w-full max-w-md p-8 rounded-[2rem] bg-white/60 backdrop-blur-2xl border border-white/60 shadow-[0_8px_40px_-12px_rgba(0,0,0,0.1)] relative">
+        <div className="flex-1 w-full flex items-center justify-center">
+          <div className="glass-card w-full max-w-md p-8">
 
             {/* Form Internal Structure */}
             <div className="relative z-10">
 
-              {/* User Type Tabs - Pill Style like image */}
-              <div className="bg-white rounded-full p-1.5 flex mb-8 shadow-sm border border-gray-100">
+              {/* User Type Tabs - Pill Style with transparent glass */}
+              <div className="bg-white/40 backdrop-blur-md rounded-full p-1.5 flex mb-8 shadow-sm border border-white/50">
                 <button
                   onClick={() => setUserType('admin')}
                   className={`flex-1 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 ${userType === 'admin'
                     ? 'bg-teal-500 text-white shadow-md'
-                    : 'text-gray-500 hover:text-gray-700'
+                    : 'text-slate-700 hover:text-slate-900 hover:bg-white/30'
                     }`}
                 >
                   <IconShield className="w-4 h-4" />
@@ -159,7 +165,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                   onClick={() => setUserType('doctor')}
                   className={`flex-1 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 ${userType === 'doctor'
                     ? 'bg-teal-500 text-white shadow-md'
-                    : 'text-gray-500 hover:text-gray-700'
+                    : 'text-slate-700 hover:text-slate-900 hover:bg-white/30'
                     }`}
                 >
                   <IconStethoscope className="w-4 h-4" />
@@ -177,20 +183,20 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium text-slate-600 ml-1">Email</Label>
+                  <Label htmlFor="email" className="text-sm font-medium text-slate-700 ml-1">Email</Label>
                   <Input
                     id="email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@company.com"
-                    className="h-12 border-transparent bg-slate-100/50 focus:bg-white focus:ring-2 focus:ring-teal-500/20 rounded-xl transition-all font-medium text-slate-800 placeholder:text-slate-400"
+                    className="h-12 border border-white/50 bg-white/30 backdrop-blur-sm focus:bg-white/50 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500/30 rounded-xl transition-all font-medium text-slate-800 placeholder:text-slate-500"
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-sm font-medium text-slate-600 ml-1">Password</Label>
+                  <Label htmlFor="password" className="text-sm font-medium text-slate-700 ml-1">Password</Label>
                   <div className="relative">
                     <Input
                       id="password"
@@ -198,7 +204,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="h-12 pr-10 border-transparent bg-slate-100/50 focus:bg-white focus:ring-2 focus:ring-teal-500/20 rounded-xl transition-all font-medium text-slate-800 placeholder:text-slate-400"
+                      className="h-12 pr-10 border border-white/50 bg-white/30 backdrop-blur-sm focus:bg-white/50 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500/30 rounded-xl transition-all font-medium text-slate-800 placeholder:text-slate-500"
                       required
                     />
                     <button

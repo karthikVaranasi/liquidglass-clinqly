@@ -485,13 +485,13 @@ export function LogsPage() {
           <div className="relative w-full max-w-3xl max-h-[85vh] flex flex-col bg-gradient-to-br from-[#1a1c2e]/95 to-[#2a2c3e]/95 dark:from-[#0f111a]/95 dark:to-[#1a1d29]/95 backdrop-blur-2xl rounded-2xl border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
 
             {/* Header */}
-            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-white/10 bg-white/5">
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-white/10 bg-slate-50 dark:bg-white/5">
               <div>
-                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                  <IconPhone className="w-5 h-5 text-emerald-400" />
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                  <IconPhone className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
                   Conversational Transcript
                 </h3>
-                <p className="text-sm text-gray-400 mt-1">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   {selectedLog.from_phone} • {calculateDuration(selectedLog.start_time, selectedLog.end_time)}
                 </p>
               </div>
@@ -500,7 +500,7 @@ export function LogsPage() {
                   variant="outline"
                   size="sm"
                   onClick={handleDownloadTranscript}
-                  className="bg-white/5 border-white/10 text-white hover:bg-white/10 hover:text-emerald-400 transition-colors"
+                  className="bg-gray-100 dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-white/10 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
                 >
                   <IconDownload className="w-4 h-4 mr-2" />
                   Download
@@ -520,7 +520,7 @@ export function LogsPage() {
                     setIsAudioPlaying(false)
                     setAudioPosition(0)
                   }}
-                  className="text-gray-400 hover:text-white hover:bg-white/10 rounded-full"
+                  className="text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 rounded-full"
                 >
                   <IconX className="w-5 h-5" />
                 </Button>
@@ -529,8 +529,8 @@ export function LogsPage() {
 
             {/* Audio Player */}
             {audioUrl && (
-              <div className="px-4 sm:px-6 py-4 border-b border-white/10 bg-black/20">
-                <div className="flex items-center gap-4 bg-white/5 rounded-xl p-3 border border-white/10">
+              <div className="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-white/10 bg-gray-50/50 dark:bg-black/20">
+                <div className="flex items-center gap-4 bg-white dark:bg-white/5 rounded-xl p-3 border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none">
                   <button
                     onClick={togglePlay}
                     className="w-10 h-10 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white flex items-center justify-center transition-all shadow-lg active:scale-95 flex-shrink-0"
@@ -548,7 +548,7 @@ export function LogsPage() {
                       <span>{formatTime(audioDuration || 0)}</span>
                     </div>
 
-                    <div className="relative h-1.5 w-full bg-white/10 rounded-full overflow-hidden group">
+                    <div className="relative h-1.5 w-full bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden group">
                       <div
                         className="absolute top-0 left-0 h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-100"
                         style={{ width: `${(audioPosition / (audioDuration || 1)) * 100}%` }}
@@ -576,7 +576,7 @@ export function LogsPage() {
             )}
 
             {/* Transcript Content */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 custom-scrollbar bg-black/20">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 custom-scrollbar bg-gray-50/30 dark:bg-black/20">
               {loadingTranscript ? (
                 <div className="flex flex-col items-center justify-center py-12 text-gray-400 space-y-4">
                   <div className="w-10 h-10 border-2 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin" />
@@ -584,7 +584,7 @@ export function LogsPage() {
                 </div>
               ) : transcript.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-gray-500 space-y-3">
-                  <div className="p-4 rounded-full bg-white/5">
+                  <div className="p-4 rounded-full bg-gray-100 dark:bg-white/5">
                     <IconMessageOff className="w-8 h-8 opacity-50" />
                   </div>
                   <p>No transcript available for this call</p>
@@ -597,7 +597,7 @@ export function LogsPage() {
                   >
                     <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center mr-3 mt-1 shadow-lg ${turn.speaker === "A"
                       ? "bg-gradient-to-br from-emerald-500 to-teal-600 ring-2 ring-emerald-500/20"
-                      : "order-2 ml-3 mr-0 bg-gradient-to-br from-slate-600 to-slate-700 ring-2 ring-white/10"
+                      : "order-2 ml-3 mr-0 bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-600 dark:to-slate-700 ring-2 ring-white/50 dark:ring-white/10"
                       }`}>
                       {turn.speaker === "A" ? (
                         <div className="w-4 h-4 text-white">
@@ -609,13 +609,13 @@ export function LogsPage() {
                           </svg>
                         </div>
                       ) : (
-                        <IconUserFilled className="w-4 h-4 text-gray-300" />
+                        <IconUserFilled className="w-4 h-4 text-gray-500 dark:text-gray-300" />
                       )}
                     </div>
 
                     <div className={`flex-1 max-w-[85%] rounded-2xl p-4 shadow-sm ${turn.speaker === "A"
-                      ? "bg-white/5 border border-white/10 text-gray-200 rounded-tl-none"
-                      : "bg-emerald-500/10 border border-emerald-500/20 text-emerald-100 rounded-tr-none"
+                      ? "bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 text-gray-700 dark:text-gray-200 rounded-tl-none shadow-sm"
+                      : "bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 text-slate-800 dark:text-emerald-100 rounded-tr-none shadow-sm"
                       }`}>
                       <div className="flex items-center justify-between mb-1">
                         <span className={`text-xs font-bold uppercase tracking-wider ${turn.speaker === "A" ? "text-emerald-400" : "text-slate-400"
@@ -632,7 +632,7 @@ export function LogsPage() {
               )}
             </div>
 
-            <div className="p-4 border-t border-white/10 bg-white/5 text-center text-xs text-gray-500">
+            <div className="p-4 border-t border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-center text-xs text-gray-500">
               Conversation ended by {selectedLog.status === 'completed' ? 'system' : 'user'}
             </div>
 

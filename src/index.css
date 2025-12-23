@@ -237,3 +237,78 @@ html.dark #root>div,
 .dark .glass-shine::after {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.15) 30%, rgba(255, 255, 255, 0) 60%);
 }
+
+/* Patient Profile Dark Mode Text Fixes */
+.dark .patient-profile-card p,
+.dark .patient-profile-card span {
+  color: #ffffff !important;
+}
+
+.dark .patient-profile-card .text-black\/70 {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.dark .patient-profile-card .text-black {
+  color: #ffffff !important;
+}
+
+/* Patient Profile Dark Mode Border Fixes */
+.dark .patient-profile-card {
+  border-color: #ffffff !important;
+}
+
+.dark .patient-profile-card .border-black {
+  border-color: #ffffff !important;
+}
+
+/* Accordion Dark Mode Text Fixes */
+.dark .patient-profile-card [data-state] button,
+.dark .patient-profile-card [data-radix-accordion-content] {
+  color: #ffffff !important;
+}
+
+.dark .patient-profile-card .text-black\/80 {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Glass Card - Login Form */
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(50px);
+  -webkit-backdrop-filter: blur(50px);
+  border-radius: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 0 0px 0px rgba(255, 255, 255, 0);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.8),
+      transparent);
+}
+
+.glass-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(180deg,
+      rgba(255, 255, 255, 0.8),
+      transparent,
+      rgba(255, 255, 255, 0.3));
+}

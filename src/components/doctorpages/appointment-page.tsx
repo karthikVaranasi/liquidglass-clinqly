@@ -358,42 +358,21 @@ export function AppointmentPage() {
 
         <div className="flex items-center justify-between relative z-10">
           <h2 className="text-lg md:text-xl font-semibold text-white dark:text-white drop-shadow-sm">Today's Appointments ({todaysAppointments.length})</h2>
-          {todaysAppointments.length > 4 && (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={scrollCarouselLeft}
-                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/50 hover:bg-white/70 backdrop-blur-sm border border-white/40 text-gray-800 transition-all duration-200 hover:scale-110"
-                aria-label="Scroll left"
-              >
-                <IconChevronLeft className="w-4 h-4" />
-              </button>
-              <button
-                onClick={scrollCarouselRight}
-                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/50 hover:bg-white/70 backdrop-blur-sm border border-white/40 text-gray-800 transition-all duration-200 hover:scale-110"
-                aria-label="Scroll right"
-              >
-                <IconChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          )}
         </div>
 
         {todaysAppointments.length > 0 ? (
           <div className="relative z-10">
-            {/* Appointments Carousel - hidden scrollbar, 4 cards visible */}
+            {/* Appointments Grid - Responsive Layout */}
             <div
-              ref={carouselRef}
-              className="flex gap-3 overflow-x-auto pb-1 snap-x snap-mandatory"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-1"
             >
-              <style>{`div::-webkit-scrollbar { display: none; }`}</style>
               {todaysAppointments.map((apt: any, index: number) => {
                 const isMorning = isMorningAppointment(apt.appointment_time)
 
                 return (
                   <div
                     key={index}
-                    className="flex-shrink-0 w-[220px] sm:w-[250px] p-3 transition-all duration-300 cursor-pointer rounded-xl bg-white/80 dark:bg-white/20 backdrop-blur-xl border border-white/50 shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-white/50 relative overflow-hidden group snap-start"
+                    className="p-3 transition-all duration-300 cursor-pointer rounded-xl bg-white/80 dark:bg-white/20 backdrop-blur-xl border border-white/50 shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-white/50 relative overflow-hidden group h-[120px] flex flex-col justify-between"
                     onClick={() => handleAppointmentCardClick(apt)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
@@ -405,30 +384,31 @@ export function AppointmentPage() {
                     role="button"
                     aria-label={`View profile for ${apt.patient?.first_name} ${apt.patient?.last_name}`}
                   >
-                    <div className="flex flex-col gap-2 relative z-10 h-full">
-                      {/* Time Badge with Background & Patient Name */}
-                      <div className="flex items-start gap-2">
-                        <span className="px-2 py-1 rounded-md bg-gradient-to-r from-[#d4e4f7] to-[#e8f0f8] dark:from-[#4a5a7a] dark:to-[#5a6a8a] text-xs font-bold text-gray-700 dark:text-white shadow-sm">
+                    <div className="flex flex-col gap-1 relative z-10 h-full">
+                      {/* Row 1: Time & Patient */}
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-1 rounded-md bg-gradient-to-r from-[#d4e4f7] to-[#e8f0f8] dark:from-[#4a5a7a] dark:to-[#5a6a8a] text-xs font-bold text-gray-700 dark:text-white shadow-sm flex-shrink-0">
                           {new Date(apt.appointment_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
-                        <span className="font-bold text-sm text-gray-800 dark:text-white truncate flex-1">
+                        <span className="font-bold text-sm text-gray-800 dark:text-white truncate">
                           {apt.patient?.first_name} {apt.patient?.last_name}
                         </span>
                       </div>
-                      {/* Age & Reason */}
-                      <div className="flex items-baseline gap-2">
-                        <span className="px-2 py-0.5 text-xl font-bold text-gray-700 dark:text-white bg-gradient-to-r from-[#f5d4a8]/80 to-[#f8e4c8]/60 dark:from-[#a87832]/60 dark:to-[#c99a4a]/40 rounded-md shadow-sm">
-                          {apt.patient?.dob ? Math.floor((new Date().getTime() - new Date(apt.patient.dob).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) : '--'}
-                        </span>
-                        <p className="text-xs text-black dark:text-black font-medium truncate flex-1">
+
+                      {/* Row 2: Reason */}
+                      <div className="flex-1 min-h-0 mt-3">
+                        <p className="text-sm text-black dark:text-white truncate w-full" title={apt.reason_for_visit}>
                           {apt.reason_for_visit || "No Reason Provided"}
                         </p>
                       </div>
-                      {/* Room & Status */}
-                      <div className="flex items-center justify-between mt-auto pt-1 border-t border-gray-200/50 dark:border-white/20">
-                        <span className="text-xs text-black dark:text-black">Room H{700 + index}</span>
+
+                      {/* Row 3: Age & Status */}
+                      <div className="flex items-center justify-between mt-auto pt-1 border-t border-gray-200/50 dark:border-white/10">
+                        <span className="px-2 py-0.5 text-xs font-bold text-gray-700 dark:text-white bg-gradient-to-r from-[#f5d4a8]/80 to-[#f8e4c8]/60 dark:from-[#a87832]/60 dark:to-[#c99a4a]/40 rounded-md shadow-sm">
+                          {apt.patient?.dob ? `${Math.floor((new Date().getTime() - new Date(apt.patient.dob).getTime()) / (365.25 * 24 * 60 * 60 * 1000))} years` : '--'}
+                        </span>
                         <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusStyle(apt.status)}`}
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${getStatusStyle(apt.status)}`}
                         >
                           {apt.status}
                         </span>

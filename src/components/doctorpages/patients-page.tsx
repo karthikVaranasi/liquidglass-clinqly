@@ -1203,31 +1203,31 @@ export function PatientsPage() {
                   <div
                     className={`col-span-12 ${(selectedPatient?.guardians?.length ?? 0) > 0 ? 'lg:col-span-4' : 'lg:col-span-6'}`}
                   >
-                    <div className="relative bg-gradient-to-br from-[#9a8ea2]/80 to-[#b0a4b2]/60 dark:from-[#4a4257]/80 dark:to-[#5a5267]/60 backdrop-blur-xl rounded-xl p-5 border-[3px] border-[#e8a855]/70 dark:border-[#a87832]/60 shadow-[0_0_30px_rgba(232,168,85,0.5),0_0_60px_rgba(232,168,85,0.2),0_8px_32px_rgba(150,130,160,0.25),inset_0_1px_0_rgba(255,255,255,0.4)] dark:shadow-[0_0_20px_rgba(168,120,50,0.4),0_8px_32px_rgba(50,40,60,0.3)] flex flex-col lg:h-[220px] overflow-hidden group">
+                    <div className="patient-profile-card relative bg-transparent rounded-xl p-5 border border-black dark:border-white shadow-none flex flex-col lg:h-[220px] overflow-hidden group">
                       {/* Glossy Top Highlight */}
                       <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-white/25 via-white/10 to-transparent dark:from-white/15 dark:via-white/8 dark:to-transparent rounded-t-xl pointer-events-none" />
 
                       <div className="flex items-center gap-2 mb-3 relative z-10">
-                        <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-md border border-white/30 shadow-inner">
-                          <IconUserCircle className="w-5 h-5 text-white" />
+                        <div className="w-8 h-8 rounded-full bg-black/10 dark:bg-white/10 flex items-center justify-center backdrop-blur-md border border-black/20 dark:border-white/20 shadow-inner">
+                          <IconUserCircle className="w-5 h-5 text-black dark:text-white" />
                         </div>
-                        <p className="text-xs font-bold uppercase tracking-wide text-white drop-shadow-sm">Patient</p>
+                        <p className="text-xs font-bold uppercase tracking-wide text-black dark:text-white drop-shadow-sm">Patient</p>
                       </div>
 
                       <div className="space-y-3 flex-1 relative z-10">
                         <div>
-                          <p className="text-[10px] font-bold text-white/70 uppercase tracking-wide mb-0.5">Name</p>
-                          <p className="text-sm font-bold text-white tracking-wide shadow-black/10 drop-shadow-sm">
+                          <p className="text-[10px] font-bold text-black/70 dark:text-white uppercase tracking-wide mb-0.5">Name</p>
+                          <p className="text-sm font-bold text-black dark:text-white tracking-wide drop-shadow-sm">
                             {`${selectedPatient.first_name} ${selectedPatient.last_name}`}
                           </p>
                         </div>
                         <div>
-                          <p className="text-[10px] font-bold text-white/70 uppercase tracking-wide mb-0.5">Date of Birth</p>
-                          <p className="text-sm font-bold text-white tracking-wide shadow-black/10 drop-shadow-sm">{formatDate(selectedPatient.dob)}</p>
+                          <p className="text-[10px] font-bold text-black/70 dark:text-white uppercase tracking-wide mb-0.5">Date of Birth</p>
+                          <p className="text-sm font-bold text-black dark:text-white tracking-wide drop-shadow-sm">{formatDate(selectedPatient.dob)}</p>
                         </div>
                         <div>
-                          <p className="text-[10px] font-bold text-white/70 uppercase tracking-wide mb-0.5">Phone</p>
-                          <p className="text-sm font-bold text-white tracking-wide shadow-black/10 drop-shadow-sm break-all">{selectedPatient.phone_number}</p>
+                          <p className="text-[10px] font-bold text-black/70 dark:text-white uppercase tracking-wide mb-0.5">Phone</p>
+                          <p className="text-sm font-bold text-black dark:text-white tracking-wide drop-shadow-sm break-all">{selectedPatient.phone_number}</p>
                         </div>
                       </div>
                     </div>
@@ -1236,15 +1236,15 @@ export function PatientsPage() {
                   {/* Guardian (skip entirely if none) */}
                   {(selectedPatient?.guardians?.length ?? 0) > 0 && (
                     <div className="col-span-12 lg:col-span-4">
-                      <div className="relative bg-gradient-to-br from-[#9a8ea2]/80 to-[#b0a4b2]/60 dark:from-[#4a4257]/80 dark:to-[#5a5267]/60 backdrop-blur-xl rounded-xl p-5 border-[3px] border-[#b8a0d4]/70 dark:border-[#8e7cc3]/60 shadow-[0_0_30px_rgba(184,160,212,0.4),0_0_60px_rgba(184,160,212,0.2),inset_0_1px_0_rgba(255,255,255,0.4)] flex flex-col lg:h-[220px] overflow-hidden group">
+                      <div className="patient-profile-card relative bg-transparent rounded-xl p-5 border border-black dark:border-white shadow-none flex flex-col lg:h-[220px] overflow-hidden group">
                         {/* Glossy Top Highlight */}
                         <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-white/25 via-white/10 to-transparent dark:from-white/15 dark:via-white/8 dark:to-transparent rounded-t-xl pointer-events-none" />
 
                         <div className="flex items-center gap-2 mb-3 relative z-10">
-                          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-md border border-white/30 shadow-inner">
-                            <IconUsers className="w-5 h-5 text-white" />
+                          <div className="w-8 h-8 rounded-full bg-black/10 dark:bg-white/10 flex items-center justify-center backdrop-blur-md border border-black/20 dark:border-white/20 shadow-inner">
+                            <IconUsers className="w-5 h-5 text-black dark:text-white" />
                           </div>
-                          <p className="text-xs font-bold uppercase tracking-wide text-white drop-shadow-sm">
+                          <p className="text-xs font-bold uppercase tracking-wide text-black dark:text-white drop-shadow-sm">
                             Guardian{(selectedPatient?.guardians?.length ?? 0) > 1 ? ` (${selectedPatient.guardians?.length})` : ''}
                           </p>
                         </div>
@@ -1254,18 +1254,18 @@ export function PatientsPage() {
                             <div key={g.id} className="py-3 first:pt-0 last:pb-0">
                               <div className="space-y-3">
                                 <div>
-                                  <p className="text-[10px] font-bold text-white/70 uppercase tracking-wide mb-0.5">Name</p>
-                                  <p className="text-sm font-bold text-white tracking-wide shadow-black/10 drop-shadow-sm">
+                                  <p className="text-[10px] font-bold text-gray-500 dark:text-white/70 uppercase tracking-wide mb-0.5">Name</p>
+                                  <p className="text-sm font-bold text-gray-900 dark:text-white tracking-wide drop-shadow-sm">
                                     {`${g.first_name} ${g.last_name}`}
                                   </p>
                                 </div>
                                 <div>
-                                  <p className="text-[10px] font-bold text-white/70 uppercase tracking-wide mb-0.5">Date of Birth</p>
-                                  <p className="text-sm font-bold text-white tracking-wide shadow-black/10 drop-shadow-sm">{formatDate(g.dob)}</p>
+                                  <p className="text-[10px] font-bold text-gray-500 dark:text-white/70 uppercase tracking-wide mb-0.5">Date of Birth</p>
+                                  <p className="text-sm font-bold text-gray-900 dark:text-white tracking-wide drop-shadow-sm">{formatDate(g.dob)}</p>
                                 </div>
                                 <div>
-                                  <p className="text-[10px] font-bold text-white/70 uppercase tracking-wide mb-0.5">Relationship</p>
-                                  <p className="text-sm font-bold text-white tracking-wide shadow-black/10 drop-shadow-sm capitalize">{g.relationship_to_patient}</p>
+                                  <p className="text-[10px] font-bold text-gray-500 dark:text-white/70 uppercase tracking-wide mb-0.5">Relationship</p>
+                                  <p className="text-sm font-bold text-gray-900 dark:text-white tracking-wide drop-shadow-sm capitalize">{g.relationship_to_patient}</p>
                                 </div>
                               </div>
                             </div>
@@ -1279,17 +1279,17 @@ export function PatientsPage() {
                   <div
                     className={`col-span-12 ${(selectedPatient?.guardians?.length ?? 0) > 0 ? 'lg:col-span-4' : 'lg:col-span-6'}`}
                   >
-                    <div className="relative bg-gradient-to-br from-[#9a8ea2]/80 to-[#b0a4b2]/60 dark:from-[#4a4257]/80 dark:to-[#5a5267]/60 backdrop-blur-xl rounded-xl p-5 border-[3px] border-[#7eb8f0]/70 dark:border-[#5a9bd6]/60 shadow-[0_0_30px_rgba(126,184,240,0.4),0_0_60px_rgba(126,184,240,0.2),inset_0_1px_0_rgba(255,255,255,0.4)] flex flex-col lg:h-[220px] overflow-hidden group">
+                    <div className="patient-profile-card relative bg-transparent rounded-xl p-5 border border-black dark:border-white shadow-none flex flex-col lg:h-[220px] overflow-hidden group">
                       {/* Glossy Top Highlight */}
                       <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-white/25 via-white/10 to-transparent dark:from-white/15 dark:via-white/8 dark:to-transparent rounded-t-xl pointer-events-none" />
 
-                      <h3 className="text-base font-bold mb-4 flex items-center gap-2 text-white relative z-10">
-                        <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-md border border-white/30 shadow-inner">
-                          <IconFileText className="w-5 h-5 text-white" />
+                      <h3 className="text-base font-bold mb-4 flex items-center gap-2 text-black dark:text-white relative z-10">
+                        <div className="w-8 h-8 rounded-full bg-black/10 dark:bg-white/10 flex items-center justify-center backdrop-blur-md border border-black/20 dark:border-white/20 shadow-inner">
+                          <IconFileText className="w-5 h-5 text-black dark:text-white" />
                         </div>
                         Documents
                         {(selectedPatient?.documents?.length ?? 0) > 0 && (
-                          <span className="ml-auto px-2 py-0.5 rounded-full bg-white/20 text-white text-xs font-bold border border-white/20">
+                          <span className="ml-auto px-2 py-0.5 rounded-full bg-black/10 dark:bg-white/20 text-black dark:text-white text-xs font-bold border border-black/20 dark:border-white/20">
                             {selectedPatient?.documents?.length ?? 0}
                           </span>
                         )}
@@ -1304,24 +1304,24 @@ export function PatientsPage() {
                               const isViewing = viewingDoc === docId
 
                               return (
-                                <div key={index} className="p-3 rounded-xl bg-white/10 border border-white/20 transition-all duration-200 hover:bg-white/20 hover:scale-[1.01] group/doc">
+                                <div key={index} className="p-3 rounded-xl bg-black/5 dark:bg-white/10 border border-black dark:border-white transition-all duration-200 hover:bg-black/10 dark:hover:bg-white/20 hover:scale-[1.01] group/doc">
                                   <div className="flex items-center gap-2 mb-2">
-                                    <span className="font-bold text-white text-sm truncate flex-1 drop-shadow-sm">
+                                    <span className="font-bold text-black dark:text-white text-sm truncate flex-1 drop-shadow-sm">
                                       {doc.type}
                                     </span>
-                                    <span className="px-2 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-bold uppercase tracking-wider border border-white/10">
+                                    <span className="px-2 py-0.5 rounded-full bg-black/10 dark:bg-white/20 text-black dark:text-white text-[10px] font-bold uppercase tracking-wider border border-black/20 dark:border-white/10">
                                       Doc
                                     </span>
                                   </div>
                                   {doc.title && (
-                                    <p className="text-xs text-white/80 mb-2 truncate font-medium">{doc.title}</p>
+                                    <p className="text-xs text-black/80 dark:text-white/80 mb-2 truncate font-medium">{doc.title}</p>
                                   )}
                                   <div className="flex gap-2">
                                     <Button
                                       onClick={() => handleViewDocument(doc)}
                                       disabled={isViewing}
                                       size="sm"
-                                      className="flex-1 bg-white/20 hover:bg-white/30 text-white border-none text-xs font-semibold h-7"
+                                      className="flex-1 bg-black/10 dark:bg-white/20 hover:bg-black/20 dark:hover:bg-white/30 text-black dark:text-white border-none text-xs font-semibold h-7"
                                     >
                                       {isViewing ? <IconLoader2 className="w-3 h-3 animate-spin" /> : 'View'}
                                     </Button>
@@ -1329,7 +1329,7 @@ export function PatientsPage() {
                                       onClick={() => handleDownloadDocument(doc)}
                                       disabled={isDownloading}
                                       size="sm"
-                                      className="flex-1 bg-white/20 hover:bg-white/30 text-white border-none text-xs font-semibold h-7"
+                                      className="flex-1 bg-black/10 dark:bg-white/20 hover:bg-black/20 dark:hover:bg-white/30 text-black dark:text-white border-none text-xs font-semibold h-7"
                                     >
                                       {isDownloading ? <IconLoader2 className="w-3 h-3 animate-spin" /> : 'Download'}
                                     </Button>
@@ -1340,10 +1340,10 @@ export function PatientsPage() {
                           </div>
                         ) : (
                           <div className="h-full flex flex-col items-center justify-center text-center">
-                            <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-3 border border-white/10">
-                              <IconFileText className="w-6 h-6 text-white/60" />
+                            <div className="w-12 h-12 rounded-full bg-black/10 dark:bg-white/10 flex items-center justify-center mx-auto mb-3 border border-black/20 dark:border-white/20">
+                              <IconFileText className="w-6 h-6 text-black/60 dark:text-white" />
                             </div>
-                            <p className="text-sm font-bold text-white drop-shadow-sm">No Documents</p>
+                            <p className="text-sm font-bold text-black dark:text-white drop-shadow-sm">No Documents</p>
                           </div>
                         )}
                       </div>
@@ -1355,18 +1355,18 @@ export function PatientsPage() {
 
                     {/* Upcoming Appointments */}
                     {/* Upcoming Appointments */}
-                    <div className="relative bg-gradient-to-br from-[#9a8ea2]/80 to-[#b0a4b2]/60 dark:from-[#4a4257]/80 dark:to-[#5a5267]/60 backdrop-blur-xl rounded-xl p-5 border-[3px] border-[#e8a855]/70 dark:border-[#a87832]/60 shadow-[0_0_30px_rgba(232,168,85,0.5),0_0_60px_rgba(232,168,85,0.2),inset_0_1px_0_rgba(255,255,255,0.4)] overflow-hidden">
+                    <div className="patient-profile-card relative bg-transparent rounded-xl p-5 border border-black dark:border-white shadow-none overflow-hidden">
                       {/* Glossy Top Highlight */}
                       <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-white/25 via-white/10 to-transparent dark:from-white/15 dark:via-white/8 dark:to-transparent rounded-t-xl pointer-events-none" />
 
                       <div className="flex items-center justify-between mb-4 relative z-10">
-                        <h3 className="text-base font-bold flex items-center gap-2 text-white">
-                          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-md border border-white/30 shadow-inner">
-                            <IconCalendarEvent className="w-5 h-5 text-white" />
+                        <h3 className="text-base font-bold flex items-center gap-2 text-black dark:text-white">
+                          <div className="w-8 h-8 rounded-full bg-black/10 dark:bg-white/10 flex items-center justify-center backdrop-blur-md border border-black/20 dark:border-white/20 shadow-inner">
+                            <IconCalendarEvent className="w-5 h-5 text-black dark:text-white" />
                           </div>
                           Upcoming Appointments
                           {(selectedPatient?.appointments?.upcoming?.length ?? 0) > 0 && (
-                            <span className="ml-2 px-2 py-0.5 rounded-full bg-white/20 text-white text-xs font-bold border border-white/20">
+                            <span className="ml-2 px-2 py-0.5 rounded-full bg-black/10 dark:bg-white/20 text-black dark:text-white text-xs font-bold border border-black/20 dark:border-white/20">
                               {selectedPatient?.appointments?.upcoming?.length ?? 0}
                             </span>
                           )}
@@ -1386,22 +1386,22 @@ export function PatientsPage() {
                           {selectedPatient.appointments?.upcoming?.map((appointment, index) => (
                             <div
                               key={index}
-                              className="rounded-xl bg-white/10 border border-white/20 shadow-sm hover:bg-white/15 transition-all duration-200 overflow-hidden group/appt"
+                              className="rounded-xl bg-black/5 dark:bg-white/10 border border-black dark:border-white shadow-sm hover:bg-black/10 dark:hover:bg-white/15 transition-all duration-200 overflow-hidden group/appt"
                             >
                               <div className="flex items-center gap-4 p-4">
                                 {/* Date block */}
-                                <div className="flex flex-col items-center justify-center px-4 py-2 rounded-xl bg-white/20 border border-white/20 min-w-[70px]">
-                                  <span className="text-[10px] font-bold uppercase tracking-wide text-white">
+                                <div className="flex flex-col items-center justify-center px-4 py-2 rounded-xl bg-black/10 dark:bg-white/20 border border-black/20 dark:border-white/20 min-w-[70px]">
+                                  <span className="text-[10px] font-bold uppercase tracking-wide text-black dark:text-white">
                                     {formatDateUSShort(appointment.date).split(' ')[0]}
                                   </span>
-                                  <span className="text-2xl font-bold leading-tight text-white shadow-black/10 drop-shadow-sm">
+                                  <span className="text-2xl font-bold leading-tight text-black dark:text-white shadow-black/10 drop-shadow-sm">
                                     {new Date(appointment.date).getDate()}
                                   </span>
                                 </div>
 
                                 {/* Time */}
                                 <div className="flex-1">
-                                  <span className="text-lg font-bold text-white drop-shadow-sm">{appointment.time}</span>
+                                  <span className="text-lg font-bold text-black dark:text-white drop-shadow-sm">{appointment.time}</span>
                                 </div>
 
                                 {/* Actions */}
@@ -1422,21 +1422,21 @@ export function PatientsPage() {
                                   </Button>
                                 </div>
                               </div>
-                              <div className="border-t border-white/10 bg-white/5">
+                              <div className="border-t border-black/20 dark:border-white/10 bg-black/5 dark:bg-white/5">
                                 <Accordion type="multiple" className="w-full">
                                   <AccordionItem value={`reason-${appointment.appointment_id}`} className="border-b-0">
-                                    <AccordionTrigger className="px-4 py-2 text-sm font-medium hover:no-underline text-white/90">
+                                    <AccordionTrigger className="px-4 py-2 text-sm font-medium hover:no-underline text-black dark:text-white/90">
                                       Reason for Visit
                                     </AccordionTrigger>
-                                    <AccordionContent className="px-4 pb-3 text-sm text-white">
+                                    <AccordionContent className="px-4 pb-3 text-sm text-black/80 dark:text-white">
                                       {appointment.reason_for_visit || 'Not provided'}
                                     </AccordionContent>
                                   </AccordionItem>
                                   <AccordionItem value={`notes-${appointment.appointment_id}`} className="border-b-0">
-                                    <AccordionTrigger className="px-4 py-2 text-sm font-medium hover:no-underline text-white/90">
+                                    <AccordionTrigger className="px-4 py-2 text-sm font-medium hover:no-underline text-black dark:text-white/90">
                                       Appointment Notes
                                     </AccordionTrigger>
-                                    <AccordionContent className="px-4 pb-3 text-sm text-white">
+                                    <AccordionContent className="px-4 pb-3 text-sm text-black/80 dark:text-white">
                                       {appointment.appointment_note || 'No notes added'}
                                     </AccordionContent>
                                   </AccordionItem>
@@ -1447,29 +1447,29 @@ export function PatientsPage() {
                         </div>
                       ) : (
                         <div className="text-center py-10 relative z-10">
-                          <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-3 border border-white/10">
-                            <IconCalendarEvent className="w-7 h-7 text-white/60" />
+                          <div className="w-14 h-14 rounded-full bg-black/10 dark:bg-white/10 flex items-center justify-center mx-auto mb-3 border border-black/20 dark:border-white/20">
+                            <IconCalendarEvent className="w-7 h-7 text-black/60 dark:text-white" />
                           </div>
-                          <p className="text-base font-bold text-white drop-shadow-sm mb-1">No upcoming appointments</p>
-                          <p className="text-xs text-white/70 font-medium">Click "Schedule Appointment" to book one</p>
+                          <p className="text-base font-bold text-black dark:text-white drop-shadow-sm mb-1">No upcoming appointments</p>
+                          <p className="text-xs text-black/70 dark:text-white font-medium">Click "Schedule Appointment" to book one</p>
                         </div>
                       )}
                     </div>
 
                     {/* Past Appointments */}
                     {/* Past Appointments */}
-                    <div className="relative bg-gradient-to-br from-[#9a8ea2]/80 to-[#b0a4b2]/60 dark:from-[#4a4257]/80 dark:to-[#5a5267]/60 backdrop-blur-xl rounded-xl p-5 border-[3px] border-[#b8a0d4]/70 dark:border-[#8e7cc3]/60 shadow-[0_0_30px_rgba(184,160,212,0.5),0_0_60px_rgba(184,160,212,0.2),inset_0_1px_0_rgba(255,255,255,0.4)] overflow-hidden">
+                    <div className="patient-profile-card relative bg-transparent rounded-xl p-5 border border-black dark:border-white shadow-none overflow-hidden">
                       {/* Glossy Top Highlight */}
                       <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-white/25 via-white/10 to-transparent dark:from-white/15 dark:via-white/8 dark:to-transparent rounded-t-xl pointer-events-none" />
 
                       <div className="flex items-center justify-between mb-4 relative z-10">
-                        <h3 className="text-base font-bold flex items-center gap-2 text-white">
-                          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-md border border-white/30 shadow-inner">
-                            <IconHistory className="w-5 h-5 text-white" />
+                        <h3 className="text-base font-bold flex items-center gap-2 text-black dark:text-white">
+                          <div className="w-8 h-8 rounded-full bg-black/10 dark:bg-white/10 flex items-center justify-center backdrop-blur-md border border-black/20 dark:border-white/20 shadow-inner">
+                            <IconHistory className="w-5 h-5 text-black dark:text-white" />
                           </div>
                           Past Appointments
                           {(selectedPatient?.appointments?.past?.length ?? 0) > 0 && (
-                            <span className="ml-2 px-2 py-0.5 rounded-full bg-white/20 text-white text-xs font-bold border border-white/20">
+                            <span className="ml-2 px-2 py-0.5 rounded-full bg-black/10 dark:bg-white/20 text-black dark:text-white text-xs font-bold border border-black/20 dark:border-white/20">
                               {selectedPatient?.appointments?.past?.length ?? 0}
                             </span>
                           )}
@@ -1479,43 +1479,43 @@ export function PatientsPage() {
                       {(selectedPatient?.appointments?.past?.length ?? 0) > 0 ? (
                         <div className="space-y-3 relative z-10">
                           {selectedPatient.appointments?.past?.map((appointment, index) => (
-                            <div key={index} className="p-4 rounded-xl bg-white/10 border border-white/20 transition-all duration-200 hover:bg-white/15">
+                            <div key={index} className="p-4 rounded-xl bg-black/5 dark:bg-white/10 border border-black dark:border-white transition-all duration-200 hover:bg-black/10 dark:hover:bg-white/15">
                               <div className="flex items-center justify-between flex-wrap gap-2">
                                 <div className="flex items-center gap-3">
-                                  <span className="font-bold text-white drop-shadow-sm">
+                                  <span className="font-bold text-black dark:text-white drop-shadow-sm">
                                     {formatDateUSShort(appointment.date)}
                                   </span>
-                                  <span className="text-sm text-white/90 font-medium">{appointment.time}</span>
+                                  <span className="text-sm text-black/80 dark:text-white/90 font-medium">{appointment.time}</span>
                                   {appointment.duration && (
-                                    <span className="px-2 py-0.5 rounded-md bg-white/20 text-white text-xs font-semibold border border-white/10">
+                                    <span className="px-2 py-0.5 rounded-md bg-black/10 dark:bg-white/20 text-black dark:text-white text-xs font-semibold border border-black/20 dark:border-white/10">
                                       {appointment.duration} mins
                                     </span>
                                   )}
                                 </div>
                                 <span className={`px-3 py-1 rounded-full text-xs font-bold border ${appointment.status?.toLowerCase() === 'completed'
-                                  ? 'bg-green-500/20 text-green-100 border-green-500/30'
+                                  ? 'bg-green-500/20 text-green-700 dark:text-green-100 border-green-500/50 dark:border-green-500/30'
                                   : appointment.status?.toLowerCase() === 'cancelled'
-                                    ? 'bg-red-500/20 text-red-100 border-red-500/30'
-                                    : 'bg-white/20 text-white border-white/30'
+                                    ? 'bg-red-500/20 text-red-700 dark:text-red-100 border-red-500/50 dark:border-red-500/30'
+                                    : 'bg-black/5 dark:bg-white/20 text-black dark:text-white border-black dark:border-white/30'
                                   }`}>
                                   {appointment.status}
                                 </span>
                               </div>
-                              <div className="mt-2 border-t border-white/10 pt-2">
+                              <div className="mt-2 border-t border-black/20 dark:border-white/10 pt-2">
                                 <Accordion type="multiple" className="w-full">
                                   <AccordionItem value={`reason-past-${appointment.appointment_id}`} className="border-b-0">
-                                    <AccordionTrigger className="py-1 text-sm font-medium hover:no-underline text-white/90">
+                                    <AccordionTrigger className="py-1 text-sm font-medium hover:no-underline text-black dark:text-white/90">
                                       Reason for Visit
                                     </AccordionTrigger>
-                                    <AccordionContent className="pb-2 text-sm text-white">
+                                    <AccordionContent className="pb-2 text-sm text-black/80 dark:text-white">
                                       {appointment.reason_for_visit || 'Not provided'}
                                     </AccordionContent>
                                   </AccordionItem>
                                   <AccordionItem value={`notes-past-${appointment.appointment_id}`} className="border-b-0">
-                                    <AccordionTrigger className="py-1 text-sm font-medium hover:no-underline text-white/90">
+                                    <AccordionTrigger className="py-1 text-sm font-medium hover:no-underline text-black dark:text-white/90">
                                       Appointment Notes
                                     </AccordionTrigger>
-                                    <AccordionContent className="pb-2 text-sm text-white">
+                                    <AccordionContent className="pb-2 text-sm text-black/80 dark:text-white">
                                       {appointment.appointment_note || 'No notes added'}
                                     </AccordionContent>
                                   </AccordionItem>
@@ -1526,10 +1526,10 @@ export function PatientsPage() {
                         </div>
                       ) : (
                         <div className="text-center py-10 relative z-10">
-                          <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-3 border border-white/10">
-                            <IconHistory className="w-7 h-7 text-white/60" />
+                          <div className="w-14 h-14 rounded-full bg-black/10 dark:bg-white/10 flex items-center justify-center mx-auto mb-3 border border-black/20 dark:border-white/20">
+                            <IconHistory className="w-7 h-7 text-black/60 dark:text-white" />
                           </div>
-                          <p className="text-base font-bold text-white drop-shadow-sm mb-1">No past appointments</p>
+                          <p className="text-base font-bold text-black dark:text-white drop-shadow-sm mb-1">No past appointments</p>
                         </div>
                       )}
                     </div>
@@ -1702,21 +1702,21 @@ export function PatientsPage() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="absolute inset-0 bg-white/10 blur-xl pointer-events-none"></div>
-              <div className="relative bg-[#1a1c24]/95 dark:bg-[#0f1115]/95 backdrop-blur-3xl rounded-2xl w-full h-full p-6 sm:p-8 flex flex-col max-h-[89vh] overflow-hidden">
+              <div className="relative bg-[#f8fafc]/95 dark:bg-[#0f1115]/95 backdrop-blur-3xl rounded-2xl w-full h-full p-6 sm:p-8 flex flex-col max-h-[89vh] overflow-hidden">
                 {/* Glossy overlay */}
-                <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-white/10 to-transparent pointer-events-none rounded-t-2xl"></div>
+                <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-gray-100/50 to-transparent dark:from-white/10 dark:to-transparent pointer-events-none rounded-t-2xl"></div>
 
                 <div className="flex items-center justify-between mb-6 relative z-10 border-b border-white/10 pb-4">
                   <div>
-                    <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">Add New Patient</h2>
-                    <p className="text-xs text-white/50 mt-1">Enter patient details below</p>
+                    <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-white/70">Add New Patient</h2>
+                    <p className="text-xs text-gray-500 dark:text-white/50 mt-1">Enter patient details below</p>
                   </div>
                   <button
                     onClick={() => {
                       setShowAddForm(false)
                       setSubmitError(null)
                     }}
-                    className="p-2 rounded-full hover:bg-white/10 text-white/70 hover:text-white transition-colors"
+                    className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 hover:text-gray-900 dark:text-white/70 dark:hover:text-white transition-colors"
                   >
                     <IconX className="w-5 h-5" />
                   </button>
@@ -1733,10 +1733,10 @@ export function PatientsPage() {
                   <form onSubmit={handleAddPatient} className="space-y-6">
                     {/* Name Fields */}
                     <div className="space-y-4">
-                      <h3 className="text-xs font-bold text-[#e8a855] uppercase tracking-wider mb-3">Personal Information</h3>
+                      <h3 className="text-xs font-bold text-emerald-600 dark:text-[#e8a855] uppercase tracking-wider mb-3">Personal Information</h3>
                       <div className="grid grid-cols-3 gap-4">
                         <div className="space-y-1.5">
-                          <label className="text-xs font-medium text-white/70 ml-1">First Name *</label>
+                          <label className="text-xs font-medium text-gray-700 dark:text-white/70 ml-1">First Name *</label>
                           <input
                             type="text"
                             placeholder="First Name"
@@ -1746,14 +1746,14 @@ export function PatientsPage() {
                               setFormData({ ...formData, firstName: value })
                               setFormErrors({ ...formErrors, firstName: error })
                             }}
-                            className={`w-full px-4 py-2.5 bg-white/5 border ${formErrors.firstName ? 'border-red-500/50' : 'border-white/10'} rounded-xl focus:outline-none focus:border-[#e8a855]/70 focus:bg-white/10 text-white placeholder:text-white/20 transition-all text-sm`}
+                            className={`w-full px-4 py-2.5 bg-gray-50 dark:bg-white/5 border ${formErrors.firstName ? 'border-red-500/50' : 'border-gray-200 dark:border-white/10'} rounded-xl focus:outline-none focus:border-emerald-600/70 dark:focus:border-[#e8a855]/70 focus:bg-white dark:focus:bg-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 transition-all text-sm`}
                             required
                             disabled={submitting}
                           />
                           {formErrors.firstName && <p className="text-red-400 text-[10px] ml-1">{formErrors.firstName}</p>}
                         </div>
                         <div className="space-y-1.5">
-                          <label className="text-xs font-medium text-white/70 ml-1">Middle</label>
+                          <label className="text-xs font-medium text-gray-700 dark:text-white/70 ml-1">Middle</label>
                           <input
                             type="text"
                             placeholder="Middle"
@@ -1763,12 +1763,12 @@ export function PatientsPage() {
                               setFormData({ ...formData, middleName: value })
                               setFormErrors({ ...formErrors, middleName: error })
                             }}
-                            className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-[#e8a855]/70 focus:bg-white/10 text-white placeholder:text-white/20 transition-all text-sm"
+                            className="w-full px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:outline-none focus:border-emerald-600/70 dark:focus:border-[#e8a855]/70 focus:bg-white dark:focus:bg-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 transition-all text-sm"
                             disabled={submitting}
                           />
                         </div>
                         <div className="space-y-1.5">
-                          <label className="text-xs font-medium text-white/70 ml-1">Last Name *</label>
+                          <label className="text-xs font-medium text-gray-700 dark:text-white/70 ml-1">Last Name *</label>
                           <input
                             type="text"
                             placeholder="Last Name"
@@ -1778,7 +1778,7 @@ export function PatientsPage() {
                               setFormData({ ...formData, lastName: value })
                               setFormErrors({ ...formErrors, lastName: error })
                             }}
-                            className={`w-full px-4 py-2.5 bg-white/5 border ${formErrors.lastName ? 'border-red-500/50' : 'border-white/10'} rounded-xl focus:outline-none focus:border-[#e8a855]/70 focus:bg-white/10 text-white placeholder:text-white/20 transition-all text-sm`}
+                            className={`w-full px-4 py-2.5 bg-gray-50 dark:bg-white/5 border ${formErrors.lastName ? 'border-red-500/50' : 'border-gray-200 dark:border-white/10'} rounded-xl focus:outline-none focus:border-emerald-600/70 dark:focus:border-[#e8a855]/70 focus:bg-white dark:focus:bg-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 transition-all text-sm`}
                             required
                             disabled={submitting}
                           />
@@ -1790,7 +1790,7 @@ export function PatientsPage() {
                     {/* Contact Info */}
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-white/70 ml-1">Date of Birth *</label>
+                        <label className="text-xs font-medium text-gray-700 dark:text-white/70 ml-1">Date of Birth *</label>
                         <div className="relative">
                           <DatePicker
                             value={formData.dob}
@@ -1799,14 +1799,14 @@ export function PatientsPage() {
                             disabled={submitting}
                             required
                             maxDate={new Date()}
-                            className="w-full bg-white/5 border-white/10 text-white rounded-xl focus:border-[#e8a855]/70"
+                            className="w-full bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white rounded-xl focus:border-emerald-600/70 dark:focus:border-[#e8a855]/70"
                           />
                         </div>
                       </div>
                       <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-white/70 ml-1">Phone Number *</label>
+                        <label className="text-xs font-medium text-gray-700 dark:text-white/70 ml-1">Phone Number *</label>
                         <div className="flex">
-                          <div className="px-3 py-2.5 bg-white/5 border border-r-0 border-white/10 rounded-l-xl text-white/50 text-sm flex items-center">+1</div>
+                          <div className="px-3 py-2.5 bg-gray-100 dark:bg-white/5 border border-r-0 border-gray-200 dark:border-white/10 rounded-l-xl text-gray-500 dark:text-white/50 text-sm flex items-center">+1</div>
                           <input
                             type="tel"
                             placeholder="(555) 000-0000"
@@ -1823,7 +1823,7 @@ export function PatientsPage() {
                               }
                               setFormData({ ...formData, phoneNumber: value })
                             }}
-                            className="w-full px-4 py-2.5 bg-white/5 border border-l-0 border-white/10 rounded-r-xl focus:outline-none focus:border-[#e8a855]/70 focus:bg-white/10 text-white placeholder:text-white/20 transition-all text-sm"
+                            className="w-full px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-l-0 border-gray-200 dark:border-white/10 rounded-r-xl focus:outline-none focus:border-emerald-600/70 dark:focus:border-[#e8a855]/70 focus:bg-white dark:focus:bg-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 transition-all text-sm"
                             required
                             disabled={submitting}
                           />
@@ -1834,11 +1834,11 @@ export function PatientsPage() {
                     {/* Guardian Information */}
                     {isPatientMinor(formData.dob) && (
                       <div className="space-y-4 pt-4 border-t border-white/10">
-                        <h3 className="text-xs font-bold text-[#e8a855] uppercase tracking-wider mb-2">Guardian Information <span className="text-white/40 font-normal normal-case ml-2">(Required for minors)</span></h3>
+                        <h3 className="text-xs font-bold text-emerald-600 dark:text-[#e8a855] uppercase tracking-wider mb-2">Guardian Information <span className="text-gray-400 dark:text-white/40 font-normal normal-case ml-2">(Required for minors)</span></h3>
 
                         <div className="grid grid-cols-3 gap-4">
                           <div className="space-y-1.5">
-                            <label className="text-xs font-medium text-white/70 ml-1">First Name</label>
+                            <label className="text-xs font-medium text-gray-700 dark:text-white/70 ml-1">First Name</label>
                             <input
                               type="text"
                               value={formData.guardianFirstName}
@@ -1847,7 +1847,7 @@ export function PatientsPage() {
                                 setFormData({ ...formData, guardianFirstName: value })
                                 setFormErrors({ ...formErrors, guardianFirstName: error })
                               }}
-                              className={`w-full px-4 py-2.5 bg-white/5 border ${formErrors.guardianFirstName ? 'border-red-500/50' : 'border-white/10'} rounded-xl focus:outline-none focus:border-[#e8a855]/70 text-white text-sm`}
+                              className={`w-full px-4 py-2.5 bg-gray-50 dark:bg-white/5 border ${formErrors.guardianFirstName ? 'border-red-500/50' : 'border-gray-200 dark:border-white/10'} rounded-xl focus:outline-none focus:border-emerald-600/70 dark:focus:border-[#e8a855]/70 text-gray-900 dark:text-white text-sm`}
                               required={isPatientMinor(formData.dob)}
                             />
                             {formErrors.guardianFirstName && <p className="text-red-400 text-[10px] ml-1">{formErrors.guardianFirstName}</p>}
@@ -1862,11 +1862,11 @@ export function PatientsPage() {
                                 setFormData({ ...formData, guardianMiddleName: value })
                                 setFormErrors({ ...formErrors, guardianMiddleName: error })
                               }}
-                              className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-[#e8a855]/70 text-white text-sm"
+                              className="w-full px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:outline-none focus:border-emerald-600/70 dark:focus:border-[#e8a855]/70 focus:bg-white dark:focus:bg-white/10 text-gray-900 dark:text-white text-sm"
                             />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-xs font-medium text-white/70 ml-1">Last Name</label>
+                            <label className="text-xs font-medium text-gray-700 dark:text-white/70 ml-1">Last Name</label>
                             <input
                               type="text"
                               value={formData.guardianLastName}
@@ -1875,7 +1875,7 @@ export function PatientsPage() {
                                 setFormData({ ...formData, guardianLastName: value })
                                 setFormErrors({ ...formErrors, guardianLastName: error })
                               }}
-                              className={`w-full px-4 py-2.5 bg-white/5 border ${formErrors.guardianLastName ? 'border-red-500/50' : 'border-white/10'} rounded-xl focus:outline-none focus:border-[#e8a855]/70 text-white text-sm`}
+                              className={`w-full px-4 py-2.5 bg-gray-50 dark:bg-white/5 border ${formErrors.guardianLastName ? 'border-red-500/50' : 'border-gray-200 dark:border-white/10'} rounded-xl focus:outline-none focus:border-emerald-600/70 dark:focus:border-[#e8a855]/70 focus:bg-white dark:focus:bg-white/10 text-gray-900 dark:text-white text-sm`}
                               required={isPatientMinor(formData.dob)}
                             />
                             {formErrors.guardianLastName && <p className="text-red-400 text-[10px] ml-1">{formErrors.guardianLastName}</p>}
@@ -1884,28 +1884,28 @@ export function PatientsPage() {
 
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-1.5">
-                            <label className="text-xs font-medium text-white/70 ml-1">Guardian DOB</label>
+                            <label className="text-xs font-medium text-gray-700 dark:text-white/70 ml-1">Guardian DOB</label>
                             <DatePicker
                               value={formData.guardianDob}
                               onChange={(value) => setFormData({ ...formData, guardianDob: value })}
                               required={isPatientMinor(formData.dob)}
                               maxDate={new Date()}
-                              className="w-full bg-white/5 border-white/10 text-white rounded-xl"
+                              className="w-full bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white rounded-xl"
                             />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-xs font-medium text-white/70 ml-1">Relationship</label>
+                            <label className="text-xs font-medium text-gray-700 dark:text-white/70 ml-1">Relationship</label>
                             <select
                               value={formData.guardianRelationship}
                               onChange={(e) => setFormData({ ...formData, guardianRelationship: e.target.value })}
-                              className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-[#e8a855]/70 text-white text-sm appearance-none"
+                              className="w-full px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:outline-none focus:border-emerald-600/70 dark:focus:border-[#e8a855]/70 focus:bg-white dark:focus:bg-white/10 text-gray-900 dark:text-white text-sm appearance-none"
                               required={isPatientMinor(formData.dob)}
                             >
-                              <option value="" className="bg-slate-800 text-white">Select...</option>
-                              <option value="Parent" className="bg-slate-800 text-white">Parent</option>
-                              <option value="Spouse" className="bg-slate-800 text-white">Spouse</option>
-                              <option value="Guardian" className="bg-slate-800 text-white">Guardian</option>
-                              <option value="Other" className="bg-slate-800 text-white">Other</option>
+                              <option value="" className="bg-white dark:bg-slate-800 text-gray-900 dark:text-white">Select...</option>
+                              <option value="Parent" className="bg-white dark:bg-slate-800 text-gray-900 dark:text-white">Parent</option>
+                              <option value="Spouse" className="bg-white dark:bg-slate-800 text-gray-900 dark:text-white">Spouse</option>
+                              <option value="Guardian" className="bg-white dark:bg-slate-800 text-gray-900 dark:text-white">Guardian</option>
+                              <option value="Other" className="bg-white dark:bg-slate-800 text-gray-900 dark:text-white">Other</option>
                             </select>
                           </div>
                         </div>
@@ -1921,14 +1921,14 @@ export function PatientsPage() {
                           setSubmitError(null)
                         }}
                         disabled={submitting}
-                        className="flex-1 bg-white/5 hover:bg-white/10 text-white border border-white/10 h-11 rounded-xl"
+                        className="flex-1 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-700 dark:text-white border border-gray-200 dark:border-white/10 h-11 rounded-xl"
                       >
                         Cancel
                       </Button>
                       <Button
                         type="submit"
                         disabled={submitting}
-                        className="flex-1 bg-gradient-to-r from-[#e8a855] to-[#d69645] hover:from-[#d69645] hover:to-[#c58534] text-white border-0 h-11 rounded-xl shadow-[0_0_20px_rgba(232,168,85,0.3)] hover:shadow-[0_0_30px_rgba(232,168,85,0.4)] transition-all"
+                        className="flex-1 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 dark:from-[#e8a855] dark:to-[#d69645] dark:hover:from-[#d69645] dark:hover:to-[#c58534] text-white border-0 h-11 rounded-xl shadow-[0_0_20px_rgba(232,168,85,0.3)] hover:shadow-[0_0_30px_rgba(232,168,85,0.4)] transition-all"
                       >
                         {submitting ? (
                           <span className="flex items-center justify-center">

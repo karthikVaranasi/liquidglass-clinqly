@@ -432,73 +432,92 @@ export function SettingsPage() {
           </TabsList>
 
           {/* Working Hours Tab */}
-          <TabsContent value="working-hours" className="mt-3 max-w-md">
+          <TabsContent value="working-hours" className="mt-3 max-w-2xl">
             {isLoadingWorkingHours ? (
               <div className="flex flex-col items-center justify-center py-12">
                 <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <div className="text-sm">Loading working hours...</div>
+                <div className="text-sm text-black dark:text-white">Loading working hours...</div>
               </div>
             ) : (
               <>
-                <div className="space-y-3">
-                  {workingHours.map((day, index) => (
-                    <div
-                      key={day.day}
-                      className="group relative overflow-hidden flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-4 py-3 bg-gradient-to-br from-white/20 to-white/10 dark:from-white/10 dark:to-white/5 backdrop-blur-md rounded-xl border border-white/30 dark:border-white/20 shadow-lg hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] dark:hover:shadow-[0_0_20px_rgba(255,255,255,0.05)] transition-all duration-300"
-                    >
-                      {/* Subtle Shine Effect on Hover */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 pointer-events-none" />
+                <div className="relative bg-gradient-to-br from-[#9a8ea2]/80 to-[#b0a4b2]/60 dark:from-[#4a4257]/80 dark:to-[#5a5267]/60 backdrop-blur-xl rounded-xl p-4 border-[3px] border-[#e8a855]/70 dark:border-[#a87832]/60 shadow-[0_0_30px_rgba(232,168,85,0.5),0_0_60px_rgba(232,168,85,0.2),0_8px_32px_rgba(150,130,160,0.25),inset_0_1px_0_rgba(255,255,255,0.4)] dark:shadow-[0_0_20px_rgba(168,120,50,0.4),0_8px_32px_rgba(50,40,60,0.3)] flex flex-col overflow-hidden glass-shine">
+                  {/* Glossy Top Highlight */}
+                  <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-white/25 via-white/10 to-transparent dark:from-white/15 dark:via-white/8 dark:to-transparent rounded-t-xl pointer-events-none" />
 
-                      <div className="w-full sm:w-20 font-medium text-sm text-slate-900 dark:!text-white relative z-10">{day.day}</div>
-                      {day.isClosed ? (
-                        <div className="flex-1 text-center text-sm text-gray-500 dark:text-gray-400 relative z-10">Closed</div>
-                      ) : (
-                        <div className="flex items-center gap-2 relative z-10">
-                          <div className="flex-1">
-                            <TimePicker
-                              value={day.open}
-                              onChange={(value) => handleTimeChange(index, "open", value)}
-                              className="w-full border-none focus:ring-0 bg-transparent text-sm text-slate-900 dark:!text-white placeholder:text-gray-400 hover:bg-white/20 rounded p-1 transition-colors text-center"
-                            />
-                          </div>
+                  <div className="overflow-hidden rounded-xl flex-1 flex flex-col relative z-10">
+                    {/* Fixed Header Table */}
+                    <table className="w-full text-sm table-fixed">
+                      <thead className="bg-[#9a8ea2] dark:bg-[#4a4257]">
+                        <tr>
+                          <th className="text-left font-bold py-3 px-4 text-white w-[25%] text-base">Day</th>
+                          <th className="text-left font-bold py-3 px-4 text-white w-[45%] text-base">Hours</th>
+                          <th className="text-left font-bold py-3 px-4 text-white w-[30%] text-base">Action</th>
+                        </tr>
+                      </thead>
+                    </table>
 
-                          <span className="text-sm flex-shrink-0 text-slate-900 dark:!text-white font-medium">to</span>
-
-                          <div className="flex-1">
-                            <TimePicker
-                              value={day.close}
-                              onChange={(value) => handleTimeChange(index, "close", value)}
-                              className="w-full border-none focus:ring-0 bg-transparent text-sm text-slate-900 dark:!text-white placeholder:text-gray-400 hover:bg-white/20 rounded p-1 transition-colors text-center"
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      <Button
-                        onClick={() => handleToggleClosed(index)}
-                        className={`ml-auto relative z-10 ${day.isClosed ? "neumorphic-button-primary" : "neumorphic-button-destructive"}`}
-                      >
-                        {day.isClosed ? "Open" : "Close"}
-                      </Button>
+                    {/* Scrollable Body Container */}
+                    <div className="overflow-x-auto max-h-[60vh] overflow-y-auto flex-1 bg-white/80 dark:bg-white/20 rounded-lg">
+                      <table className="w-full text-sm table-fixed">
+                        <tbody className="divide-y divide-[#9a8ea2]/30">
+                          {workingHours.map((day, index) => (
+                            <tr key={day.day} className="bg-transparent hover:bg-white/10 transition-colors">
+                              <td className="py-3 px-4 w-[25%]">
+                                <span className="text-base font-semibold text-black dark:text-white">{day.day}</span>
+                              </td>
+                              <td className="py-3 px-4 w-[45%]">
+                                {day.isClosed ? (
+                                  <span className="text-base text-gray-500 dark:text-white/70 italic">Closed</span>
+                                ) : (
+                                  <div className="flex items-center gap-2">
+                                    <TimePicker
+                                      value={day.open}
+                                      onChange={(value) => handleTimeChange(index, "open", value)}
+                                      className="w-24"
+                                    />
+                                    <span className="text-base font-medium text-black dark:text-white">to</span>
+                                    <TimePicker
+                                      value={day.close}
+                                      onChange={(value) => handleTimeChange(index, "close", value)}
+                                      className="w-24"
+                                    />
+                                  </div>
+                                )}
+                              </td>
+                              <td className="py-3 px-4 w-[30%]">
+                                <Button
+                                  onClick={() => handleToggleClosed(index)}
+                                  className={`${day.isClosed
+                                      ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                                      : "bg-rose-500 hover:bg-rose-600 text-white"
+                                    } border-none shadow-md`}
+                                >
+                                  {day.isClosed ? "Open" : "Close"}
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
-                  ))}
-                </div>
+                  </div>
 
-                <div className="mt-4 sm:mt-6 flex justify-center sm:justify-end">
-                  <Button
-                    onClick={handleSaveWorkingHours}
-                    disabled={isSavingWorkingHours}
-                    className="neumorphic-button-primary"
-                  >
-                    {isSavingWorkingHours ? (
-                      <>
-                        <IconLoader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Saving...
-                      </>
-                    ) : (
-                      "Save Working Hours"
-                    )}
-                  </Button>
+                  <div className="mt-4 flex justify-end relative z-10">
+                    <Button
+                      onClick={handleSaveWorkingHours}
+                      disabled={isSavingWorkingHours}
+                      className="neumorphic-button-primary bg-[#e8a855] text-white hover:bg-[#d69645] border-none shadow-md px-6"
+                    >
+                      {isSavingWorkingHours ? (
+                        <>
+                          <IconLoader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        "Save Working Hours"
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </>
             )}

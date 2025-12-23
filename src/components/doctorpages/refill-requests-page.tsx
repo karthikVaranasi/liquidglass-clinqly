@@ -138,7 +138,7 @@ export function RefillRequestsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-transparent">
 
       {/* Refill Requests Table */}
       <div className="px-4 lg:px-6">
@@ -170,7 +170,7 @@ export function RefillRequestsPage() {
                   <tbody className="divide-y divide-white/10">
                     {requests.map((request, index) => (
                       <tr key={request.id || index} className="hover:bg-white/10 transition-colors">
-                        <td className="py-3 px-1.5 font-semibold text-sm sm:text-base min-w-[125px]">
+                        <td className="py-3 px-1.5 font-semibold text-xs sm:text-sm min-w-[125px]">
                           <div className="flex items-center gap-1">
                             {getPatientName(request)}
                           </div>

@@ -1,7 +1,7 @@
 // /mnt/data/appointment-page.tsx
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
-import { IconChevronLeft, IconChevronRight, IconCalendar, IconUserCircle } from "@tabler/icons-react"
+import { IconChevronLeft, IconChevronRight, IconCalendar, IconUserCircle, IconCaretRight } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { AuthStorage } from "@/api/auth"
 import { useAuth } from "@/hooks/use-auth"
@@ -26,6 +26,9 @@ export function AppointmentPage() {
   const [currentMonth, setCurrentMonth] = useState(11)
   const [currentYear, setCurrentYear] = useState(2025)
 
+  // Carousel ref for scrolling
+  const carouselRef = useRef<HTMLDivElement>(null)
+
   // API state
   const [appointments, setAppointments] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -33,6 +36,22 @@ export function AppointmentPage() {
 
   // Track page load time to avoid premature logout on 401 errors
   const pageLoadStartTime = Date.now()
+
+  // Scroll carousel left
+  const scrollCarouselLeft = () => {
+    if (carouselRef.current) {
+      const cardWidth = 200 // approx width of card + gap
+      carouselRef.current.scrollBy({ left: -cardWidth, behavior: 'smooth' })
+    }
+  }
+
+  // Scroll carousel right
+  const scrollCarouselRight = () => {
+    if (carouselRef.current) {
+      const cardWidth = 200 // approx width of card + gap
+      carouselRef.current.scrollBy({ left: cardWidth, behavior: 'smooth' })
+    }
+  }
 
   const months = [
     "January", "February", "March", "April", "May", "June",
@@ -100,32 +119,34 @@ export function AppointmentPage() {
   // Get status styling based on appointment status (liquid glass badges)
   const getStatusStyle = (status: string) => {
     switch (status?.toLowerCase()) {
-      case 'completed':
-        return 'bg-emerald-100/60 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-300/40 dark:border-emerald-400/30 backdrop-blur-sm'
-      case 'in progress':
-        return 'bg-amber-100/60 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-300/40 dark:border-amber-400/30 backdrop-blur-sm'
       case 'scheduled':
-        return 'bg-blue-100/60 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 border border-blue-300/40 dark:border-blue-400/30 backdrop-blur-sm'
+        return 'bg-transparent text-blue-600 dark:text-blue-400 border-2 border-blue-500 dark:border-blue-400'
       case 'cancelled':
-        return 'bg-rose-100/60 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-300/40 dark:border-rose-400/30 backdrop-blur-sm'
+        return 'bg-transparent text-rose-600 dark:text-rose-400 border-2 border-rose-500 dark:border-rose-400'
+      case 'completed':
+        return 'bg-transparent text-emerald-600 dark:text-emerald-400 border-2 border-emerald-500 dark:border-emerald-400'
+      case 'in progress':
+        return 'bg-transparent text-amber-600 dark:text-amber-400 border-2 border-amber-500 dark:border-amber-400'
       default:
-        return 'bg-slate-100/60 dark:bg-slate-500/20 text-slate-700 dark:text-slate-300 border border-slate-300/40 dark:border-slate-400/30 backdrop-blur-sm'
+        return 'bg-transparent text-slate-600 dark:text-slate-400 border-2 border-slate-400 dark:border-slate-500'
     }
   }
 
-  // Get card status styling for transparency and visibility
+  // Get card status styling for liquid glass theme with user-specified colors
   const getCardStatusStyle = (status: string) => {
+    // Cards use #dfe2f3 background with glass effects
+    const baseGlass = 'bg-[#dfe2f3] dark:bg-[#3a4057] backdrop-blur-xl backdrop-saturate-150 shadow-[0_8px_32px_rgba(100,150,200,0.15),inset_0_0_20px_rgba(255,255,255,0.3)]'
     switch (status?.toLowerCase()) {
       case 'scheduled':
-        return 'bg-blue-50/5 dark:bg-blue-500/5 border-blue-400/40 dark:border-blue-400/40 shadow-[0_0_15px_rgba(59,130,246,0.15)]'
+        return `${baseGlass} border-blue-300/60`
       case 'cancelled':
-        return 'bg-rose-50/5 dark:bg-rose-500/5 border-rose-400/40 dark:border-rose-400/40 shadow-[0_0_15px_rgba(244,63,94,0.15)]'
+        return `${baseGlass} border-rose-300/60`
       case 'completed':
-        return 'bg-emerald-50/5 dark:bg-emerald-500/5 border-emerald-400/30 dark:border-emerald-400/30 shadow-[0_0_15px_rgba(16,185,129,0.1)]'
+        return `${baseGlass} border-emerald-300/60`
       case 'in progress':
-        return 'bg-amber-50/5 dark:bg-amber-500/5 border-amber-400/40 dark:border-amber-400/40 shadow-[0_0_15px_rgba(245,158,11,0.15)]'
+        return `${baseGlass} border-amber-300/60`
       default:
-        return 'bg-white/5 border-white/20'
+        return `${baseGlass} border-white/40`
     }
   }
 
@@ -325,31 +346,54 @@ export function AppointmentPage() {
 
   return (
     <div
-      className="space-y-6 px-4 lg:px-6 relative"
+      className="space-y-6 px-4 lg:px-6 relative bg-transparent"
     >
 
-      {/* Today's Appointments Section */}
+      {/* Today's Appointments Section - Colored Glass with Blue Neon Border */}
       <div
-        className="-mt-1 space-y-4"
+        className="relative -mt-1 space-y-4 bg-gradient-to-br from-[#91b4e8]/80 to-[#a7c4f0]/60 dark:from-[#3a4a5a]/80 dark:to-[#4a5a6a]/60 rounded-2xl p-4 backdrop-blur-xl border-2 border-[#7eb8f0]/50 dark:border-[#5a7a9a]/50 shadow-[0_0_20px_rgba(126,184,240,0.3),0_8px_32px_rgba(100,150,200,0.25),inset_0_1px_0_rgba(255,255,255,0.4)] dark:shadow-[0_0_20px_rgba(80,120,160,0.3),0_8px_32px_rgba(50,80,120,0.2)] glass-shine"
       >
-        <div className="flex items-center gap-2">
-          <h2 className="text-lg md:text-xl font-semibold">Today's Appointments ({todaysAppointments.length})</h2>
+        {/* Glossy Top Highlight */}
+        <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-white/30 via-white/10 to-transparent rounded-t-2xl pointer-events-none" />
+
+        <div className="flex items-center justify-between relative z-10">
+          <h2 className="text-lg md:text-xl font-semibold text-white dark:text-white drop-shadow-sm">Today's Appointments ({todaysAppointments.length})</h2>
+          {todaysAppointments.length > 4 && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={scrollCarouselLeft}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/50 hover:bg-white/70 backdrop-blur-sm border border-white/40 text-gray-800 transition-all duration-200 hover:scale-110"
+                aria-label="Scroll left"
+              >
+                <IconChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                onClick={scrollCarouselRight}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/50 hover:bg-white/70 backdrop-blur-sm border border-white/40 text-gray-800 transition-all duration-200 hover:scale-110"
+                aria-label="Scroll right"
+              >
+                <IconChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         </div>
 
         {todaysAppointments.length > 0 ? (
-          <div className="space-y-4">
-            {/* Appointments Grid - responsive: 1 per row on small, 2 on medium, 3 on large screens */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="relative z-10">
+            {/* Appointments Carousel - hidden scrollbar, 4 cards visible */}
+            <div
+              ref={carouselRef}
+              className="flex gap-3 overflow-x-auto pb-1 snap-x snap-mandatory"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              <style>{`div::-webkit-scrollbar { display: none; }`}</style>
               {todaysAppointments.map((apt: any, index: number) => {
                 const isMorning = isMorningAppointment(apt.appointment_time)
-
-                // Consistent liquid glass style matching the table below
-                // Using liquid-glass class, primary border, and cyan glow
 
                 return (
                   <div
                     key={index}
-                    className={`p-5 transition-all duration-300 cursor-pointer rounded-2xl backdrop-blur-sm border ${getCardStatusStyle(apt.status)} hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-2 relative overflow-hidden group`}
+                    className="flex-shrink-0 w-[180px] sm:w-[200px] p-3 transition-all duration-300 cursor-pointer rounded-xl bg-white/80 dark:bg-white/20 backdrop-blur-xl border border-white/50 shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-white/50 relative overflow-hidden group snap-start"
                     onClick={() => handleAppointmentCardClick(apt)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
@@ -361,30 +405,41 @@ export function AppointmentPage() {
                     role="button"
                     aria-label={`View profile for ${apt.patient?.first_name} ${apt.patient?.last_name}`}
                   >
-                    <div className="flex flex-col gap-2">
-                      {/* Time */}
-                      <div className="flex items-center justify-between">
-                        <span className="font-semibold text-lg">
+                    <div className="flex flex-col gap-2 relative z-10 h-full">
+                      {/* Time Badge with Background & Patient Name */}
+                      <div className="flex items-start gap-2">
+                        <span className="px-2 py-1 rounded-md bg-gradient-to-r from-[#d4e4f7] to-[#e8f0f8] dark:from-[#4a5a7a] dark:to-[#5a6a8a] text-xs font-bold text-gray-700 dark:text-white shadow-sm">
                           {new Date(apt.appointment_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
+                        <span className="font-bold text-sm text-gray-800 dark:text-white truncate flex-1">
+                          {apt.patient?.first_name} {apt.patient?.last_name}
+                        </span>
+                      </div>
+                      {/* Age & Reason */}
+                      <div className="flex items-baseline gap-2">
+                        <span className="px-2 py-0.5 text-xl font-bold text-gray-700 dark:text-white bg-gradient-to-r from-[#f5d4a8]/80 to-[#f8e4c8]/60 dark:from-[#a87832]/60 dark:to-[#c99a4a]/40 rounded-md shadow-sm">
+                          {apt.patient?.dob ? Math.floor((new Date().getTime() - new Date(apt.patient.dob).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) : '--'}
+                        </span>
+                        <p className="text-xs text-black dark:text-black font-medium truncate flex-1">
+                          {apt.reason_for_visit || "No Reason Provided"}
+                        </p>
+                      </div>
+                      {/* Room & Status */}
+                      <div className="flex items-center justify-between mt-auto pt-1 border-t border-gray-200/50 dark:border-white/20">
+                        <span className="text-xs text-black dark:text-black">Room H{700 + index}</span>
                         <span
-                          className={`inline-flex items-center px-2 py-1 rounded-full text-sm font-medium ${getStatusStyle(apt.status)}`}
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusStyle(apt.status)}`}
                         >
                           {apt.status}
                         </span>
                       </div>
-                      {/* Patient Name */}
-                      <div className="font-bold text-lg">
-                        {apt.patient?.first_name} {apt.patient?.last_name}
-                      </div>
-                      {/* Reason */}
-                      <p className="text-sm text-foreground/90 font-medium truncate relative z-10">
-                        {apt.reason_for_visit || "No reason provided"}
-                      </p>
-
-                      {/* Glass Shine Effect */}
-                      <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                     </div>
+
+                    {/* Glossy Top Highlight */}
+                    <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-white/50 via-white/20 to-transparent rounded-t-xl pointer-events-none" />
+
+                    {/* Glass Shine Effect on Hover */}
+                    <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/30 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                   </div>
                 )
               })}
@@ -416,7 +471,7 @@ export function AppointmentPage() {
           className="mb-2"
         >
           <h1 className="text-lg md:text-xl font-semibold text-foreground">
-            {isSelectedDateInPast() ? 'Past Appointments' : 'Scheduled Appointments'}
+            {isSelectedDateInPast() ? 'Past Appointments' : 'Scheduled Appointments'} ({selectedDateAppointments?.length || 0})
           </h1>
         </div>
 
@@ -432,43 +487,32 @@ export function AppointmentPage() {
                 className="flex-1 flex flex-col"
                 key={selectedDate}
               >
-                <div
-                  className="flex items-center justify-between mb-3"
-                >
-                  <h2 className="text-sm md:text-lg font-semibold text-foreground">
-                    {formatDateUS(new Date(currentYear, currentMonth - 1, selectedDate))}
-                  </h2>
-                  <span
-                    className="text-sm"
-                  >
-                    {selectedDateAppointments.length > 0
-                      ? `${selectedDateAppointments.length} appointments`
-                      : 'No appointments'
-                    }
-                  </span>
-                </div>
+
 
                 {selectedDateAppointments.length > 0 ? (
                   <div
-                    className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.1)] flex flex-col"
+                    className="relative bg-gradient-to-br from-[#9a8ea2]/80 to-[#b0a4b2]/60 dark:from-[#4a4257]/80 dark:to-[#5a5267]/60 backdrop-blur-xl rounded-xl p-4 border-[3px] border-[#e8a855]/70 dark:border-[#a87832]/60 shadow-[0_0_30px_rgba(232,168,85,0.5),0_0_60px_rgba(232,168,85,0.2),0_8px_32px_rgba(150,130,160,0.25),inset_0_1px_0_rgba(255,255,255,0.4)] dark:shadow-[0_0_20px_rgba(168,120,50,0.4),0_8px_32px_rgba(50,40,60,0.3)] flex flex-col overflow-hidden glass-shine"
                   >
-                    <div className="overflow-hidden rounded-xl flex-1 flex flex-col">
+                    {/* Glossy Top Highlight */}
+                    <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-white/25 via-white/10 to-transparent dark:from-white/15 dark:via-white/8 dark:to-transparent rounded-t-xl pointer-events-none" />
+
+                    <div className="overflow-hidden rounded-xl flex-1 flex flex-col relative z-10">
                       {/* Fixed Header */}
                       <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b border-white/20">
-                            <th className="text-left font-bold py-3 px-2 text-foreground">Time</th>
-                            <th className="text-left font-bold py-3 px-2 text-foreground">Patient</th>
-                            <th className="text-left font-bold py-3 px-2 text-foreground">Reason for Visit</th>
-                            <th className="text-left font-bold py-3 px-2 text-foreground">Doctor</th>
-                            <th className="text-left font-bold py-3 px-2 text-foreground">Status</th>
+                        <thead className="bg-[#9a8ea2] dark:bg-[#4a4257]">
+                          <tr>
+                            <th className="text-left font-bold text-base py-3 px-4 text-white w-[15%]">Time</th>
+                            <th className="text-left font-bold text-base py-3 px-4 text-white w-[22%]">Patient</th>
+                            <th className="text-left font-bold text-base py-3 px-4 text-white w-[28%]">Reason for Visit</th>
+                            <th className="text-left font-bold text-base py-3 px-4 text-white w-[20%]">Doctor</th>
+                            <th className="text-left font-bold text-base py-3 px-4 text-white w-[15%]">Status</th>
                           </tr>
                         </thead>
                       </table>
                       {/* Scrollable Body */}
-                      <div className="overflow-x-auto max-h-[60vh] overflow-y-auto flex-1">
+                      <div className="overflow-x-auto max-h-[320px] overflow-y-auto flex-1 bg-white/80 dark:bg-white/20 rounded-lg">
                         <table className="w-full text-sm">
-                          <tbody className="divide-y divide-white/10">
+                          <tbody className="divide-y divide-[#9a8ea2]/30">
                             {selectedDateAppointments.map((apt: any, index: number) => (
                               <tr
                                 key={index}
@@ -484,22 +528,22 @@ export function AppointmentPage() {
                                 role="button"
                                 aria-label={`View profile for ${apt.patient?.first_name} ${apt.patient?.last_name}`}
                               >
-                                <td className="py-3 px-2 font-bold text-sm text-foreground">
+                                <td className="py-3 px-4 text-sm text-black dark:text-white w-[15%]">
                                   {new Date(apt.appointment_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 </td>
-                                <td className="py-3 px-2">
-                                  <div className="flex items-center gap-1 text-foreground">
-                                    <IconUserCircle className="w-5 h-5 text-foreground/80" />
-                                    <span className="font-bold text-sm">{apt.patient?.first_name} {apt.patient?.last_name}</span>
+                                <td className="py-3 px-4 w-[22%]">
+                                  <div className="flex items-center gap-2 text-black dark:text-white">
+                                    <IconUserCircle className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                                    <span className="text-sm">{apt.patient?.first_name} {apt.patient?.last_name}</span>
                                   </div>
                                 </td>
-                                <td className="py-3 px-2 text-foreground/90 font-medium">
+                                <td className="py-3 px-4 text-black dark:text-white font-medium w-[28%]">
                                   <span className="truncate block">
                                     {apt.reason_for_visit || "No reason provided"}
                                   </span>
                                 </td>
-                                <td className="py-3 px-2 text-sm text-foreground">{apt.doctor?.name}</td>
-                                <td className="py-3 px-2">
+                                <td className="py-3 px-4 text-sm text-black dark:text-white w-[20%]">{apt.doctor?.name}</td>
+                                <td className="py-3 px-4 w-[15%]">
                                   <span
                                     className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusStyle(apt.status)}`}
                                   >
@@ -560,8 +604,10 @@ export function AppointmentPage() {
           >
             {/* Calendar Content */}
             <div
-              className="p-2 sm:p-3 md:p-3 items-center justify-center bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.1)] overflow-hidden w-full min-h-[240px] sm:min-h-[260px] md:min-h-[280px] flex flex-col"
+              className="relative p-2 sm:p-3 md:p-3 items-center justify-center bg-gradient-to-br from-[#d7d7f3]/80 to-[#e5e5f8]/60 dark:from-[#3a3a57]/90 dark:to-[#4a4a67]/70 backdrop-blur-xl rounded-xl border-2 border-[#b8a0d4]/50 shadow-[0_0_20px_rgba(184,160,212,0.3),0_8px_32px_rgba(200,200,240,0.25),inset_0_1px_0_rgba(255,255,255,0.4)] overflow-hidden w-full min-h-[240px] sm:min-h-[260px] md:min-h-[280px] flex flex-col glass-shine"
             >
+              {/* Glossy Top Highlight */}
+              <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-white/30 via-white/10 to-transparent rounded-t-xl pointer-events-none" />
               <div
                 className="flex items-center gap-1 sm:gap-2 mb-1.5 sm:mb-2 px-6 w-full justify-center"
               >
@@ -571,14 +617,14 @@ export function AppointmentPage() {
                     onClick={handlePrevMonth}
                     variant="outline"
                     size="sm"
-                    className="h-6 w-6 sm:h-7 sm:w-7 p-0"
+                    className="h-6 w-6 sm:h-7 sm:w-7 p-0 bg-white/50 dark:bg-white/20 border-gray-300 dark:border-white/30 hover:bg-white/80 dark:hover:bg-white/30"
                   >
-                    <IconChevronLeft className="w-3 h-3" />
+                    <IconChevronLeft className="w-3 h-3 text-gray-700 dark:text-white" />
                   </Button>
                 </div>
                 <h1
                   key={`${currentMonth}-${currentYear}`}
-                  className="text-xs sm:text-sm md:text-base font-semibold flex-1 text-center"
+                  className="text-xs sm:text-sm md:text-base font-semibold flex-1 text-center text-gray-800 dark:text-white"
                 >
                   {months[currentMonth - 1]} {currentYear}
                 </h1>
@@ -588,9 +634,9 @@ export function AppointmentPage() {
                     onClick={handleNextMonth}
                     variant="outline"
                     size="sm"
-                    className="h-6 w-6 sm:h-7 sm:w-7 p-0"
+                    className="h-6 w-6 sm:h-7 sm:w-7 p-0 bg-white/50 dark:bg-white/20 border-gray-300 dark:border-white/30 hover:bg-white/80 dark:hover:bg-white/30"
                   >
-                    <IconChevronRight className="w-3 h-3" />
+                    <IconChevronRight className="w-3 h-3 text-gray-700 dark:text-white" />
                   </Button>
                 </div>
               </div>
@@ -602,7 +648,7 @@ export function AppointmentPage() {
                   {weekDays.map((day) => (
                     <div
                       key={day}
-                      className="text-center text-[10px] sm:text-xs md:text-[11px] font-medium text-muted-foreground px-0.5 py-0.5 sm:py-1 rounded min-w-0"
+                      className="text-center text-[10px] sm:text-xs md:text-[11px] font-medium dark:font-bold text-muted-foreground dark:text-white px-0.5 py-0.5 sm:py-1 rounded min-w-0"
                     >
                       <span className="hidden sm:inline">{day}</span>
                       <span className="sm:hidden">{day.charAt(0)}</span>
@@ -624,9 +670,9 @@ export function AppointmentPage() {
                           w-full min-h-0 flex flex-col justify-center items-center transition-all duration-300
                           ${day.isCurrentMonth
                           ? selectedDate === day.date
-                            ? 'bg-primary text-white shadow-lg ring-2 ring-primary scale-110 z-10'
+                            ? 'bg-[#5a8ac7] text-white shadow-lg ring-2 ring-[#5a8ac7] scale-110 z-10'
                             : day.isToday
-                              ? 'bg-white ring-2 ring-primary text-black'
+                              ? 'bg-white ring-2 ring-[#5a8ac7] text-black'
                               : day.hasAppointments
                                 ? 'bg-white hover:scale-105 text-black shadow-sm'
                                 : 'bg-white/90 hover:bg-white text-black'
@@ -649,8 +695,8 @@ export function AppointmentPage() {
                         <div className="-mt-0.5">
                           <div
                             className={`appointment-badge inline-flex items-center justify-center text-[8px] sm:text-[10px] font-medium rounded-full px-0.5 sm:px-1 ${selectedDate === day.date
-                              ? 'bg-white/20 text-white border border-white/50'
-                              : 'bg-primary/20 dark:bg-primary/40 text-primary dark:text-white border border-primary/30'
+                              ? 'bg-white/40 text-white border border-white/50'
+                              : 'bg-[#5a8ac7]/20 text-[#3a6a9a] border border-[#5a8ac7]/40'
                               }`}
                           >
                             {day.appointments.length}

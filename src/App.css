@@ -70,7 +70,7 @@
   --glass-glow: rgba(14, 165, 163, 0.25);
 
   /* Clean Medical Dashboard Base - Transparent for Background Images */
-  --background: transparent;
+  --background: #d4d7e9;
   --foreground: #020617;
   --card: rgba(255, 255, 255, 0.4);
   --card-foreground: #020617;
@@ -111,6 +111,20 @@
 /* ========================================
    DARK THEME - Same UI, Dark Background Only
    ======================================== */
+
+/* DARK MODE BACKGROUND - Universal override */
+html.dark,
+html.dark body,
+html.dark #root,
+html.dark #root>div,
+.dark,
+.dark body,
+.dark #root,
+.dark #root>div {
+  background: #1b2033 !important;
+  background-color: #1b2033 !important;
+}
+
 .dark {
   /* Glass properties - Same as Light Mode */
   --glass-blur: 32px;
@@ -125,7 +139,7 @@
   --glass-glow: rgba(14, 165, 163, 0.25);
 
   /* Only background changes - UI elements stay the same */
-  --background: #0d1117;
+  --background: #1b2033;
   --foreground: #ffffff;
   --card: rgba(255, 255, 255, 0.4);
   --card-foreground: #ffffff;
@@ -153,14 +167,14 @@
   --chart-3: #007A78;
   --chart-4: #4DD9D5;
   --chart-5: #00A89D;
-  /* Sidebar - Same as Light */
-  --sidebar: rgba(255, 255, 255, 0.4);
+  /* Sidebar - Transparent in Dark Mode for Liquid Glass */
+  --sidebar: rgba(255, 255, 255, 0.03);
   --sidebar-foreground: #ffffff;
   --sidebar-primary: #0EA5A3;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: rgba(14, 165, 163, 0.15);
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: rgba(255, 255, 255, 0.4);
+  --sidebar-border: rgba(255, 255, 255, 0.08);
   --sidebar-ring: rgba(14, 165, 163, 0.4);
 }
 
@@ -184,7 +198,8 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    background: transparent;
+    @apply text-foreground;
     font-family: 'Nunito Sans', sans-serif;
     text-transform: capitalize;
     position: relative;
@@ -192,32 +207,11 @@
     overflow-x: hidden;
   }
 
-  /* Blurred Background Image for All Themes */
-  body::before {
-    content: "";
-    position: fixed;
-    top: -20px;
-    left: -20px;
-    right: -20px;
-    bottom: -20px;
-    z-index: -1;
-    background-image: url('/image.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    filter: blur(25px);
-    opacity: 1;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
+  html {
+    background: var(--background);
   }
 
-  /* Ensure background stays visible in dark mode, but maybe dimmed if needed. 
-     User said "use this as background image for all pages", implying consistency. */
-  .dark body::before {
-    opacity: 0.8;
-    filter: blur(50px);
-    /* Much more blur in dark mode for better readability */
-  }
+
 
   /* Medical Dashboard Scrollbars - Clean & Fresh */
   * {
@@ -623,37 +617,7 @@
       box-shadow var(--theme-transition);
   }
 
-  /* App Background - Theme Aware */
-  .liquid-glass-app-bg {
-    background-image: url('/image.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    transition: background-image 0.5s ease-in-out;
-  }
 
-  .dark .liquid-glass-app-bg,
-  .liquid-glass-app-bg.dark {
-    background-image: url('/image (3).png');
-  }
-
-  /* Login Page Background - Always Light Theme */
-  .liquid-glass-login-bg {
-    background-image: url('/image.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    min-height: 100vh;
-    color-scheme: light !important;
-  }
-
-  /* Ensure login page stays light even when dark mode is set */
-  .dark .liquid-glass-login-bg,
-  .liquid-glass-login-bg[data-theme="light"] {
-    background-image: url('/image.png');
-    color-scheme: light !important;
-  }
 }
 
 /* Neumorphism Utility Classes - Medical Dashboard Theme */

@@ -47,3 +47,144 @@
   color: #ffffff !important;
   fill: currentColor;
 }
+
+/* Sidebar Icons - Clean Black/White with Size Increase */
+[data-sidebar="menu-button"] svg {
+  color: #000000 !important;
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+  transition: all 0.3s ease;
+}
+
+[data-sidebar="menu-button"]:hover svg {
+  color: #333333 !important;
+  transform: scale(1.05);
+}
+
+[data-sidebar="menu-button"][data-active="true"] svg {
+  color: #000000 !important;
+}
+
+.dark [data-sidebar="menu-button"] svg {
+  color: #ffffff !important;
+}
+
+.dark [data-sidebar="menu-button"]:hover svg {
+  color: #e0e0e0 !important;
+  transform: scale(1.05);
+}
+
+.dark [data-sidebar="menu-button"][data-active="true"] svg {
+  color: #ffffff !important;
+}
+
+/* Sidebar Glossy Style - Matching Today's Appointments */
+/* Sidebar Glossy Style - Matching Carousel Cards */
+[data-sidebar="sidebar"],
+[data-slot="sidebar-inner"] {
+  /* Light Mode - Ultra Transparent Liquid Glass (white/35) */
+  background: rgba(255, 255, 255, 0.35) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  border-radius: 1rem !important;
+  /* rounded-2xl */
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+  overflow: hidden !important;
+}
+
+/* Dark Mode Sidebar Glossy Style */
+.dark [data-sidebar="sidebar"],
+.dark [data-slot="sidebar-inner"] {
+  /* Dark Mode - Slightly Visible Liquid Glass (white/5) */
+  background: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 2px solid rgba(90, 122, 154, 0.5) !important;
+  border-radius: 1rem !important;
+  /* rounded-2xl */
+  box-shadow:
+    0 0 20px rgba(80, 120, 160, 0.3),
+    0 8px 32px rgba(50, 80, 120, 0.2) !important;
+}
+
+/* Liquid Glass Panel - Global Background Style */
+.liquid-glass-panel {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(9px);
+  -webkit-backdrop-filter: blur(9px);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 0 20px 10px rgba(255, 255, 255, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.liquid-glass-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.8),
+      transparent);
+}
+
+.liquid-glass-panel::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(180deg,
+      rgba(255, 255, 255, 0.8),
+      transparent,
+      rgba(255, 255, 255, 0.3));
+}
+
+/* Global Dark Mode Background - Universal Override */
+html.dark,
+html.dark body,
+html.dark #root,
+html.dark #root>div,
+.dark,
+.dark body,
+.dark #root,
+.dark #root>div {
+  background: #1b2033 !important;
+  background-color: #1b2033 !important;
+}
+
+/* Glass Shine Effect for Corners */
+.glass-shine {
+  position: relative;
+}
+
+.glass-shine::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  /* Shine border width */
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.3) 30%, rgba(255, 255, 255, 0) 60%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 20;
+}
+
+/* Dark mode specific shine */
+.dark .glass-shine::after {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.15) 30%, rgba(255, 255, 255, 0) 60%);
+}

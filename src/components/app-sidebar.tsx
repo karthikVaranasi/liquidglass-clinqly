@@ -196,7 +196,8 @@ export function AppSidebar({
                         display: "-webkit-box",
                         WebkitLineClamp: 2,
                         WebkitBoxOrient: "vertical",
-                        overflow: "hidden"
+                        overflow: "hidden",
+                        color: "var(--foreground)" // Default, will be overridden by dark mode text-white class but good fallback
                       }}
                       title={clinicName}
                     >

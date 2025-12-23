@@ -292,7 +292,7 @@ export function LogsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-transparent">
       {/* Summary Cards */}
       <div className="px-4 lg:px-6">
         <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
@@ -381,11 +381,11 @@ export function LogsPage() {
               <table className="w-full text-sm table-fixed">
                 <thead>
                   <TableRow className="border-b border-white/20">
-                    <TableHead className="text-left font-bold py-3 px-4 text-foreground w-1/5">From</TableHead>
-                    <TableHead className="text-left font-bold py-3 px-4 text-foreground w-1/5">Start Time</TableHead>
-                    <TableHead className="text-left font-bold py-3 px-4 text-foreground w-1/5">Call Duration</TableHead>
-                    <TableHead className="text-left font-bold py-3 px-4 text-foreground w-1/5">Sentiment</TableHead>
-                    <TableHead className="text-left font-bold py-3 px-4 text-foreground w-1/5">Actions</TableHead>
+                    <TableHead className="text-left font-bold py-3 px-4 text-foreground w-1/5 text-base">From</TableHead>
+                    <TableHead className="text-left font-bold py-3 px-4 text-foreground w-1/5 text-base">Start Time</TableHead>
+                    <TableHead className="text-left font-bold py-3 px-4 text-foreground w-1/5 text-base">Call Duration</TableHead>
+                    <TableHead className="text-left font-bold py-3 px-4 text-foreground w-1/5 text-base">Sentiment</TableHead>
+                    <TableHead className="text-left font-bold py-3 px-4 text-foreground w-1/5 text-base">Actions</TableHead>
                   </TableRow>
                 </thead>
                 <tbody className="divide-y divide-white/10">
@@ -399,13 +399,13 @@ export function LogsPage() {
                     filteredLogs.map((log, index) => (
                       <tr key={index} className="hover:bg-white/10 transition-colors">
                         <td className="py-3 px-4 w-1/5">
-                          <span className="text-sm font-semibold">{log.from_phone}</span>
+                          <span className="text-base font-semibold">{log.from_phone}</span>
                         </td>
                         <td className="py-3 px-4 w-1/5">
-                          <span className="text-sm">{formatDate(log.start_time)}</span>
+                          <span className="text-base">{formatDate(log.start_time)}</span>
                         </td>
                         <td className="py-3 px-4 w-1/5">
-                          <span className="text-sm">{calculateDuration(log.start_time, log.end_time)}</span>
+                          <span className="text-base">{calculateDuration(log.start_time, log.end_time)}</span>
                         </td>
                         <td className="py-3 px-4 w-1/5">
                           <SentimentRating rating={log.sentiment_score || 0} />

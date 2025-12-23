@@ -1529,7 +1529,7 @@ export function PatientsPage() {
 
   return (
     <>
-      <div className="space-y-6 min-h-screen">
+      <div className="space-y-6 min-h-screen bg-transparent">
         {/* Patients Table */}
         <div className="px-4 lg:px-6 py-4">
           {/* Header with title, filter and Add Patient button - only show when not loading profile from URL */}
@@ -1592,10 +1592,10 @@ export function PatientsPage() {
                     <table className="w-full text-sm table-fixed">
                       <thead>
                         <tr className="border-b border-white/20">
-                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-foreground text-xs sm:text-sm w-1/4">Patient Name</th>
-                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-foreground text-xs sm:text-sm w-1/4 hidden sm:table-cell">DOB</th>
-                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-foreground text-xs sm:text-sm w-1/4">Contact</th>
-                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-foreground text-xs sm:text-sm w-1/4">Actions</th>
+                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-foreground text-sm sm:text-base w-1/4">Patient Name</th>
+                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-foreground text-sm sm:text-base w-1/4 hidden sm:table-cell">DOB</th>
+                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-foreground text-sm sm:text-base w-1/4">Contact</th>
+                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-foreground text-sm sm:text-base w-1/4">Actions</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/10">
@@ -1606,15 +1606,15 @@ export function PatientsPage() {
                                 <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-primary/20 to-chart-2/20 flex items-center justify-center flex-shrink-0">
                                   <IconUserCircle className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                                 </div>
-                                <span className="font-semibold text-sm sm:text-base truncate">{`${patient.first_name} ${patient.last_name}`}</span>
+                                <span className="font-normal text-base sm:text-lg truncate">{`${patient.first_name} ${patient.last_name}`}</span>
                               </div>
                             </td>
-                            <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm hidden sm:table-cell w-1/4">{formatDate(patient.dob)}</td>
-                            <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm w-1/4">{patient.phone_number}</td>
+                            <td className="py-3 px-3 sm:px-4 text-sm sm:text-base hidden sm:table-cell w-1/4">{formatDate(patient.dob)}</td>
+                            <td className="py-3 px-3 sm:px-4 text-sm sm:text-base w-1/4">{patient.phone_number}</td>
                             <td className="py-3 px-3 sm:px-4 w-1/4">
                               <Button
                                 onClick={() => handleViewProfile(patient)}
-                                className="neumorphic-button-primary text-[10px] sm:text-xs px-2 sm:px-3"
+                                className="neumorphic-button-primary text-xs sm:text-sm px-2 sm:px-3"
                                 size="sm"
                               >
                                 <span className="hidden sm:inline">View Profile</span>

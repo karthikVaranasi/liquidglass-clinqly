@@ -53,7 +53,7 @@ export function NavUser({
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-primary/20 data-[state=open]:text-sidebar-accent-foreground liquid-glass rounded-xl text-black dark:text-white"
+              className="data-[state=open]:bg-primary/20 data-[state=open]:text-sidebar-accent-foreground bg-white/40 dark:bg-white/20 backdrop-blur-xl rounded-xl text-black dark:text-white border border-white/40 dark:border-white/30 shadow-[0_4px_20px_rgba(0,0,0,0.05),inset_0_1px_0_rgba(255,255,255,0.5)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.2)] hover:bg-white/60 dark:hover:bg-white/30 transition-all"
             >
               <Avatar className="h-8 w-8 rounded-lg grayscale">
                 <AvatarImage src={user.avatar} alt={user.name} />

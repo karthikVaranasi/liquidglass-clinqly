@@ -206,13 +206,17 @@ function AppRouter() {
 
 export default function App() {
   return (
-    <div className="min-h-screen">
-      <BrowserRouter>
-        {/* Avoid white flash on refresh by using a neutral, background-matched fallback */}
-        <Suspense fallback={<div className="min-h-screen" />}>
-          <AppRouter />
-        </Suspense>
-      </BrowserRouter>
+    <div className="relative min-h-screen bg-[#d4d7e9] dark:bg-[#1b2033] overflow-hidden">
+
+      {/* APP CONTENT */}
+      <div className="relative z-10 min-h-screen">
+        <BrowserRouter>
+          <Suspense fallback={<div className="min-h-screen" />}>
+            <AppRouter />
+          </Suspense>
+        </BrowserRouter>
+      </div>
+
     </div>
   )
 }

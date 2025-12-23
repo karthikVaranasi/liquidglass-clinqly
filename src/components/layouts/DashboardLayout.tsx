@@ -27,7 +27,7 @@ function DashboardLayoutContent({
 
   return (
     <SidebarProvider
-      className="liquid-glass-app-bg"
+      className="bg-transparent"
       style={
         {
           "--sidebar-width": "calc(var(--spacing) * 64)",

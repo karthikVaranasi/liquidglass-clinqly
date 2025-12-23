@@ -187,7 +187,7 @@ function Sidebar({
           data-sidebar="sidebar"
           data-slot="sidebar"
           data-mobile="true"
-          className="liquid-glass-sidebar text-sidebar-foreground w-(--sidebar-width)! p-0 [&>button]:hidden"
+          className="bg-gradient-to-b from-white/50 to-white/35 dark:from-transparent dark:to-transparent dark:bg-white/5 backdrop-blur-2xl backdrop-saturate-150 border-r border-white/30 dark:border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.4)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)] text-sidebar-foreground w-(--sidebar-width)! p-0 [&>button]:hidden"
           style={
             {
               "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
@@ -199,7 +199,14 @@ function Sidebar({
             <SheetTitle>Sidebar</SheetTitle>
             <SheetDescription>Displays the mobile sidebar.</SheetDescription>
           </SheetHeader>
-          <div className="flex h-full w-full flex-col">{children}</div>
+          <div className="flex h-full w-full flex-col relative overflow-hidden">
+            {/* Glossy Top Highlight - Glass Effect */}
+            <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-white/30 via-white/10 to-transparent dark:from-white/8 dark:via-white/3 dark:to-transparent pointer-events-none z-0" />
+            {/* Inner content */}
+            <div className="relative z-10 flex h-full w-full flex-col">
+              {children}
+            </div>
+          </div>
         </SheetContent>
       </Sheet>
     )
@@ -245,11 +252,16 @@ function Sidebar({
           data-sidebar="sidebar"
           data-slot="sidebar-inner"
           className={cn(
-            "flex h-full w-full flex-col theme-transition dark:text-white",
-            variant === "floating" && "rounded-xl liquid-glass-sidebar"
+            "flex h-full w-full flex-col theme-transition dark:text-white relative overflow-hidden glass-shine",
+            variant === "floating" && "rounded-2xl bg-gradient-to-b from-white/50 to-white/35 dark:from-transparent dark:to-transparent dark:bg-white/5 backdrop-blur-2xl backdrop-saturate-150 border-r border-white/30 dark:border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.4)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
           )}
         >
-          {children}
+          {/* Glossy Top Highlight - Glass Effect */}
+          <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-white/30 via-white/10 to-transparent dark:from-white/8 dark:via-white/3 dark:to-transparent rounded-t-2xl pointer-events-none z-0" />
+          {/* Inner content with relative positioning */}
+          <div className="relative z-10 flex h-full w-full flex-col">
+            {children}
+          </div>
         </div>
       </div>
     </div>
@@ -313,7 +325,7 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
     <main
       data-slot="sidebar-inset"
       className={cn(
-        "bg-background relative flex w-full flex-1 flex-col",
+        "bg-transparent relative flex w-full flex-1 flex-col",
         "md:peer-data-[variant=inset]: md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2",
         className
       )}

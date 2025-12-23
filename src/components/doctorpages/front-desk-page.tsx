@@ -151,7 +151,7 @@ export function FrontDeskPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-transparent">
 
       {/* Front Desk Requests Table */}
       <div className="px-4 lg:px-6">
@@ -160,11 +160,11 @@ export function FrontDeskPage() {
             {/* Fixed Header - Outside scroll container */}
             <div className="border-b border-white/20">
               <div className="grid grid-cols-[25%_25%_25%_25%] gap-2 py-3 px-4 items-center">
-                <div className="font-bold text-sm text-foreground">Name</div>
-                <div className="font-bold text-sm text-foreground">Phone Number</div>
-                <div className="font-bold text-sm text-foreground">Created At</div>
+                <div className="font-bold text-base text-foreground">Name</div>
+                <div className="font-bold text-base text-foreground">Phone Number</div>
+                <div className="font-bold text-base text-foreground">Created At</div>
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-sm text-foreground">Tag</span>
+                  <span className="font-bold text-base text-foreground">Tag</span>
                   <div className="flex items-center gap-2">
                     <Select value={selectedTag} onValueChange={setSelectedTag}>
                       <SelectTrigger className="h-7 w-[140px] text-xs">
@@ -215,13 +215,13 @@ export function FrontDeskPage() {
                     >
                       <AccordionTrigger className="hover:bg-white/10 hover:rounded-none px-4 py-0 hover:no-underline [&>svg]:my-auto transition-colors">
                         <div className="grid grid-cols-[25%_25%_25%_25%] gap-2 w-full py-3 text-left items-center">
-                          <div className="flex items-center gap-2 font-medium text-sm">
+                          <div className="flex items-center gap-2 font-medium text-base">
                             <IconUserCircle className="w-5 h-5 flex-shrink-0" />
                             <span className="truncate">{request.name}</span>
                           </div>
-                          <div className="text-sm">{request.phone_number}</div>
-                          <div className="text-sm">{formatDate(request.created_at)}</div>
-                          <div className="text-sm">
+                          <div className="text-base">{request.phone_number}</div>
+                          <div className="text-base">{formatDate(request.created_at)}</div>
+                          <div className="text-base">
                             {request.tag ? (
                               <span
                                 className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${tagStyles[request.tag] ?? "bg-muted text-foreground border border-muted"}`}

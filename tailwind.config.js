@@ -11,6 +11,7 @@ export default {
             colors: {
                 background: "var(--background)",
                 foreground: "var(--foreground)",
+                'liquid-base': '#f6f9fc',
                 sidebar: {
                     DEFAULT: "var(--sidebar)",
                     foreground: "var(--sidebar-foreground)",

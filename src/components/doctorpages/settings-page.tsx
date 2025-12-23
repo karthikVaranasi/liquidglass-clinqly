@@ -416,7 +416,7 @@ export function SettingsPage() {
   }
 
   return (
-    <div className="px-3 sm:px-4 lg:px-6">
+    <div className="px-3 sm:px-4 lg:px-6 bg-transparent">
       <div className="space-y-4 sm:space-y-5">
 
         <Tabs

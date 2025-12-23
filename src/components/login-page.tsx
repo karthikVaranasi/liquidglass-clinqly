@@ -100,7 +100,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
 
   return (
-    <div className="min-h-screen flex liquid-glass-login-bg" data-theme="light" style={{ colorScheme: 'light' }}>
+    <div className="min-h-screen flex bg-transparent" data-theme="light" style={{ colorScheme: 'light' }}>
       {/* Left side - Light theme only */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <div className="relative z-10 flex flex-col justify-between w-full px-12 py-12">

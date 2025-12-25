@@ -224,11 +224,11 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 pointer-events-none" />
 
             <div className="relative space-y-2 z-10">
-              <div className="flex items-center gap-2 text-sm !text-foreground">
-                <IconUsers className="size-4" />
+              <div className="flex items-center gap-2 text-sm font-semibold !text-foreground drop-shadow-sm">
+                <IconUsers className="size-5" />
                 Total Patients
               </div>
-              <div className="text-3xl font-bold tabular-nums sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl !text-foreground">
+              <div className="text-3xl font-bold tabular-nums sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl !text-foreground drop-shadow-md">
                 {stats?.total_patients?.toLocaleString() || 0}
               </div>
             </div>
@@ -246,11 +246,11 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 pointer-events-none" />
 
             <div className="relative space-y-2 z-10">
-              <div className="flex items-center gap-2 text-sm !text-foreground">
-                <IconMedicalCross className="size-4" />
-                Total Doctors
+              <div className="flex items-center gap-2 text-sm font-semibold !text-foreground drop-shadow-sm">
+                <IconMedicalCross className="size-5" />
+                Total Logs
               </div>
-              <div className="text-3xl font-bold tabular-nums sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl !text-foreground">
+              <div className="text-3xl font-bold tabular-nums sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl !text-foreground drop-shadow-md">
                 {stats?.total_doctors?.toLocaleString() || 0}
               </div>
             </div>
@@ -268,11 +268,11 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 pointer-events-none" />
 
             <div className="relative space-y-2 z-10">
-              <div className="flex items-center gap-2 text-sm !text-foreground">
-                <IconCalendar className="size-4" />
+              <div className="flex items-center gap-2 text-sm font-semibold !text-foreground drop-shadow-sm">
+                <IconCalendar className="size-5" />
                 Total Appointments
               </div>
-              <div className="text-3xl font-bold tabular-nums sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl !text-foreground">
+              <div className="text-3xl font-bold tabular-nums sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl !text-foreground drop-shadow-md">
                 {stats?.total_appointments?.toLocaleString() || 0}
               </div>
             </div>
@@ -288,11 +288,11 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 pointer-events-none" />
 
             <div className="relative space-y-2 z-10">
-              <div className="flex items-center gap-2 text-sm !text-foreground">
-                <IconCalendar className="size-4" />
-                Upcoming Appointments
+              <div className="flex items-center gap-2 text-sm font-semibold !text-foreground drop-shadow-sm">
+                <IconCalendar className="size-5" />
+                Today's Appointments
               </div>
-              <div className="text-3xl font-bold tabular-nums sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl !text-foreground">
+              <div className="text-3xl font-bold tabular-nums sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl !text-foreground drop-shadow-md">
                 {stats?.upcoming_appointments?.toLocaleString() || 0}
               </div>
             </div>

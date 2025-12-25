@@ -160,13 +160,13 @@ export function RefillRequestsPage() {
                 <table className="w-full text-sm table-fixed">
                   <thead className="bg-[#9a8ea2] dark:bg-[#4a4257]">
                     <tr>
-                      <th className="text-left font-bold text-white py-3 px-3 sm:px-4 w-[16%]">Patient Name</th>
-                      <th className="text-left font-bold text-white py-3 px-3 sm:px-4 w-[12%]">Patient Phone</th>
-                      <th className="text-left font-bold text-white py-3 px-3 sm:px-4 w-[12%] hidden md:table-cell">Guardian</th>
-                      <th className="text-left font-bold text-white py-3 px-3 sm:px-4 w-[10%] hidden lg:table-cell">Rel.</th>
-                      <th className="text-left font-bold text-white py-3 px-3 sm:px-4 w-[20%] hidden md:table-cell">Details</th>
-                      <th className="text-left font-bold text-white py-3 px-3 sm:px-4 w-[15%] hidden lg:table-cell">Pharmacy Name</th>
-                      <th className="text-left font-bold text-white py-3 px-3 sm:px-4 w-[15%] hidden xl:table-cell">Pharmacy Loc.</th>
+                      <th className="text-left font-bold text-white py-2 md:py-3 px-2 md:px-4 text-sm md:text-base w-[35%] md:w-[14%]">From</th>
+                      <th className="text-left font-bold text-white py-2 md:py-3 px-2 md:px-4 text-sm md:text-base w-[12%] hidden md:table-cell">Phone</th>
+                      <th className="text-left font-bold text-white py-2 md:py-3 px-2 md:px-4 text-sm md:text-base w-[12%] hidden lg:table-cell">Guardian</th>
+                      <th className="text-left font-bold text-white py-2 md:py-3 px-2 md:px-4 text-sm md:text-base w-[12%] hidden xl:table-cell">Relationship</th>
+                      <th className="text-left font-bold text-white py-2 md:py-3 px-2 md:px-4 text-sm md:text-base w-[35%] md:w-[18%]">Details</th>
+                      <th className="text-left font-bold text-white py-2 md:py-3 px-2 md:px-4 text-sm md:text-base w-[14%] hidden md:table-cell">Pharmacy</th>
+                      <th className="text-left font-bold text-white py-2 md:py-3 px-2 md:px-4 text-sm md:text-base w-[30%] md:w-[18%]">Location</th>
                     </tr>
                   </thead>
                 </table>
@@ -177,29 +177,29 @@ export function RefillRequestsPage() {
                     <tbody className="divide-y divide-[#9a8ea2]/30">
                       {requests.map((request, index) => (
                         <tr key={request.id || index} className="bg-transparent hover:bg-white/10 transition-colors group">
-                          <td className="py-3 px-3 sm:px-4 font-normal text-xs sm:text-sm text-black dark:text-white w-[16%]">
-                            <div className="flex items-center gap-2">
+                          <td className="py-2 md:py-3 px-2 md:px-4 font-normal text-sm md:text-base text-black dark:text-white w-[35%] md:w-[14%]">
+                            <div className="flex items-center gap-2 truncate">
                               {getPatientName(request)}
                             </div>
                           </td>
-                          <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm text-black dark:text-white w-[12%]">{getPatientPhone(request)}</td>
-                          <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm hidden md:table-cell text-black dark:text-white w-[12%]">{request.caller_name || "—"}</td>
-                          <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm hidden lg:table-cell text-black dark:text-white w-[10%]">{getRelationship(request) || "—"}</td>
-                          <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm hidden md:table-cell text-black dark:text-white w-[20%]">
+                          <td className="py-2 md:py-3 px-2 md:px-4 text-base text-black dark:text-white w-[12%] hidden md:table-cell">{getPatientPhone(request)}</td>
+                          <td className="py-2 md:py-3 px-2 md:px-4 text-base text-black dark:text-white w-[12%] hidden lg:table-cell">{request.caller_name || "—"}</td>
+                          <td className="py-2 md:py-3 px-2 md:px-4 text-base text-black dark:text-white w-[12%] hidden xl:table-cell">{getRelationship(request) || "—"}</td>
+                          <td className="py-2 md:py-3 px-2 md:px-4 text-sm md:text-base text-black dark:text-white w-[35%] md:w-[18%]">
                             <div className="line-clamp-2" title={getDetails(request)}>
                               {getDetails(request) || "—"}
                             </div>
                           </td>
-                          <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm hidden lg:table-cell text-black dark:text-white w-[15%]">{request.pharmacy_name || "—"}</td>
-                          <td className="py-3 px-3 sm:px-4 text-xs sm:text-sm hidden xl:table-cell text-black dark:text-white w-[15%]">
+                          <td className="py-2 md:py-3 px-2 md:px-4 text-base text-black dark:text-white w-[14%] hidden md:table-cell">{request.pharmacy_name || "—"}</td>
+                          <td className="py-2 md:py-3 px-2 md:px-4 text-sm md:text-base text-black dark:text-white w-[30%] md:w-[18%]">
                             {request.pharmacy_location ? (
                               <span
                                 className="flex items-center gap-1 underline cursor-pointer line-clamp-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                                 title={`Open ${request.pharmacy_location} in Google Maps`}
                                 onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(request.pharmacy_location)}`, '_blank')}
                               >
-                                <IconMapPin className="w-3.5 h-3.5 flex-shrink-0" />
-                                {request.pharmacy_location}
+                                <IconMapPin className="w-3 h-3 md:w-3.5 md:h-3.5 flex-shrink-0" />
+                                <span className="truncate">{request.pharmacy_location}</span>
                               </span>
                             ) : "—"}
                           </td>

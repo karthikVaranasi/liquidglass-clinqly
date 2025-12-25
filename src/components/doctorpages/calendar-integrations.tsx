@@ -168,19 +168,19 @@ export function CalendarIntegrations() {
 
   // Render account card
   const renderAccountCard = (account: CalendarAccount, provider: 'google' | 'microsoft') => (
-    <div key={account.id} className="flex items-center justify-between my-3 p-4 bg-white/50 dark:bg-gradient-to-r dark:from-slate-800/60 dark:to-slate-700/40 backdrop-blur-sm border border-white/30 dark:border-white/10 rounded-xl shadow-sm dark:shadow-[0_0_15px_rgba(255,255,255,0.05)]">
-      <div className="flex items-center gap-3">
-        <div>
-          <p className="text-sm font-semibold text-gray-900 dark:text-gray-900" style={{ textTransform: 'none' }}>{account.email}</p>
-          <div className="text-xs text-gray-600 dark:text-gray-500">
+    <div key={account.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 my-3 p-3 md:p-4 bg-white/50 dark:bg-gradient-to-r dark:from-slate-800/60 dark:to-slate-700/40 backdrop-blur-sm border border-white/30 dark:border-white/10 rounded-xl shadow-sm dark:shadow-[0_0_15px_rgba(255,255,255,0.05)]">
+      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+        <div className="min-w-0 flex-1">
+          <p className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-gray-900 truncate" style={{ textTransform: 'none' }}>{account.email}</p>
+          <div className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-500">
             Connected: {formatDate(account.created_at)}
           </div>
         </div>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-shrink-0">
         {/* Primary toggle */}
         {account.is_primary ? (
-          <span className="px-3 py-1 text-xs font-semibold rounded-full bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-700 border border-emerald-300 cursor-default">
+          <span className="px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-semibold rounded-full bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-700 border border-emerald-300 cursor-default">
             Primary
           </span>
         ) : (
@@ -188,15 +188,16 @@ export function CalendarIntegrations() {
             size="sm"
             disabled={settingPrimaryId === account.id}
             onClick={() => handleSetPrimary(account.id, provider)}
-            className="neumorphic-button-primary"
+            className="neumorphic-button-primary text-[10px] sm:text-xs px-2 sm:px-3 h-7 sm:h-8"
           >
             {settingPrimaryId === account.id ? (
               <>
                 <IconLoader2 className="w-3 h-3 mr-1 animate-spin" />
-                Updating...
+                <span className="hidden sm:inline">Updating...</span>
+                <span className="sm:hidden">...</span>
               </>
             ) : (
-              "Set primary"
+              <><span className="hidden sm:inline">Set primary</span><span className="sm:hidden">Primary</span></>
             )}
           </Button>
         )}
@@ -209,9 +210,10 @@ export function CalendarIntegrations() {
                 <Button
                   size="sm"
                   disabled
-                  className="neumorphic-button-destructive opacity-50 cursor-not-allowed"
+                  className="neumorphic-button-destructive opacity-50 cursor-not-allowed text-[10px] sm:text-xs px-2 sm:px-3 h-7 sm:h-8"
                 >
-                  Disconnect
+                  <span className="hidden sm:inline">Disconnect</span>
+                  <span className="sm:hidden">Remove</span>
                 </Button>
               </span>
             </TooltipTrigger>
@@ -224,15 +226,16 @@ export function CalendarIntegrations() {
             size="sm"
             disabled={disconnectingId === account.id}
             onClick={() => handleDisconnect(account.id, provider)}
-            className="neumorphic-button-destructive"
+            className="neumorphic-button-destructive text-[10px] sm:text-xs px-2 sm:px-3 h-7 sm:h-8"
           >
             {disconnectingId === account.id ? (
               <>
                 <IconLoader2 className="w-3 h-3 mr-1 animate-spin" />
-                Disconnecting...
+                <span className="hidden sm:inline">Disconnecting...</span>
+                <span className="sm:hidden">...</span>
               </>
             ) : (
-              "Disconnect"
+              <><span className="hidden sm:inline">Disconnect</span><span className="sm:hidden">Remove</span></>
             )}
           </Button>
         )}
@@ -260,23 +263,24 @@ export function CalendarIntegrations() {
       <div className="px-4 lg:px-6">
         <div className="grid grid-cols-1 gap-6 @xl/main:grid-cols-2">
           {/* Google Calendars */}
-          <div className="bg-white/40 dark:bg-gradient-to-br dark:from-slate-800/70 dark:via-slate-800/50 dark:to-slate-900/60 backdrop-blur-md rounded-xl p-6 border border-white/30 dark:border-white/10 shadow-lg dark:shadow-[0_0_20px_rgba(255,255,255,0.05)]">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 flex items-center justify-center bg-white/60 dark:bg-white/15 rounded-xl shadow-sm dark:shadow-[0_0_10px_rgba(255,255,255,0.1)]">
-                  <GoogleCalendarIcon className="w-8 h-8" />
+          <div className="bg-white/40 dark:bg-gradient-to-br dark:from-slate-800/70 dark:via-slate-800/50 dark:to-slate-900/60 backdrop-blur-md rounded-xl p-4 md:p-6 border border-white/30 dark:border-white/10 shadow-lg dark:shadow-[0_0_20px_rgba(255,255,255,0.05)]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-white/60 dark:bg-white/15 rounded-xl shadow-sm dark:shadow-[0_0_10px_rgba(255,255,255,0.1)]">
+                  <GoogleCalendarIcon className="w-6 h-6 sm:w-8 sm:h-8" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-foreground">Google Calendar ({googleAccounts.length})</h3>
-                  <p className="text-sm text-muted-foreground">Sync with Google Calendar</p>
+                  <h3 className="text-sm sm:text-lg font-bold text-foreground">Google Calendar ({googleAccounts.length})</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Sync With Google Calendar</p>
                 </div>
               </div>
               <Button
                 onClick={() => setShowModal(true)}
-                className="neumorphic-button-primary"
+                className="neumorphic-button-primary text-xs sm:text-sm px-2 sm:px-3"
               >
                 <IconPlus className="w-3 h-3" />
-                Add Google
+                <span className="hidden sm:inline">Add Google</span>
+                <span className="sm:hidden">Add</span>
               </Button>
             </div>
 
@@ -286,31 +290,32 @@ export function CalendarIntegrations() {
                 .sort((a, b) => (b.is_primary ? 1 : 0) - (a.is_primary ? 1 : 0))
                 .map((account) => renderAccountCard(account, "google"))
             ) : (
-              <div className="p-4 text-center mt-4 bg-white/30 dark:bg-white/5 rounded-lg border border-white/20 dark:border-white/10">
-                <p className="text-sm font-medium text-foreground">No Google calendars connected</p>
-                <p className="text-xs text-muted-foreground mt-1">Connect your Google calendar to sync appointments</p>
+              <div className="p-3 sm:p-4 text-center mt-4 bg-white/30 dark:bg-white/5 rounded-lg border border-white/20 dark:border-white/10">
+                <p className="text-xs sm:text-sm font-medium text-foreground">No Google Calendars Connected</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">Connect Your Google Calendar To Sync Appointments</p>
               </div>
             )}
           </div>
 
           {/* Microsoft Calendars */}
-          <div className="bg-white/40 dark:bg-gradient-to-br dark:from-slate-800/70 dark:via-slate-800/50 dark:to-slate-900/60 backdrop-blur-md rounded-xl p-6 border border-white/30 dark:border-white/10 shadow-lg dark:shadow-[0_0_20px_rgba(255,255,255,0.05)]">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 flex items-center justify-center bg-white/60 dark:bg-white/15 rounded-xl shadow-sm dark:shadow-[0_0_10px_rgba(255,255,255,0.1)]">
-                  <MicrosoftCalendarIcon className="w-8 h-8" />
+          <div className="bg-white/40 dark:bg-gradient-to-br dark:from-slate-800/70 dark:via-slate-800/50 dark:to-slate-900/60 backdrop-blur-md rounded-xl p-4 md:p-6 border border-white/30 dark:border-white/10 shadow-lg dark:shadow-[0_0_20px_rgba(255,255,255,0.05)]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-white/60 dark:bg-white/15 rounded-xl shadow-sm dark:shadow-[0_0_10px_rgba(255,255,255,0.1)]">
+                  <MicrosoftCalendarIcon className="w-6 h-6 sm:w-8 sm:h-8" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-foreground">Microsoft Outlook ({microsoftAccounts.length})</h3>
-                  <p className="text-sm text-muted-foreground">Sync with Outlook Calendar</p>
+                  <h3 className="text-sm sm:text-lg font-bold text-foreground">Microsoft Outlook ({microsoftAccounts.length})</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Sync With Outlook Calendar</p>
                 </div>
               </div>
               <Button
                 onClick={() => setShowMicrosoftModal(true)}
-                className="neumorphic-button-primary"
+                className="neumorphic-button-primary text-xs sm:text-sm px-2 sm:px-3"
               >
                 <IconPlus className="w-3 h-3" />
-                Add Microsoft
+                <span className="hidden sm:inline">Add Microsoft</span>
+                <span className="sm:hidden">Add</span>
               </Button>
             </div>
 
@@ -320,9 +325,9 @@ export function CalendarIntegrations() {
                 .sort((a, b) => (b.is_primary ? 1 : 0) - (a.is_primary ? 1 : 0))
                 .map((account) => renderAccountCard(account, "microsoft"))
             ) : (
-              <div className="p-4 text-center bg-white/30 dark:bg-white/5 rounded-lg border border-white/20 dark:border-white/10">
-                <p className="text-sm font-medium text-foreground">No Microsoft calendars connected</p>
-                <p className="text-xs text-gray-600 dark:text-white mt-1">Connect your Outlook calendar to sync appointments</p>
+              <div className="p-3 sm:p-4 text-center bg-white/30 dark:bg-white/5 rounded-lg border border-white/20 dark:border-white/10">
+                <p className="text-xs sm:text-sm font-medium text-foreground">No Microsoft Calendars Connected</p>
+                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-white mt-1">Connect Your Outlook Calendar To Sync Appointments</p>
               </div>
             )}
           </div>

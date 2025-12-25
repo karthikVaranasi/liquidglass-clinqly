@@ -181,20 +181,20 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
     }
   ]
 
-  // Light gradient accents per card (Liquid Glass Style)
+  // Light gradient accents per card (matching logs page style)
   const gradientClasses: Record<string, string> = {
-    totalPatients: "from-[#91b4e8]/80 to-[#a7c4f0]/60 dark:from-[#3a4a5a]/80 dark:to-[#4a5a6a]/60",
-    totalLogs: "from-[#e8a855]/80 to-[#f0c080]/60 dark:from-[#a87832]/80 dark:to-[#c99a4a]/60",
-    totalAppointments: "from-[#b8a0d4]/80 to-[#d0b8e8]/60 dark:from-[#5a3a7a]/80 dark:to-[#7a5a9a]/60",
-    todaysAppointments: "from-[#9a8ea2]/80 to-[#b0a4b2]/60 dark:from-[#4a4257]/80 dark:to-[#5a5267]/60"
+    totalPatients: "from-sky-500/20 via-sky-500/10 to-transparent",
+    totalLogs: "from-emerald-500/20 via-emerald-500/10 to-transparent",
+    totalAppointments: "from-indigo-500/20 via-indigo-500/10 to-transparent",
+    todaysAppointments: "from-purple-500/20 via-purple-500/10 to-transparent"
   }
 
-  // Border colors matching the gradients
+  // Border colors matching the logs page style
   const borderClasses: Record<string, string> = {
-    totalPatients: "border-[#7eb8f0]/50 dark:border-[#5a7a9a]/50",
-    totalLogs: "border-[#e8a855]/50 dark:border-[#a87832]/50",
-    totalAppointments: "border-[#b8a0d4]/50 dark:border-[#7a5a9a]/50",
-    todaysAppointments: "border-[#9a8ea2]/50 dark:border-[#4a4257]/50"
+    totalPatients: "border-sky-500/50 dark:border-sky-400/50",
+    totalLogs: "border-emerald-500/50 dark:border-emerald-400/50",
+    totalAppointments: "border-indigo-500/50 dark:border-indigo-400/50",
+    todaysAppointments: "border-purple-500/50 dark:border-purple-400/50"
   }
 
   if (loading) {

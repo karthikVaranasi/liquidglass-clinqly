@@ -307,8 +307,35 @@ export function AppointmentPage() {
 
 
   const calendarGrid = generateCalendarGrid(currentMonth, currentYear)
-  const todaysAppointments = getTodaysAppointments()
+  const realTodaysAppointments = getTodaysAppointments()
   const selectedDateAppointments = getSelectedDateAppointments()
+
+  // Mock data for 14 today's appointments
+  const createTime = (hour: number, minute: number) => {
+    const date = new Date(2025, 11, 24) // December 24, 2025
+    date.setHours(hour, minute, 0, 0)
+    return date.toISOString()
+  }
+
+  const mockTodaysAppointments = [
+    { patient: { first_name: 'John', last_name: 'Smith', dob: '1985-03-15' }, appointment_time: createTime(9, 0), reason_for_visit: 'Follow-up checkup', status: 'Scheduled', patient_id: '1' },
+    { patient: { first_name: 'Sarah', last_name: 'Johnson', dob: '1990-07-22' }, appointment_time: createTime(9, 30), reason_for_visit: 'Annual physical examination', status: 'Scheduled', patient_id: '2' },
+    { patient: { first_name: 'Michael', last_name: 'Williams', dob: '1978-11-08' }, appointment_time: createTime(10, 0), reason_for_visit: 'Back pain consultation', status: 'In Progress', patient_id: '3' },
+    { patient: { first_name: 'Emily', last_name: 'Brown', dob: '1995-02-14' }, appointment_time: createTime(10, 30), reason_for_visit: 'Migraine treatment', status: 'Scheduled', patient_id: '4' },
+    { patient: { first_name: 'David', last_name: 'Davis', dob: '1982-09-30' }, appointment_time: createTime(11, 0), reason_for_visit: 'Blood pressure check', status: 'Completed', patient_id: '5' },
+    { patient: { first_name: 'Jessica', last_name: 'Miller', dob: '1988-05-19' }, appointment_time: createTime(11, 30), reason_for_visit: 'Skin rash evaluation', status: 'Scheduled', patient_id: '6' },
+    { patient: { first_name: 'Robert', last_name: 'Wilson', dob: '1972-12-03' }, appointment_time: createTime(13, 0), reason_for_visit: 'Diabetes management', status: 'Scheduled', patient_id: '7' },
+    { patient: { first_name: 'Amanda', last_name: 'Moore', dob: '1992-04-25' }, appointment_time: createTime(13, 30), reason_for_visit: 'Allergy consultation', status: 'Cancelled', patient_id: '8' },
+    { patient: { first_name: 'James', last_name: 'Taylor', dob: '1980-08-11' }, appointment_time: createTime(14, 0), reason_for_visit: 'Joint pain assessment', status: 'Scheduled', patient_id: '9' },
+    { patient: { first_name: 'Lisa', last_name: 'Anderson', dob: '1987-01-28' }, appointment_time: createTime(14, 30), reason_for_visit: 'Thyroid checkup', status: 'Scheduled', patient_id: '10' },
+    { patient: { first_name: 'William', last_name: 'Thomas', dob: '1975-06-17' }, appointment_time: createTime(15, 0), reason_for_visit: 'Heart health review', status: 'In Progress', patient_id: '11' },
+    { patient: { first_name: 'Jennifer', last_name: 'Jackson', dob: '1993-10-09' }, appointment_time: createTime(15, 30), reason_for_visit: 'Prenatal checkup', status: 'Scheduled', patient_id: '12' },
+    { patient: { first_name: 'Charles', last_name: 'White', dob: '1968-03-21' }, appointment_time: createTime(16, 0), reason_for_visit: 'Post-surgery follow-up', status: 'Scheduled', patient_id: '13' },
+    { patient: { first_name: 'Patricia', last_name: 'Harris', dob: '1984-07-04' }, appointment_time: createTime(16, 30), reason_for_visit: 'Vaccination appointment', status: 'Completed', patient_id: '14' },
+  ]
+
+  // Use mock data for preview (change to realTodaysAppointments for production)
+  const todaysAppointments = mockTodaysAppointments
 
   // Show loading state
   if (loading) {
@@ -361,7 +388,7 @@ export function AppointmentPage() {
         </div>
 
         {todaysAppointments.length > 0 ? (
-          <div className="relative z-10">
+          <div className="relative z-10 max-h-[320px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/40 scrollbar-track-transparent hover:scrollbar-thumb-white/60">
             {/* Appointments Grid - Responsive Layout */}
             <div
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-1"
@@ -477,21 +504,23 @@ export function AppointmentPage() {
                     <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-white/25 via-white/10 to-transparent dark:from-white/15 dark:via-white/8 dark:to-transparent rounded-t-xl pointer-events-none" />
 
                     <div className="overflow-hidden rounded-xl flex-1 flex flex-col relative z-10">
-                      {/* Fixed Header */}
-                      <table className="w-full text-sm">
+
+                      {/* Fixed Header Table */}
+                      <table className="w-full text-sm table-fixed">
                         <thead className="bg-[#9a8ea2] dark:bg-[#4a4257]">
                           <tr>
-                            <th className="text-left font-bold text-base py-3 px-4 text-white w-[15%]">Time</th>
-                            <th className="text-left font-bold text-base py-3 px-4 text-white w-[22%]">Patient</th>
-                            <th className="text-left font-bold text-base py-3 px-4 text-white w-[28%]">Reason for Visit</th>
-                            <th className="text-left font-bold text-base py-3 px-4 text-white w-[20%]">Doctor</th>
-                            <th className="text-left font-bold text-base py-3 px-4 text-white w-[15%]">Status</th>
+                            <th className="text-left font-bold py-2 md:py-3 px-2 md:px-4 text-white w-[22%] md:w-[12%] text-sm md:text-base">Time</th>
+                            <th className="text-left font-bold py-2 md:py-3 px-2 md:px-4 text-white w-[48%] md:w-[23%] text-sm md:text-base">Patient</th>
+                            <th className="text-left font-bold py-2 md:py-3 px-2 md:px-4 text-white w-[25%] text-sm md:text-base hidden md:table-cell">Reason</th>
+                            <th className="text-left font-bold py-2 md:py-3 px-2 md:px-4 text-white w-[20%] text-sm md:text-base hidden md:table-cell">Doctor</th>
+                            <th className="text-left font-bold py-2 md:py-3 px-2 md:px-4 text-white w-[30%] md:w-[20%] text-sm md:text-base">Status</th>
                           </tr>
                         </thead>
                       </table>
-                      {/* Scrollable Body */}
+
+                      {/* Scrollable Body Container */}
                       <div className="overflow-x-auto max-h-[320px] overflow-y-auto flex-1 bg-white/80 dark:bg-white/20 rounded-lg">
-                        <table className="w-full text-sm">
+                        <table className="w-full text-sm table-fixed">
                           <tbody className="divide-y divide-[#9a8ea2]/30">
                             {selectedDateAppointments.map((apt: any, index: number) => (
                               <tr
@@ -508,24 +537,28 @@ export function AppointmentPage() {
                                 role="button"
                                 aria-label={`View profile for ${apt.patient?.first_name} ${apt.patient?.last_name}`}
                               >
-                                <td className="py-3 px-4 text-sm text-black dark:text-white w-[15%]">
-                                  {new Date(apt.appointment_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                </td>
-                                <td className="py-3 px-4 w-[22%]">
-                                  <div className="flex items-center gap-2 text-black dark:text-white">
-                                    <IconUserCircle className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-                                    <span className="text-sm">{apt.patient?.first_name} {apt.patient?.last_name}</span>
-                                  </div>
-                                </td>
-                                <td className="py-3 px-4 text-black dark:text-white font-medium w-[28%]">
-                                  <span className="truncate block">
-                                    {apt.reason_for_visit || "No reason provided"}
+                                <td className="py-2 md:py-3 px-2 md:px-4 w-[22%] md:w-[12%]">
+                                  <span className="text-sm md:text-base text-black dark:text-white whitespace-nowrap">
+                                    {new Date(apt.appointment_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                   </span>
                                 </td>
-                                <td className="py-3 px-4 text-sm text-black dark:text-white w-[20%]">{apt.doctor?.name}</td>
-                                <td className="py-3 px-4 w-[15%]">
+                                <td className="py-2 md:py-3 px-2 md:px-4 w-[48%] md:w-[23%]">
+                                  <div className="flex items-center gap-1 md:gap-2 text-black dark:text-white">
+                                    <IconUserCircle className="w-4 h-4 md:w-5 md:h-5 text-gray-600 dark:text-gray-300 flex-shrink-0" />
+                                    <span className="text-sm md:text-base truncate">{apt.patient?.first_name} {apt.patient?.last_name}</span>
+                                  </div>
+                                </td>
+                                <td className="py-2 md:py-3 px-2 md:px-4 w-[25%] hidden md:table-cell">
+                                  <span className="text-base text-black dark:text-white truncate block">
+                                    {apt.reason_for_visit || "No reason"}
+                                  </span>
+                                </td>
+                                <td className="py-2 md:py-3 px-2 md:px-4 w-[20%] hidden md:table-cell">
+                                  <span className="text-base text-black dark:text-white">{apt.doctor?.name}</span>
+                                </td>
+                                <td className="py-2 md:py-3 px-2 md:px-4 w-[30%] md:w-[20%]">
                                   <span
-                                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusStyle(apt.status)}`}
+                                    className={`inline-flex items-center px-1.5 md:px-2 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-medium ${getStatusStyle(apt.status)}`}
                                   >
                                     {apt.status}
                                   </span>
@@ -691,6 +724,6 @@ export function AppointmentPage() {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   )
 }

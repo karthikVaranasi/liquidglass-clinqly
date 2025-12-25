@@ -165,17 +165,17 @@ export function FrontDeskPage() {
             <div className="overflow-hidden rounded-xl flex-1 flex flex-col relative z-10">
 
               {/* Fixed Header Table */}
-              <table className="w-full text-base table-fixed">
+              <table className="w-full text-sm md:text-base table-fixed">
                 <thead className="bg-[#9a8ea2] dark:bg-[#4a4257]">
                   <tr>
-                    <th className="text-left font-bold py-3 px-4 text-white text-base w-[20%]">Name</th>
-                    <th className="text-left font-bold py-3 px-4 text-white text-base w-[25%] hidden sm:table-cell">Phone Number</th>
-                    <th className="text-left font-bold py-3 px-4 text-white text-base w-[25%]">Created At</th>
-                    <th className="text-left font-bold py-3 px-4 text-white text-base w-[30%]">
+                    <th className="text-left font-bold py-2 md:py-3 px-2 md:px-4 text-white text-sm md:text-base w-[50%] md:w-[20%]">Name</th>
+                    <th className="text-left font-bold py-2 md:py-3 px-2 md:px-4 text-white text-sm md:text-base w-[25%] hidden md:table-cell">Phone</th>
+                    <th className="text-left font-bold py-2 md:py-3 px-2 md:px-4 text-white text-sm md:text-base w-[25%] hidden md:table-cell">Created At</th>
+                    <th className="text-left font-bold py-2 md:py-3 px-2 md:px-4 text-white text-sm md:text-base w-[50%] md:w-[30%]">
                       <div className="flex items-center justify-between">
                         <span>Tag</span>
                         <Select value={selectedTag} onValueChange={setSelectedTag}>
-                          <SelectTrigger className="h-7 w-[130px] text-xs bg-white/20 border-white/30 text-white placeholder:text-white/70">
+                          <SelectTrigger className="h-6 md:h-7 w-[90px] md:w-[130px] text-[10px] md:text-xs bg-white/20 border-white/30 text-white placeholder:text-white/70">
                             <SelectValue placeholder="Filter" />
                           </SelectTrigger>
                           <SelectContent>
@@ -219,22 +219,22 @@ export function FrontDeskPage() {
                       >
                         <div className="w-full">
                           <AccordionTrigger className="hover:bg-white/10 hover:rounded-none px-0 py-0 hover:no-underline transition-colors [&>svg]:hidden">
-                            <table className="w-full text-base table-fixed">
+                            <table className="w-full text-sm md:text-base table-fixed">
                               <tbody>
                                 <tr className="bg-transparent">
-                                  <td className="py-3 px-4 w-[20%]">
-                                    <div className="flex items-center gap-2 font-medium text-base">
-                                      <IconUserCircle className="w-5 h-5 flex-shrink-0 text-gray-700 dark:text-gray-200" />
+                                  <td className="py-2 md:py-3 px-2 md:px-4 w-[50%] md:w-[20%]">
+                                    <div className="flex items-center gap-1 md:gap-2 font-medium text-sm md:text-base">
+                                      <IconUserCircle className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0 text-gray-700 dark:text-gray-200" />
                                       <span className="truncate text-black dark:text-white">{request.name}</span>
                                     </div>
                                   </td>
-                                  <td className="py-3 px-4 w-[25%] hidden sm:table-cell text-base text-black dark:text-white">{request.phone_number}</td>
-                                  <td className="py-3 px-4 w-[25%] text-base text-black dark:text-white">{formatDate(request.created_at)}</td>
-                                  <td className="py-3 px-4 w-[30%]">
+                                  <td className="py-2 md:py-3 px-2 md:px-4 w-[25%] hidden md:table-cell text-base text-black dark:text-white">{request.phone_number}</td>
+                                  <td className="py-2 md:py-3 px-2 md:px-4 w-[25%] hidden md:table-cell text-base text-black dark:text-white">{formatDate(request.created_at)}</td>
+                                  <td className="py-2 md:py-3 px-2 md:px-4 w-[50%] md:w-[30%]">
                                     <div className="flex items-center justify-between w-full">
                                       {request.tag ? (
                                         <span
-                                          className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${tagStyles[request.tag] ?? "bg-muted text-foreground border border-muted"}`}
+                                          className={`inline-flex items-center rounded-full px-1.5 md:px-2.5 py-0.5 md:py-1 text-[10px] md:text-xs font-medium ${tagStyles[request.tag] ?? "bg-muted text-foreground border border-muted"}`}
                                         >
                                           {formatTagLabel(request.tag)}
                                         </span>
@@ -252,7 +252,7 @@ export function FrontDeskPage() {
                                         strokeWidth="2"
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
-                                        className="h-4 w-4 shrink-0 transition-transform duration-200 text-black dark:text-white opacity-50 ml-2"
+                                        className="h-3 w-3 md:h-4 md:w-4 shrink-0 transition-transform duration-200 text-black dark:text-white opacity-50 ml-1 md:ml-2"
                                       >
                                         <path d="m6 9 6 6 6-6" />
                                       </svg>

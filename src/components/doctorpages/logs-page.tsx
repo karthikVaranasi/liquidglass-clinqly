@@ -253,7 +253,43 @@ export function LogsPage() {
     return `${minutes}m ${seconds}s`
   }
 
-  // Helper to format date (null-safe)
+  // Helper to format date only (null-safe)
+  const formatDateOnly = (dateString: string | null | undefined) => {
+    if (!dateString) return ''
+    try {
+      const utcString = dateString.endsWith('Z') ? dateString : `${dateString}Z`
+      const date = new Date(utcString)
+      if (isNaN(date.getTime())) return dateString
+      return new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/New_York',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      }).format(date)
+    } catch {
+      return dateString
+    }
+  }
+
+  // Helper to format time only (null-safe)
+  const formatTimeOnly = (dateString: string | null | undefined) => {
+    if (!dateString) return ''
+    try {
+      const utcString = dateString.endsWith('Z') ? dateString : `${dateString}Z`
+      const date = new Date(utcString)
+      if (isNaN(date.getTime())) return dateString
+      return new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/New_York',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true
+      }).format(date)
+    } catch {
+      return dateString
+    }
+  }
+
+  // Helper to format date (full - null-safe)
   const formatDate = (dateString: string | null | undefined) => {
     if (!dateString) return ''
     try {
@@ -379,13 +415,13 @@ export function LogsPage() {
 
       {/* Call Logs Title */}
       <div className="px-4 lg:px-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold tracking-tight">{getFilterTitle()}</h2>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
+          <h2 className="text-base md:text-xl font-bold tracking-tight">{getFilterTitle()}</h2>
           <div className="flex items-center gap-2">
             <IconFilter className="w-4 h-4" />
-            <span className="text-sm font-medium">Filter by:</span>
+            <span className="text-xs md:text-sm font-medium">Filter:</span>
             <Select value={timeFilter} onValueChange={setTimeFilter}>
-              <SelectTrigger className="w-48 neumorphic-inset">
+              <SelectTrigger className="w-32 md:w-48 neumorphic-inset text-xs md:text-sm">
                 <SelectValue placeholder="Select time period" />
               </SelectTrigger>
               <SelectContent>
@@ -412,11 +448,12 @@ export function LogsPage() {
             <table className="w-full text-sm table-fixed">
               <thead className="bg-[#9a8ea2] dark:bg-[#4a4257]">
                 <tr>
-                  <th className="text-left font-bold py-3 px-4 text-white w-1/5 text-base">From</th>
-                  <th className="text-left font-bold py-3 px-4 text-white w-1/5 text-base">Start Time</th>
-                  <th className="text-left font-bold py-3 px-4 text-white w-1/5 text-base">Call Duration</th>
-                  <th className="text-left font-bold py-3 px-4 text-white w-1/5 text-base">Sentiment</th>
-                  <th className="text-left font-bold py-3 px-4 text-white w-1/5 text-base">Actions</th>
+                  <th className="text-left font-bold py-2 md:py-3 px-2 md:px-4 text-white w-[40%] md:w-[20%] text-sm md:text-base">From</th>
+                  <th className="text-left font-bold py-2 md:py-3 px-2 md:px-4 text-white w-[30%] md:w-[15%] text-sm md:text-base">Date</th>
+                  <th className="text-left font-bold py-2 md:py-3 px-2 md:px-4 text-white w-[10%] text-sm md:text-base hidden md:table-cell">Time</th>
+                  <th className="text-left font-bold py-2 md:py-3 px-2 md:px-4 text-white w-[15%] text-sm md:text-base hidden md:table-cell">Duration</th>
+                  <th className="text-left font-bold py-2 md:py-3 px-2 md:px-4 text-white w-[15%] text-sm md:text-base hidden md:table-cell">Sentiment</th>
+                  <th className="text-left font-bold py-2 md:py-3 px-2 md:px-4 text-white w-[30%] md:w-[25%] text-sm md:text-base">Actions</th>
                 </tr>
               </thead>
             </table>
@@ -427,31 +464,35 @@ export function LogsPage() {
                 <tbody className="divide-y divide-[#9a8ea2]/30">
                   {filteredLogs.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="py-8 text-center text-black dark:text-white">
+                      <td colSpan={6} className="py-8 text-center text-black dark:text-white">
                         No logs found.
                       </td>
                     </tr>
                   ) : (
                     filteredLogs.map((log, index) => (
                       <tr key={index} className="bg-transparent hover:bg-white/10 transition-colors">
-                        <td className="py-3 px-4 w-1/5">
-                          <span className="text-base font-semibold text-black dark:text-white">{log.from_phone}</span>
+                        <td className="py-2 md:py-3 px-2 md:px-4 w-[40%] md:w-[20%]">
+                          <span className="text-sm md:text-base text-black dark:text-white">{log.from_phone}</span>
                         </td>
-                        <td className="py-3 px-4 w-1/5">
-                          <span className="text-base text-black dark:text-white">{formatDate(log.start_time)}</span>
+                        <td className="py-2 md:py-3 px-2 md:px-4 w-[30%] md:w-[15%]">
+                          <span className="text-sm md:text-base text-black dark:text-white">{formatDateOnly(log.start_time)}</span>
                         </td>
-                        <td className="py-3 px-4 w-1/5">
+                        <td className="py-2 md:py-3 px-2 md:px-4 w-[10%] hidden md:table-cell">
+                          <span className="text-base text-black dark:text-white">{formatTimeOnly(log.start_time)}</span>
+                        </td>
+                        <td className="py-2 md:py-3 px-2 md:px-4 w-[15%] hidden md:table-cell">
                           <span className="text-base text-black dark:text-white">{calculateDuration(log.start_time, log.end_time)}</span>
                         </td>
-                        <td className="py-3 px-4 w-1/5">
+                        <td className="py-2 md:py-3 px-2 md:px-4 w-[15%] hidden md:table-cell">
                           <SentimentRating rating={log.sentiment_score || 0} />
                         </td>
-                        <td className="py-3 px-4 w-1/5">
+                        <td className="py-2 md:py-3 px-2 md:px-4 w-[30%] md:w-[25%]">
                           <Button
                             onClick={() => handleViewTranscript(log)}
-                            className="neumorphic-button-primary bg-[#e8a855] text-white hover:bg-[#d69645] border-none shadow-md"
+                            className="neumorphic-button-primary bg-[#e8a855] text-white hover:bg-[#d69645] border-none shadow-md text-xs md:text-sm px-2 md:px-3"
                           >
-                            View Conversation
+                            <span className="hidden md:inline">View Conversation</span>
+                            <span className="md:hidden">View</span>
                           </Button>
                         </td>
                       </tr>

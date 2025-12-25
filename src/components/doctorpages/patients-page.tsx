@@ -130,6 +130,36 @@ export function PatientsPage() {
     return { value: filtered, error }
   }
 
+  // Helper function to detect fake/test names and replace with "EzMedTech Bot"
+  const sanitizeDisplayName = (firstName: string, lastName: string): string => {
+    const fullName = `${firstName || ''} ${lastName || ''}`.trim()
+
+    // If empty, return placeholder
+    if (!fullName) return 'EzMedTech Bot'
+
+    // Check for repeated characters (like "ddddddd" or "ssssss")
+    const hasRepeatedChars = /(.)\1{4,}/i.test(fullName.replace(/\s/g, ''))
+
+    // Check if name is just the same character repeated
+    const nameWithoutSpaces = fullName.replace(/\s/g, '').toLowerCase()
+    const isAllSameChar = nameWithoutSpaces.length > 3 && /^(.)\1+$/.test(nameWithoutSpaces)
+
+    // Check for nonsense patterns (like random letter combinations with no vowels)
+    const hasNoVowels = nameWithoutSpaces.length > 4 && !/[aeiou]/i.test(nameWithoutSpaces)
+
+    // Check for keyboard mashing patterns
+    const keyboardPatterns = /^[qwerty]+$|^[asdfgh]+$|^[zxcvbn]+$/i
+    const isKeyboardMash = nameWithoutSpaces.length > 4 && keyboardPatterns.test(nameWithoutSpaces)
+
+    // If any fake pattern detected, return placeholder
+    if (hasRepeatedChars || isAllSameChar || (hasNoVowels && nameWithoutSpaces.length > 6) || isKeyboardMash) {
+      return 'EzMedTech Bot'
+    }
+
+    return fullName
+  }
+
+
   // Form state for adding patient
   const [formData, setFormData] = useState({
     firstName: '',
@@ -1218,7 +1248,7 @@ export function PatientsPage() {
                         <div>
                           <p className="text-[10px] font-bold text-black/70 dark:text-white uppercase tracking-wide mb-0.5">Name</p>
                           <p className="text-sm font-bold text-black dark:text-white tracking-wide drop-shadow-sm">
-                            {`${selectedPatient.first_name} ${selectedPatient.last_name}`}
+                            {sanitizeDisplayName(selectedPatient.first_name, selectedPatient.last_name)}
                           </p>
                         </div>
                         <div>
@@ -1359,25 +1389,27 @@ export function PatientsPage() {
                       {/* Glossy Top Highlight */}
                       <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-white/25 via-white/10 to-transparent dark:from-white/15 dark:via-white/8 dark:to-transparent rounded-t-xl pointer-events-none" />
 
-                      <div className="flex items-center justify-between mb-4 relative z-10">
-                        <h3 className="text-base font-bold flex items-center gap-2 text-black dark:text-white">
-                          <div className="w-8 h-8 rounded-full bg-black/10 dark:bg-white/10 flex items-center justify-center backdrop-blur-md border border-black/20 dark:border-white/20 shadow-inner">
-                            <IconCalendarEvent className="w-5 h-5 text-black dark:text-white" />
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 relative z-10">
+                        <h3 className="text-sm md:text-base font-bold flex items-center gap-2 text-black dark:text-white">
+                          <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-black/10 dark:bg-white/10 flex items-center justify-center backdrop-blur-md border border-black/20 dark:border-white/20 shadow-inner">
+                            <IconCalendarEvent className="w-4 h-4 md:w-5 md:h-5 text-black dark:text-white" />
                           </div>
-                          Upcoming Appointments
+                          <span className="hidden sm:inline">Upcoming Appointments</span>
+                          <span className="sm:hidden">Appointments</span>
                           {(selectedPatient?.appointments?.upcoming?.length ?? 0) > 0 && (
-                            <span className="ml-2 px-2 py-0.5 rounded-full bg-black/10 dark:bg-white/20 text-black dark:text-white text-xs font-bold border border-black/20 dark:border-white/20">
+                            <span className="ml-1 sm:ml-2 px-2 py-0.5 rounded-full bg-black/10 dark:bg-white/20 text-black dark:text-white text-xs font-bold border border-black/20 dark:border-white/20">
                               {selectedPatient?.appointments?.upcoming?.length ?? 0}
                             </span>
                           )}
                         </h3>
                         <Button
                           onClick={handleSchedule}
-                          className="neumorphic-button-primary text-xs bg-[#e8a855] text-white hover:bg-[#d69645] border-none shadow-md"
+                          className="neumorphic-button-primary text-xs bg-[#e8a855] text-white hover:bg-[#d69645] border-none shadow-md px-2 md:px-3"
                           size="sm"
                         >
-                          <IconCalendarEvent className="w-4 h-4 mr-1" />
-                          Schedule Appointment
+                          <IconCalendarEvent className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                          <span className="hidden sm:inline">Schedule Appointment</span>
+                          <span className="sm:hidden">Schedule</span>
                         </Button>
                       </div>
 
@@ -1612,10 +1644,10 @@ export function PatientsPage() {
                     <table className="w-full text-sm table-fixed">
                       <thead className="bg-[#9a8ea2] dark:bg-[#4a4257]">
                         <tr>
-                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-white text-sm sm:text-base w-[22%]">Patient Name</th>
-                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-white text-sm sm:text-base w-[22%] hidden sm:table-cell">DOB</th>
-                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-white text-sm sm:text-base w-[36%]">Contact</th>
-                          <th className="text-left font-bold py-3 px-3 sm:px-4 text-white text-sm sm:text-base w-[20%]">Actions</th>
+                          <th className="text-left font-bold py-2 md:py-3 px-2 md:px-4 text-white w-[40%] md:w-[30%] text-sm md:text-base">Patient Name</th>
+                          <th className="text-left font-bold py-2 md:py-3 px-2 md:px-4 text-white w-[30%] md:w-[20%] text-sm md:text-base">DOB</th>
+                          <th className="text-left font-bold py-2 md:py-3 px-2 md:px-4 text-white w-[25%] text-sm md:text-base hidden md:table-cell">Contact</th>
+                          <th className="text-left font-bold py-2 md:py-3 px-2 md:px-4 text-white w-[30%] md:w-[25%] text-sm md:text-base">Actions</th>
                         </tr>
                       </thead>
                     </table>
@@ -1626,24 +1658,28 @@ export function PatientsPage() {
                         <tbody className="divide-y divide-[#9a8ea2]/30">
                           {filteredPatients.map((patient) => (
                             <tr key={patient.id} className="bg-transparent hover:bg-white/10 transition-all duration-200">
-                              <td className="py-3 px-3 sm:px-4 w-[22%]">
-                                <div className="flex items-center gap-2">
-                                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-primary/20 to-chart-2/20 flex items-center justify-center flex-shrink-0">
-                                    <IconUserCircle className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700 dark:text-gray-200" />
+                              <td className="py-2 md:py-3 px-2 md:px-4 w-[40%] md:w-[30%]">
+                                <div className="flex items-center gap-1 md:gap-2">
+                                  <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-primary/20 to-chart-2/20 flex items-center justify-center flex-shrink-0">
+                                    <IconUserCircle className="w-4 h-4 md:w-5 md:h-5 text-gray-700 dark:text-gray-200" />
                                   </div>
-                                  <span className="font-normal text-sm sm:text-base truncate text-black dark:text-white">{`${patient.first_name} ${patient.last_name}`}</span>
+                                  <span className="text-sm md:text-base font-semibold text-black dark:text-white">{sanitizeDisplayName(patient.first_name, patient.last_name)}</span>
                                 </div>
                               </td>
-                              <td className="py-3 px-3 sm:px-4 text-sm sm:text-base hidden sm:table-cell w-[22%] text-black dark:text-white">{formatDate(patient.dob)}</td>
-                              <td className="py-3 px-3 sm:px-4 text-sm sm:text-base w-[36%] text-black dark:text-white">{patient.phone_number}</td>
-                              <td className="py-3 px-3 sm:px-4 w-[20%]">
+                              <td className="py-2 md:py-3 px-2 md:px-4 w-[30%] md:w-[20%]">
+                                <span className="text-sm md:text-base text-black dark:text-white">{formatDate(patient.dob)}</span>
+                              </td>
+                              <td className="py-2 md:py-3 px-2 md:px-4 w-[25%] hidden md:table-cell">
+                                <span className="text-base text-black dark:text-white">{patient.phone_number}</span>
+                              </td>
+                              <td className="py-2 md:py-3 px-2 md:px-4 w-[30%] md:w-[25%]">
                                 <Button
                                   onClick={() => handleViewProfile(patient)}
-                                  className="neumorphic-button-primary text-xs sm:text-sm px-2 sm:px-3 bg-[#e8a855] text-white hover:bg-[#d69645] border-none shadow-md"
+                                  className="neumorphic-button-primary bg-[#e8a855] text-white hover:bg-[#d69645] border-none shadow-md text-xs md:text-sm px-2 md:px-3"
                                   size="sm"
                                 >
-                                  <span className="hidden sm:inline">View Profile</span>
-                                  <span className="sm:hidden">View</span>
+                                  <span className="hidden md:inline">View Profile</span>
+                                  <span className="md:hidden">View</span>
                                 </Button>
                               </td>
                             </tr>
